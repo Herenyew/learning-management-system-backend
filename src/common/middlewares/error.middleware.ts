@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 
-import logger from "../config/logger.js";
-import { env } from "../config/env.js";
-import { AppError, ErrorCode } from "../common/errors/index.js";
+import logger from "../../config/logger.js";
+import { env } from "../../config/env.js";
+import { AppError, ErrorCode } from "../../common/errors/index.js";
 
 export default function errorMiddleware(
   err: Error,

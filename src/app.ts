@@ -8,9 +8,9 @@ import { configureSwagger } from "./config/swagger.js";
 
 import router from "./routes/index.js";
 
-import requestLogger from "./middlewares/request-logger.middleware.js";
-import notFoundMiddleware from "./middlewares/not-found.middleware.js";
-import errorMiddleware from "./middlewares/error.middleware.js";
+import requestLogger from "./common/middlewares/request-logger.middleware.js";
+import notFoundMiddleware from "./common/middlewares/not-found.middleware.js";
+import errorMiddleware from "./common/middlewares/error.middleware.js";
 
 const app = express();
 
