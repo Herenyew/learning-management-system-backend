@@ -62,13 +62,6 @@ enum MilestoneStatus {
   WAIVED
 }
 
-enum DifficultyLevel {
-  BEGINNER
-  INTERMEDIATE
-  ADVANCED
-  EXPERT
-}
-
 enum EnrollmentSource {
   SELF_SERVICE
   ADMIN_ASSIGNED
@@ -112,20 +105,18 @@ enum WaitlistStatus {
   CANCELLED
 }
 
-enum CourseStatus {
-  DRAFT
-  IN_REVIEW
-  APPROVED
-  PUBLISHED
-  ARCHIVED
+enum ContentCategory {
+  RESOURCE
+  INTERACTIVE
 }
 
-enum ChapterStatus {
+enum ContentLifecycleStatus {
   DRAFT
   IN_REVIEW
   APPROVED
   PUBLISHED
   ARCHIVED
+  RETIRED
 }
 
 enum VersionStatus {
@@ -137,11 +128,8 @@ enum VersionStatus {
 enum AudienceType {
   ALL_USERS
   DEPARTMENT
-  JOB_TITLE
-  JOB_LEVEL
-  APP_ROLE
-  EMPLOYMENT_TYPE
-  CUSTOM
+  ROLE
+  AUDIENCE_GROUP
 }
 
 enum ProgressStatus {
@@ -159,23 +147,10 @@ enum ApprovalStatus {
 
 enum AttendanceStatus {
   PRESENT
-  ABSENT
+  ABSENT // which might be planned or excused
   LATE
   PARTIAL
-  NO_SHOW
-}
-
-enum TaskType {
-  COURSE_CONTENT // Link to CourseContent
-  ASSESSMENT // Link to Quiz/Assessment
-  LIVE_SESSION
-  ASSIGNMENT // Requires submission
-  SURVEY
-  MANAGER_CHECKIN
-  PEER_REVIEW
-  EXTERNAL_ACTIVITY
-  READING
-  OTHER
+  NO_SHOW // the person missed the event without warning or explanation
 }
 
 enum TaskSubmissionType {
@@ -183,7 +158,7 @@ enum TaskSubmissionType {
   TEXT_INPUT
   LINK
   QUIZ
-  NONE
+  NONE //Simply view or consume the content
 }
 
 enum TaskStatus {
@@ -203,54 +178,12 @@ enum LearningProgramStatus {
   ARCHIVED
 }
 
-enum AttendanceMethod {
-  QR_CODE
-  MANUAL
-  SYSTEM_AUTO
-  BIOMETRIC
-}
-
-enum AssessmentType {
-  PRE_ASSESSMENT
-  POST_ASSESSMENT
-  CHAPTER_QUIZ
-  COURSE_FINAL
-  PRACTICE
-}
-
-enum AssessmentStatus {
-  DRAFT
-  IN_REVIEW
-  APPROVED
-  PUBLISHED
-  ARCHIVED
-}
-
-enum QuestionType {
-  MULTIPLE_CHOICE
-  TRUE_FALSE
-  SHORT_ANSWER
-  ESSAY
-  MATCHING
-  ORDERING
-  FILL_BLANK
-  MULTI_SELECT
-  DRAG_DROP
-}
-
-enum GradingMethod {
-  HIGHEST_SCORE
-  LATEST_ATTEMPT
-  AVERAGE_SCORE
-  FIRST_ATTEMPT
-}
-
 enum QuestionStatus {
   ACTIVE
   ARCHIVED
 }
 
-enum QuestionVersionApprovalStatus {
+enum AnswerReviewStatus {
   DRAFT
   PENDING_REVIEW
   APPROVED
@@ -264,28 +197,10 @@ enum AttemptStatus {
   EXPIRED
 }
 
-// Certification & Credentials
-enum CertificateType {
-  COURSE_COMPLETION
-  PROGRAM_COMPLETION
-  CERTIFICATION
-  BADGE
-  ATTENDANCE
-  EXTERNAL
-}
-
 enum CertificateStatus {
   ACTIVE
   EXPIRED
   REVOKED
-}
-
-enum TemplateStatus {
-  DRAFT
-  IN_REVIEW
-  APPROVED
-  PUBLISHED
-  ARCHIVED
 }
 
 enum VerificationMethod {
@@ -304,23 +219,6 @@ enum ExternalCredentialStatus {
   REVOKED
 }
 
-enum CredentialSource {
-  MANUAL_UPLOAD
-  API_INTEGRATION
-  EMAIL_SUBMISSION
-  LINKEDIN
-  OTHER
-}
-
-enum ProviderType {
-  CERTIFICATION_BODY
-  UNIVERSITY
-  ONLINE_PLATFORM
-  GOVERNMENT
-  INTERNAL
-  OTHER
-}
-
 enum SessionType {
   VIRTUAL
   PHYSICAL
@@ -332,24 +230,6 @@ enum LiveSessionStatus {
   LIVE
   COMPLETED
   CANCELLED
-}
-
-enum MeetingProvider {
-  ZOOM
-  MICROSOFT_TEAMS
-  GOOGLE_MEET
-  WEBEX
-  INPERSON
-  OTHER
-}
-
-enum SurveyQuestionType {
-  RATING
-  MULTIPLE_CHOICE
-  MULTI_SELECT
-  TEXT
-  YES_NO
-  SCALE
 }
 
 enum SurveyType {
@@ -384,12 +264,6 @@ enum PriorityLevel {
   CRITICAL
 }
 
-enum FundingType {
-  COMPANY_FUNDED
-  SELF_FUNDED
-  SHARED
-}
-
 enum TnaStatus {
   DRAFT
   SUBMITTED
@@ -406,24 +280,6 @@ enum RecommendationSource {
   HR
 }
 
-enum XpRuleCategory {
-  ENROLLMENT
-  COMPLETION
-  ASSESSMENT
-  ENGAGEMENT
-  MANUAL
-}
-
-enum XpTriggerEvent {
-  COURSE_COMPLETED
-  ASSESSMENT_PASSED
-  PERFECT_SCORE
-  PROGRAM_COMPLETED
-  CERTIFICATE_EARNED
-  BADGE_AWARDED
-  MANUAL_ADJUSTMENT
-}
-
 enum XpSourceType {
   COURSE_COMPLETION
   ASSESSMENT_ATTEMPT
@@ -431,23 +287,6 @@ enum XpSourceType {
   CERTIFICATE
   BADGE
   MANUAL
-}
-
-enum BadgeCategory {
-  ACHIEVEMENT
-  MILESTONE
-  STREAK
-  SKILL
-  PARTICIPATION
-}
-
-enum TrainingFormat {
-  ONLINE
-  INSTRUCTOR_LED
-  BLENDED
-  EXTERNAL
-  CONFERENCE
-  ON_THE_JOB
 }
 
 enum SettingCategory {
@@ -467,47 +306,11 @@ enum NotificationChannel {
   PUSH
 }
 
-enum NotificationModule {
-  COURSE
-  PROGRAM
-  ENROLLMENT
-  ASSESSMENT
-  CERTIFICATION
-  LIVE_SESSION
-  SURVEY
-  TNA
-  GAMIFICATION
-  SYSTEM
-}
-
-enum EnrollmentTargetType {
-  COURSE
-  PROGRAM
-  LEARNING_PATH
-}
-
-enum EnrollmentRuleType {
-  AUTO_ENROLL
-  RESTRICT_ACCESS
-  REQUIRE_APPROVAL
-  WAITLIST_PRIORITY
-  CUSTOM
-}
-
 enum SettingDataType {
   STRING
   NUMBER
   BOOLEAN
   JSON
-}
-
-enum ApprovalRole {
-  MANAGER
-  HR
-  FINANCE
-  ADMIN
-  CEO
-  CUSTOM
 }
 
 enum WorkflowEntityType {
@@ -517,7 +320,72 @@ enum WorkflowEntityType {
   TNA_REQUEST
   CERTIFICATE
   LIVE_SESSION
-  OTHER
+}
+
+enum LeaderboardScope {
+  COMPANY
+  DEPARTMENT
+  PROGRAM
+  COURSE
+  GLOBAL
+}
+
+enum RankingCriteria {
+  XP
+  COURSE_COMPLETIONS
+  PROGRAM_COMPLETIONS
+  CERTIFICATES
+  ASSESSMENT_SCORE
+}
+
+enum LeaderboardPeriod {
+  ALL_TIME
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum QuestionAnswerStructure {
+  OPTION_BASED
+  MATCHING_PAIR_BASED
+  FREE_TEXT
+}
+
+enum TargetAudienceEntityType {
+  COURSE
+  LEARNING_PROGRAM
+  ASSESSMENT
+  CERTIFICATE_TEMPLATE
+  LIVE_SESSION
+  COURSE_TEMPLATE
+  PROGRAM_TEMPLATE
+  ASSESSMENT_TEMPLATE
+}
+
+enum ScormTrackingMode {
+  COMPLETION_ONLY
+  SCORE_ONLY
+  COMPLETION_AND_SCORE
+  TIME_ONLY
+}
+
+enum FileOwnerType {
+  COURSE_CONTENT
+  SUBMISSION
+}
+
+enum SubmissionOwnerType {
+  COURSE_CONTENT // assignment given as a lesson within a course (CourseContent.contentType=ASSIGNMENT)
+  PROGRAM_TASK // assignment given as a program task (ProgramTask)
+}
+
+enum TaskLinkedEntity {
+  COURSE_VERSION
+  COURSE_CONTENT
+  ASSESSMENT
+  LIVE_SESSION
+  SURVEY
+  NONE // e.g. a task type that's purely manual/off-platform, no linked entity at all
 }
 
 ///////////////////////////////////////////////////////////
@@ -552,7 +420,7 @@ model Company {
   chapterPrerequisites       ChapterPrerequisite[]
   courseChapters             CourseChapter[]
   courseContents             CourseContent[]
-  contentFiles               ContentFile[]
+  contentFiles               StoredFile[]
   bookmarks                  Bookmark[]
   courseReviews              CourseReview[]
   learningPrograms           LearningProgram[]
@@ -562,7 +430,7 @@ model Company {
   programEnrollments         ProgramEnrollment[]
   programMilestones          ProgramMilestone[]
   programTasks               ProgramTask[]
-  programTaskSubmissions     ProgramTaskSubmission[]
+  Submissions                Submission[]
   enrollments                Enrollment[]
   enrollmentRules            EnrollmentRule[]
   learningProgresses         LearningProgress[]
@@ -596,10 +464,8 @@ model Company {
   effectivenessWeightConfigs EffectivenessWeightConfig[]
   trainingEffectivenesses    TrainingEffectiveness[]
   tnaRequestTypeConfigs      TnaRequestTypeConfig[]
-  tnaApprovalWorkflowSteps   TnaApprovalWorkflowStep[]
   trainingNeedRequests       TrainingNeedRequest[]
   trainingNeedSkills         TrainingNeedSkill[]
-  tnaApprovals               TnaApproval[]
   tnaRecommendations         TnaRecommendation[]
   tnaRecommendationSkills    TnaRecommendationSkill[]
   xpRules                    XpRule[]
@@ -624,7 +490,6 @@ model Company {
   programMilestoneProgresses ProgramMilestoneProgress[]
   relatedCourses             RelatedCourse[]
   courseFAQs                 CourseFAQ[]
-  targetAudiences            TargetAudience[]
   topics                     Topic[]
   employees                  Employee[]
   appUsers                   AppUser[]
@@ -634,6 +499,38 @@ model Company {
   appRoles                   AppRole[]
   lmsPermissions             LmsPermission[]
   lmsRolePermissions         LmsRolePermission[]
+  submissionPeerReviews      SubmissionPeerReview[]
+  audienceGroupRules         AudienceGroupRule[]
+  audienceGroups             AudienceGroup[]
+  targetAudiences            TargetAudience[]
+  difficultyLevels           DifficultyLevel[]
+  taskTypes                  TaskType[]
+  programTags                ProgramTag[]
+  programTagMappings         ProgramTagMapping[]
+  enrollmentRuleTypes        EnrollmentRuleType[]
+  gradingMethods             GradingMethod[]
+  assessmentTypes            AssessmentType[]
+  questionBanks              QuestionBank[]
+  questionTypes              QuestionType[]
+  questionMatchingPairs      QuestionMatchingPair[]
+  assessmentAnswerOptions    AssessmentAnswerOption[]
+  assessmentAnswerMatches    AssessmentAnswerMatch[]
+  certificateTypes           CertificateType[]
+  credentialSources          CredentialSource[]
+  providerTypes              ProviderType[]
+  meetingProviders           MeetingProvider[]
+  attendanceMethods          AttendanceMethod[]
+  surveyQuestionTypes        SurveyQuestionType[]
+  fundingTypes               FundingType[]
+  trainingFormats            TrainingFormat[]
+  tnaEmployees               TnaEmployee[]
+  xpRuleCategories           XpRuleCategory[]
+  xpTriggerEvents            XpTriggerEvent[]
+  leaderboards               Leaderboard[]
+  leaderboardEntries         LeaderboardEntry[]
+  notificationModules        NotificationModule[]
+  approvalWorkflowSteps      ApprovalWorkflowStep[]
+  badgeCategories            BadgeCategory[]
 
   @@map("company")
 }
@@ -642,6 +539,7 @@ model Employee {
   id           String    @id @db.VarChar(20)
   companyId    Int       @map("company_id")
   fullName     String    @map("full_name") @db.VarChar(150)
+  startDate    DateTime? @map("start_date") @db.Date // ADDED — required for "New Hire" audience targeting (hireWithinDays), sourced from EMS Employment.start_date
   isActive     Boolean   @default(true) @map("is_active")
   lastSyncedAt DateTime? @map("last_synced_at")
 
@@ -662,18 +560,20 @@ model Employee {
   bookmarks                  Bookmark[]
   learningPrograms           LearningProgram[]
   programEnrollments         ProgramEnrollment[]
-  programTaskSubmissions     ProgramTaskSubmission[]
+  Submissions                Submission[]
   certificateTemplateSigners CertificateTemplateSigner[]
   certificateVerifications   CertificateVerification[]
   externalCertificates       ExternalCertificate[]
   liveSessionInstructors     LiveSessionInstructor[]
   surveyResponses            SurveyResponse[]
   trainingNeedRequests       TrainingNeedRequest[]
-  tnaApprovals               TnaApproval[]
   xpTransactions             XpTransaction[]
   employeeBadges             EmployeeBadge[]
   approvalWorkflowSteps      ApprovalWorkflowStep[]
   appUsers                   AppUser[]
+  submissionPeerReviews      SubmissionPeerReview[]
+  tnaEmployees               TnaEmployee[]
+  leaderboardEntries         LeaderboardEntry[]
 
   @@map("employee")
 }
@@ -699,6 +599,8 @@ model AppUser {
 
   createdCourses              Course[]                    @relation("CourseCreatedBy")
   updatedCourses              Course[]                    @relation("CourseUpdatedBy")
+  createdCourseContents       CourseContent[]             @relation("CourseContentCreatedBy")
+  updatedCourseContents       CourseContent[]             @relation("CourseContentUpdatedBy")
   createdCourseVersions       CourseVersion[]             @relation("CourseVersionCreatedBy")
   updatedCourseVersions       CourseVersion[]             @relation("CourseVersionUpdatedBy")
   publishedCourseVersions     CourseVersion[]             @relation("CourseVersionPublishedBy")
@@ -719,10 +621,11 @@ model AppUser {
   updatedXpRules              XpRule[]                    @relation("XpRuleUpdatedBy")
   createdAssessments          Assessment[]                @relation("AssessmentCreatedBy")
   updatedAssessments          Assessment[]                @relation("AssessmentUpdatedBy")
+  createdQuestionBanks        QuestionBank[]              @relation("QuestionBankCreator")
+  updatedQuestionBanks        QuestionBank[]              @relation("QuestionBankUpdater")
   gradedAttempts              AssessmentAttempt[]         @relation("GradedBy")
   createdPrograms             LearningProgram[]           @relation("ProgramCreatedBy")
   updatedPrograms             LearningProgram[]           @relation("ProgramUpdatedBy")
-  reviewedSubmissions         ProgramTaskSubmission[]     @relation("TaskReviewer")
   assignedEnrollments         Enrollment[]                @relation("EnrollmentAssignedBy")
   approvedEnrollments         Enrollment[]                @relation("EnrollmentApprovedBy")
   enrollmentRuleCreator       EnrollmentRule[]            @relation("EnrollmentRuleCreator")
@@ -747,17 +650,20 @@ model AppUser {
   updatedLearningPathTemplate LearningPathTemplate[]      @relation("LearningPathTemplateUpdater")
   createdSurveyTemplate       SurveyTemplate[]            @relation("SurveyTemplateCreator")
   updatedSurveyTemplate       SurveyTemplate[]            @relation("SurveyTemplateUpdater")
+  createdAudienceGroup        AudienceGroup[]             @relation("AudienceGroupCreatedBy")
+  updatedAudienceGroup        AudienceGroup[]             @relation("AudienceGroupUpdatedBy")
+  submittedApprovalInstances  ApprovalWorkflowInstance[]  @relation("ApprovalInstanceSubmittedBy")
+  approvalDecisions           ApprovalDecision[]          @relation("ApprovalDecisionMadeBy")
   courseInstructors           CourseInstructor[]
   employeeSkillAssessments    EmployeeSkillAssessment[]
-  contentFiles                ContentFile[]
+  storedFiles                 StoredFile[]
   courseReviews               CourseReview[]
   programEnrollments          ProgramEnrollment[]
   enrollmentActivityLogs      EnrollmentActivityLog[]
   questions                   Question[]
   questionVersions            QuestionVersion[]
   assessmentAnswers           AssessmentAnswer[]
-  submittedApprovalInstances  ApprovalWorkflowInstance[]  @relation("ApprovalInstanceSubmittedBy")
-  approvalDecisions           ApprovalDecision[]          @relation("ApprovalDecisionMadeBy")
+  Submissions                 Submission[]
   effectivenessWeightConfigs  EffectivenessWeightConfig[]
   systemSettings              SystemSetting[]
 
@@ -776,6 +682,7 @@ model Department {
   company              Company               @relation(fields: [companyId], references: [id])
   employees            Employee[]
   trainingNeedRequests TrainingNeedRequest[]
+  audienceGroupRules   AudienceGroupRule[]
   targetAudiences      TargetAudience[]
 
   @@unique([companyId, name])
@@ -790,11 +697,11 @@ model JobTitle {
   isActive     Boolean   @default(true)
   lastSyncedAt DateTime?
 
-  company                  Company                   @relation(fields: [companyId], references: [id])
-  employees                Employee[]
-  tnaApprovalWorkflowSteps TnaApprovalWorkflowStep[]
-  trainingNeedRequests     TrainingNeedRequest[]
-  targetAudiences          TargetAudience[]
+  company   Company    @relation(fields: [companyId], references: [id])
+  employees Employee[]
+
+  trainingNeedRequests TrainingNeedRequest[]
+  audienceGroupRules   AudienceGroupRule[]
 
   @@unique([companyId, name])
   @@index([companyId])
@@ -808,12 +715,32 @@ model JobLevel {
   isActive     Boolean   @default(true)
   lastSyncedAt DateTime?
 
-  company         Company          @relation(fields: [companyId], references: [id])
-  targetAudiences TargetAudience[]
+  company            Company             @relation(fields: [companyId], references: [id])
+  audienceGroupRules AudienceGroupRule[]
 
   @@unique([companyId, name])
   @@index([companyId])
   @@map("job_level")
+}
+
+model AppRole {
+  id           Int       @id
+  companyId    Int
+  name         String    @db.VarChar(100)
+  description  String?
+  isActive     Boolean   @default(true)
+  lastSyncedAt DateTime?
+
+  company               Company                @relation(fields: [companyId], references: [id])
+  appUsers              AppUser[]
+  lmsPermissions        LmsRolePermission[]
+  audienceGroupRules    AudienceGroupRule[]
+  targetAudiences       TargetAudience[]
+  approvalWorkflowSteps ApprovalWorkflowStep[]
+
+  @@unique([companyId, name])
+  @@index([companyId])
+  @@map("app_role")
 }
 
 // This model is for LMS-specific permissions not stored in EMS database
@@ -853,22 +780,227 @@ model LmsRolePermission {
   @@map("lms_role_permissions")
 }
 
-model AppRole {
-  id           Int       @id
-  companyId    Int
-  name         String    @db.VarChar(100)
-  description  String?
-  isActive     Boolean   @default(true)
-  lastSyncedAt DateTime?
+///////////////////////////////////////////////////////////
+// SHARED SCHEMAS
+///////////////////////////////////////////////////////////
+model StoredFile {
+  id        Int @id @default(autoincrement())
+  companyId Int
 
-  company         Company             @relation(fields: [companyId], references: [id])
-  appUsers        AppUser[]
-  lmsPermissions  LmsRolePermission[]
+  ownerType FileOwnerType
+  ownerId   Int
+
+  fileTypeId       Int?
+  originalFileName String  @db.VarChar(255)
+  storedFileName   String  @db.VarChar(255)
+  mimeType         String  @db.VarChar(100)
+  fileExtension    String? @db.VarChar(20)
+  fileSizeBytes    BigInt
+
+  checksum        String?
+  storageProvider String? @db.VarChar(50)
+  bucket          String? @db.VarChar(255)
+  objectKey       String? @db.VarChar(1000)
+  region          String? @db.VarChar(100)
+
+  version  Int     @default(1)
+  isActive Boolean @default(true)
+
+  uploadedBy Int?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  company         Company          @relation(fields: [companyId], references: [id])
+  fileType        ContentFileType? @relation(fields: [fileTypeId], references: [id])
+  uploadedByUser  AppUser?         @relation(fields: [uploadedBy], references: [id])
+  courseContent   CourseContent?   @relation(fields: [courseContentId], references: [id])
+  courseContentId Int?
+
+  @@index([companyId])
+  @@index([ownerType, ownerId])
+  @@index([fileTypeId])
+  @@map("stored_files")
+}
+
+model Submission {
+  id        Int @id @default(autoincrement())
+  companyId Int
+
+  ownerType SubmissionOwnerType
+  ownerId   Int // CourseContent.id or ProgramTask.id, depending on ownerType
+
+  enrollmentId Int?
+  employeeId   String @db.VarChar(20)
+
+  submissionNo   Int                @default(1) // retry/resubmission support, same pattern as AssessmentAttempt.attemptNo
+  submissionType TaskSubmissionType // reused enum — FILE_UPLOAD/TEXT_INPUT/LINK/QUIZ/NONE
+  status         TaskStatus
+
+  textAnswer    String? @db.Text
+  submissionUrl String?
+
+  dueDate       DateTime?
+  submittedAt   DateTime?
+  reviewedAt    DateTime?
+  reviewedBy    Int?
+  score         Decimal?  @db.Decimal(5, 2)
+  reviewComment String?   @db.Text
+
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  company        Company     @relation(fields: [companyId], references: [id])
+  enrollment     Enrollment? @relation(fields: [enrollmentId], references: [id])
+  employee       Employee    @relation(fields: [employeeId], references: [id])
+  reviewedByUser AppUser?    @relation(fields: [reviewedBy], references: [id])
+
+  peerReviews   SubmissionPeerReview[]
+  programTask   ProgramTask?           @relation(fields: [programTaskId], references: [id])
+  programTaskId Int?
+
+  // Files: query StoredFile where ownerType=SUBMISSION, ownerId=this.id
+  // (no Prisma relation possible — same polymorphic limitation as
+  // TargetAudience/AudienceGroup; use a service-layer lookup instead)
+  @@unique([ownerType, ownerId, employeeId, submissionNo])
+  @@index([companyId])
+  @@index([ownerType, ownerId])
+  @@index([enrollmentId])
+  @@map("submissions")
+}
+
+model SubmissionPeerReview {
+  id                 Int    @id @default(autoincrement())
+  companyId          Int
+  submissionId       Int
+  reviewerEmployeeId String @db.VarChar(20)
+
+  reviewText String?  @db.Text
+  rating     Int?
+  reviewedAt DateTime @default(now())
+
+  company    Company    @relation(fields: [companyId], references: [id])
+  submission Submission @relation(fields: [submissionId], references: [id])
+  reviewer   Employee   @relation(fields: [reviewerEmployeeId], references: [id])
+
+  @@unique([submissionId, reviewerEmployeeId])
+  @@index([companyId])
+  @@map("submission_peer_reviews")
+}
+
+// One or more rules per audience.
+// Rules are simple conditions (e.g., Department = Finance).
+// External logic can handle dynamic criteria (e.g., hire date).
+// Extensible without modifying the core model.
+model AudienceGroupRule {
+  id Int @id @default(autoincrement())
+
+  companyId       Int
+  audienceGroupId Int
+
+  departmentId Int?
+  appRoleId    Int?
+  jobTitleId   Int?
+  jobLevelId   Int?
+
+  employmentType String? @db.VarChar(20)
+  hireWithinDays Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+
+  company       Company       @relation(fields: [companyId], references: [id])
+  audienceGroup AudienceGroup @relation(fields: [audienceGroupId], references: [id])
+  department    Department?   @relation(fields: [departmentId], references: [id])
+  appRole       AppRole?      @relation(fields: [appRoleId], references: [id])
+  jobTitle      JobTitle?     @relation(fields: [jobTitleId], references: [id])
+  jobLevel      JobLevel?     @relation(fields: [jobLevelId], references: [id])
+
+  @@index([companyId])
+  @@index([audienceGroupId])
+  @@index([departmentId])
+  @@index([jobTitleId])
+  @@index([jobLevelId])
+  @@index([appRoleId])
+  @@map("audience_group_rules")
+}
+
+// Attach to Courses, Programs, Templates, etc.
+// Examples: New Hires, Finance Managers, Sales Team.
+// Membership logic is defined separately in AudienceGroupRule.
+model AudienceGroup {
+  id          Int     @id @default(autoincrement())
+  companyId   Int
+  name        String  @db.VarChar(100)
+  description String? @db.Text
+
+  isActive Boolean @default(true)
+
+  createdBy Int
+  updatedBy Int?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  // Relations
+  company       Company  @relation(fields: [companyId], references: [id])
+  createdByUser AppUser  @relation("AudienceGroupCreatedBy", fields: [createdBy], references: [id])
+  updatedByUser AppUser? @relation("AudienceGroupUpdatedBy", fields: [updatedBy], references: [id])
+
+  /// Rules that determine which employees belong
+  /// to this audience.
+  rules AudienceGroupRule[]
+
   targetAudiences TargetAudience[]
 
   @@unique([companyId, name])
   @@index([companyId])
-  @@map("app_role")
+  @@map("audience_groups")
+}
+
+model TargetAudience {
+  id        Int @id @default(autoincrement())
+  companyId Int
+
+  // Owner
+  entityType TargetAudienceEntityType
+  entityId   Int
+
+  // Targeting Method
+  audienceType AudienceType
+
+  // Target Filters
+  departmentId    Int?
+  appRoleId       Int?
+  audienceGroupId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // EMS Relations
+  company              Company               @relation(fields: [companyId], references: [id])
+  department           Department?           @relation(fields: [departmentId], references: [id])
+  appRole              AppRole?              @relation(fields: [appRoleId], references: [id])
+  audienceGroup        AudienceGroup?        @relation(fields: [audienceGroupId], references: [id])
+  enrollmentRules      EnrollmentRule[]
+  trainingNeedRequests TrainingNeedRequest[]
+  tnaRecommendations   TnaRecommendation[]
+  xpRules              XpRule[]
+  badgeRules           BadgeRule[]
+  leaderboards         Leaderboard[]
+
+  @@index([companyId])
+  @@index([entityType, entityId])
+  @@index([departmentId])
+  @@index([appRoleId])
+  @@index([audienceGroupId])
+  @@map("target_audiences")
 }
 
 ///////////////////////////////////////////////////////////
@@ -902,33 +1034,32 @@ model Course {
 
   // Coarse container-level flag only. Authoritative workflow state is
   // CourseVersion.status + CourseVersion.approvalStatus.
-  status            CourseStatus         @default(DRAFT)
-  targetAudiences   TargetAudience[]
-  isTemplate        Boolean              @default(false)
+  status            ContentLifecycleStatus @default(DRAFT)
+  isTemplate        Boolean                @default(false)
   sourceTemplateId  Int?
   createdBy         Int
   updatedBy         Int?
-  createdAt         DateTime             @default(now())
-  updatedAt         DateTime             @updatedAt
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
   deletedAt         DateTime?
-  company           Company              @relation(fields: [companyId], references: [id])
-  category          CourseCategory       @relation(fields: [categoryId], references: [id])
-  contactEmployee   Employee?            @relation(fields: [contactEmployeeId], references: [id])
-  ownerEmployee     Employee?            @relation("CourseOwner", fields: [ownerEmployeeId], references: [id])
-  createdByUser     AppUser              @relation("CourseCreatedBy", fields: [createdBy], references: [id])
-  updatedByUser     AppUser?             @relation("CourseUpdatedBy", fields: [updatedBy], references: [id])
-  sourceTemplate    Course?              @relation("TemplateInstances", fields: [sourceTemplateId], references: [id])
-  templateInstances Course[]             @relation("TemplateInstances")
+  company           Company                @relation(fields: [companyId], references: [id])
+  category          CourseCategory         @relation(fields: [categoryId], references: [id])
+  contactEmployee   Employee?              @relation(fields: [contactEmployeeId], references: [id])
+  ownerEmployee     Employee?              @relation("CourseOwner", fields: [ownerEmployeeId], references: [id])
+  createdByUser     AppUser                @relation("CourseCreatedBy", fields: [createdBy], references: [id])
+  updatedByUser     AppUser?               @relation("CourseUpdatedBy", fields: [updatedBy], references: [id])
+  sourceTemplate    Course?                @relation("TemplateInstances", fields: [sourceTemplateId], references: [id])
+  templateInstances Course[]               @relation("TemplateInstances")
   versions          CourseVersion[]
   bookmarks         Bookmark[]
   reviews           CourseReview[]
-  prerequisites     CoursePrerequisite[] @relation("CoursePrerequisites")
-  requiredBy        CoursePrerequisite[] @relation("RequiredCourses")
+  prerequisites     CoursePrerequisite[]   @relation("CoursePrerequisites")
+  requiredBy        CoursePrerequisite[]   @relation("RequiredCourses")
   skills            CourseSkill[]
   tags              CourseTagMapping[]
   courseFAQs        CourseFAQ[]
-  relatedFrom       RelatedCourse[]      @relation("CourseRelations")
-  relatedTo         RelatedCourse[]      @relation("RelatedTo")
+  relatedFrom       RelatedCourse[]        @relation("CourseRelations")
+  relatedTo         RelatedCourse[]        @relation("RelatedTo")
 
   @@unique([companyId, code])
   @@unique([companyId, categoryId, title])
@@ -940,32 +1071,64 @@ model Course {
   @@map("courses")
 }
 
+model DifficultyLevel {
+  id        Int  @id @default(autoincrement())
+  companyId Int?
+
+  code        String  @unique @db.VarChar(50)
+  name        String  @db.VarChar(100)
+  description String? @db.Text
+
+  displayOrder Int @default(0)
+
+  color String? @db.VarChar(20)
+  icon  String? @db.VarChar(100)
+
+  isSystem Boolean @default(false) // ADDED — protects platform-default rows (companyId=null) from being edited/deleted by a company admin, consistent with AssessmentType/GradingMethod/QuestionType/FundingType/TrainingFormat
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company Company? @relation(fields: [companyId], references: [id])
+
+  courseVersions       CourseVersion[]
+  assessmentBlueprints AssessmentBlueprint[]
+  questions            Question[]
+  courseTemplates      CourseTemplate[]
+
+  @@unique([companyId, code])
+  @@index([companyId])
+  @@map("difficulty_levels")
+}
+
 model CourseVersion {
   id        Int @id @default(autoincrement())
   companyId Int
   courseId  Int
 
   // Version fields - integer-based for proper sorting
-  majorVersion Int     @default(1) // e.g. 1, 2, 3
-  minorVersion Int     @default(0) // e.g. 0, 1, 2
-  versionLabel String? @db.VarChar(50) // cosmetic only: "beta", "rc1", "hotfix"
-  changeLog    String? //Very useful for version history.
+  majorVersion      Int     @default(1) // e.g. 1, 2, 3
+  minorVersion      Int     @default(0) // e.g. 0, 1, 2
+  versionLabel      String? @db.VarChar(50) // cosmetic only: "beta", "rc1", "hotfix"
+  changeLog         String? //Very useful for version history.
+  difficultyLevelId Int
 
   // Course configuration — authoritative for enrollability.
   // Course.status is informational/catalog-filtering only; never gate
   // enrollment on Course.status alone — always check here.
-  status                   VersionStatus   @default(DRAFT)
-  approvalStatus           ApprovalStatus  @default(PENDING)
-  difficultyLevel          DifficultyLevel
+  status         VersionStatus  @default(DRAFT)
+  approvalStatus ApprovalStatus @default(PENDING)
+
   estimatedDurationMinutes Int?
-  passingScore             Decimal         @db.Decimal(5, 2)
-  completionThreshold      Decimal         @db.Decimal(5, 2)
-  certificateRequired      Boolean         @default(true)
-  attendanceRequired       Boolean         @default(false)
-  minimumAttendance        Decimal?        @db.Decimal(5, 2)
+  requiredAssessmentScore  Decimal  @db.Decimal(5, 2)
+  completionThreshold      Decimal  @db.Decimal(5, 2)
+  certificateRequired      Boolean  @default(true)
+  attendanceRequired       Boolean  @default(false)
+  minimumAttendance        Decimal? @db.Decimal(5, 2)
   allowDownload            Boolean
   capacity                 Int?
-  isCurrent                Boolean         @default(false) //Makes fetching latest version easy.
+  isCurrent                Boolean  @default(false) //Makes fetching latest version easy.
   previewAvailable         Boolean
 
   // Publishing metadata
@@ -985,32 +1148,34 @@ model CourseVersion {
   deletedAt DateTime?
 
   // Relations
-  company             Company              @relation(fields: [companyId], references: [id])
-  course              Course               @relation(fields: [courseId], references: [id])
-  createdByUser       AppUser              @relation("CourseVersionCreatedBy", fields: [createdBy], references: [id])
-  updatedByUser       AppUser?             @relation("CourseVersionUpdatedBy", fields: [updatedBy], references: [id])
-  publishedByUser     AppUser?             @relation("CourseVersionPublishedBy", fields: [publishedBy], references: [id])
-  approvedByUser      AppUser?             @relation("CourseVersionApprovedBy", fields: [approvedBy], references: [id])
+  difficultyLevel     DifficultyLevel       @relation(fields: [difficultyLevelId], references: [id])
+  company             Company               @relation(fields: [companyId], references: [id])
+  course              Course                @relation(fields: [courseId], references: [id])
+  createdByUser       AppUser               @relation("CourseVersionCreatedBy", fields: [createdBy], references: [id])
+  updatedByUser       AppUser?              @relation("CourseVersionUpdatedBy", fields: [updatedBy], references: [id])
+  publishedByUser     AppUser?              @relation("CourseVersionPublishedBy", fields: [publishedBy], references: [id])
+  approvedByUser      AppUser?              @relation("CourseVersionApprovedBy", fields: [approvedBy], references: [id])
   chapters            CourseChapter[]
   instructors         CourseInstructor[]
   enrollments         Enrollment[]
   assessments         Assessment[]
-  certificateTemplate CertificateTemplate?
-  liveSessions        LiveSession[]        @relation("CourseVersionLiveSessions")
+  certificateTemplate CertificateTemplate[]
+  liveSessions        LiveSession[]         @relation("CourseVersionLiveSessions")
   surveys             Survey[]
   announcements       CourseAnnouncement[]
   programCourses      ProgramCourse[]
   tnaRecommendations  TnaRecommendation[]
-  enrollmentRules     EnrollmentRule[]     @relation("EnrollmentRuleCourseVersion")
-  //courseRelatedTo     RelatedCourse[]            @relation("RelatedTo")
+  enrollmentRules     EnrollmentRule[]      @relation("EnrollmentRuleCourseVersion")
+  //courseRelatedTo     RelatedCourse[]    @relation("RelatedTo")
 
   approvalInstances ApprovalWorkflowInstance[]
   xpRules           XpRule[]
   programTasks      ProgramTask[]
   courseFAQs        CourseFAQ[]
 
-  // One course can have only one version per major.minor combination
   @@unique([courseId, majorVersion, minorVersion])
+  // One course can have only one version per major.minor combination
+  @@index([difficultyLevelId])
   @@index([companyId])
   @@index([courseId, status])
   @@index([publishDate])
@@ -1124,6 +1289,7 @@ model CourseCategory {
   updatedByUser   AppUser?         @relation("CourseCategoryUpdatedBy", fields: [updatedBy], references: [id])
   courses         Course[]
   courseTemplates CourseTemplate[]
+  questionBanks   QuestionBank[]
 
   // Constraints & Indexes
   @@unique([companyId, name])
@@ -1269,19 +1435,20 @@ model CourseChapter {
   companyId       Int
   courseVersionId Int
 
-  title         String                @db.VarChar(255)
-  description   String?               @db.Text
-  displayOrder  Int
-  status        ChapterStatus         @default(DRAFT)
-  isRequired    Boolean               @default(true)
-  createdAt     DateTime              @default(now())
-  updatedAt     DateTime              @updatedAt
-  deletedAt     DateTime?
-  company       Company               @relation(fields: [companyId], references: [id])
-  courseVersion CourseVersion         @relation(fields: [courseVersionId], references: [id])
-  contents      CourseContent[]
-  prerequisites ChapterPrerequisite[] @relation("ChapterPrerequisites")
-  requiredBy    ChapterPrerequisite[] @relation("RequiredChapters")
+  title            String                 @db.VarChar(255)
+  description      String?                @db.Text
+  displayOrder     Int
+  estimatedMinutes Decimal?
+  status           ContentLifecycleStatus @default(DRAFT)
+  isRequired       Boolean                @default(true)
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  deletedAt        DateTime?
+  company          Company                @relation(fields: [companyId], references: [id])
+  courseVersion    CourseVersion          @relation(fields: [courseVersionId], references: [id])
+  contents         CourseContent[]
+  prerequisites    ChapterPrerequisite[]  @relation("ChapterPrerequisites")
+  requiredBy       ChapterPrerequisite[]  @relation("RequiredChapters")
 
   @@unique([courseVersionId, displayOrder])
   @@index([companyId])
@@ -1305,82 +1472,79 @@ model ChapterPrerequisite {
 }
 
 model CourseContent {
-  id                  Int                @id @default(autoincrement())
-  companyId           Int
-  chapterId           Int
-  contentTypeId       Int
-  title               String             @db.VarChar(255)
-  description         String?            @db.Text
-  displayOrder        Int
-  durationMinutes     Int?
-  externalUrl         String?
-  isRequired          Boolean            @default(true)
-  allowDownload       Boolean            @default(false)
-  transcriptUrl       String?
-  pageCount           Int?
-  completionThreshold Decimal?           @db.Decimal(5, 2)
-  minimumTimeMinutes  Int?
-  scormLaunchUrl      String?
-  scormTrackingMode   String?            @db.VarChar(50)
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
-  deletedAt           DateTime?
-  contentType         ContentType        @relation(fields: [contentTypeId], references: [id])
-  company             Company            @relation(fields: [companyId], references: [id])
-  chapter             CourseChapter      @relation(fields: [chapterId], references: [id])
-  files               ContentFile[]
-  assessments         Assessment[]
-  lessonProgress      LessonProgress[]
-  learningProgresses  LearningProgress[]
-  programTasks        ProgramTask[]
+  id Int @id @default(autoincrement())
+
+  companyId     Int
+  chapterId     Int
+  contentTypeId Int
+
+  // Common metadata
+  title         String  @db.VarChar(255)
+  description   String? @db.Text
+  displayOrder  Int
+  transcriptUrl String?
+  thumbnailUrl  String?
+  openInNewTab  Boolean @default(true)
+
+  isRequired               Boolean  @default(true)
+  estimatedDurationMinutes Int?
+  completionThreshold      Decimal? @db.Decimal(5, 2)
+  minimumTimeMinutes       Int?
+  allowDownload            Boolean  @default(false)
+  additionalLink           String?  @db.VarChar(500)
+
+  // Optional metadata depending on ContentType
+
+  maxSubmissions    Int?    @default(1)
+  allowResubmission Boolean @default(false)
+
+  requiresManagerApproval    Boolean @default(false) // Line manager
+  requiresInstructorApproval Boolean @default(false) // Course instructor / owner
+  peerReviewRequired         Boolean @default(false)
+
+  pageCount         Int?
+  externalUrl       String?            @db.VarChar(1000)
+  scormLaunchUrl    String?            @db.VarChar(1000)
+  scormTrackingMode ScormTrackingMode?
+
+  createdBy Int
+  updatedBy Int?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  company     Company       @relation(fields: [companyId], references: [id])
+  chapter     CourseChapter @relation(fields: [chapterId], references: [id])
+  contentType ContentType   @relation(fields: [contentTypeId], references: [id])
+
+  creator AppUser  @relation("CourseContentCreatedBy", fields: [createdBy], references: [id])
+  updater AppUser? @relation("CourseContentUpdatedBy", fields: [updatedBy], references: [id])
+
+  files              StoredFile[]
+  lessonProgress     LessonProgress[]
+  learningProgresses LearningProgress[]
+  assessments        Assessment[]
+  programTasks       ProgramTask[]
 
   @@unique([chapterId, displayOrder])
   @@index([companyId])
   @@map("course_contents")
 }
 
-model ContentFile {
-  id               Int             @id @default(autoincrement())
-  companyId        Int
-  contentId        Int
-  fileTypeId       Int
-  originalFileName String          @db.VarChar(255)
-  storedFileName   String          @db.VarChar(255)
-  mimeType         String          @db.VarChar(100)
-  fileExtension    String?         @db.VarChar(20)
-  fileSizeBytes    BigInt
-  checksum         String? //duplicate detection.
-  s3Bucket         String          @db.VarChar(255)
-  s3Key            String          @db.VarChar(1000)
-  s3Region         String?         @db.VarChar(100)
-  version          Int             @default(1)
-  isActive         Boolean         @default(true)
-  uploadedBy       Int?
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  deletedAt        DateTime?
-  fileType         ContentFileType @relation(fields: [fileTypeId], references: [id])
-  company          Company         @relation(fields: [companyId], references: [id])
-  content          CourseContent   @relation(fields: [contentId], references: [id])
-  uploadedByUser   AppUser?        @relation(fields: [uploadedBy], references: [id])
-
-  @@index([companyId])
-  @@index([contentId])
-  @@index([fileTypeId])
-  @@index([s3Key])
-  @@map("content_files")
-}
-
 model ContentType {
-  id          Int     @id @default(autoincrement())
-  slug        String  @unique
+  id Int @id @default(autoincrement())
+
+  slug        String          @unique
   name        String
+  category    ContentCategory
   description String?
   icon        String?
-  isActive    Boolean @default(true)
-  sortOrder   Int     @default(0)
 
-  contents CourseContent[]
+  isActive Boolean @default(true)
+
+  sortOrder Int             @default(0)
+  contents  CourseContent[]
 }
 
 model ContentFileType {
@@ -1392,7 +1556,7 @@ model ContentFileType {
   isActive    Boolean @default(true)
   sortOrder   Int     @default(0)
 
-  files ContentFile[]
+  files StoredFile[]
 }
 
 model Bookmark {
@@ -1488,59 +1652,6 @@ model CourseFAQ {
   @@map("course_faqs")
 }
 
-model TargetAudience {
-  id         Int    @id @default(autoincrement())
-  companyId  Int
-  entityType String @db.VarChar(20) // "COURSE" | "PROGRAM"
-  entityId   Int // course.id or learningProgram.id
-
-  audienceType AudienceType
-
-  // References to EMS entities
-  departmentId   Int
-  jobTitleId     Int?
-  jobLevelId     Int?
-  appRoleId      Int?
-  employmentType String? @db.VarChar(50) // NEW_HIRE, FULL_TIME, CONTRACT, etc.
-
-  customValue String? @db.VarChar(100) // fallback
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  company               Company               @relation(fields: [companyId], references: [id])
-  department            Department?           @relation(fields: [departmentId], references: [id])
-  jobTitle              JobTitle?             @relation(fields: [jobTitleId], references: [id])
-  jobLevel              JobLevel?             @relation(fields: [jobLevelId], references: [id])
-  appRole               AppRole?              @relation(fields: [appRoleId], references: [id])
-  course                Course?               @relation(fields: [courseId], references: [id])
-  courseId              Int?
-  learningProgram       LearningProgram?      @relation(fields: [learningProgramId], references: [id])
-  learningProgramId     Int?
-  enrollmentRules       EnrollmentRule[]
-  assessment            Assessment?           @relation(fields: [assessmentId], references: [id])
-  assessmentId          Int?
-  certificateTemplate   CertificateTemplate?  @relation(fields: [certificateTemplateId], references: [id])
-  certificateTemplateId Int?
-  liveSession           LiveSession?          @relation(fields: [liveSessionId], references: [id])
-  liveSessionId         Int?
-  trainingNeedRequests  TrainingNeedRequest[]
-  tnaRecommendations    TnaRecommendation[]
-  xpRules               XpRule[]
-  badgeRules            BadgeRule[]
-  courseTemplate        CourseTemplate?       @relation(fields: [courseTemplateId], references: [id])
-  courseTemplateId      Int?
-  programTemplate       ProgramTemplate?      @relation(fields: [programTemplateId], references: [id])
-  programTemplateId     Int?
-  assessmentTemplate    AssessmentTemplate?   @relation(fields: [assessmentTemplateId], references: [id])
-  assessmentTemplateId  Int?
-
-  @@unique([entityType, entityId, audienceType, departmentId, jobTitleId, jobLevelId, appRoleId])
-  @@index([companyId])
-  @@index([entityType, entityId])
-  @@map("target_audiences")
-}
-
 ///////////////////////////////////////////////////////////
 // LEARNING PROGRAMS
 ///////////////////////////////////////////////////////////
@@ -1581,15 +1692,14 @@ model LearningProgram {
   tasks               ProgramTask[]
   tnaRecommendations  TnaRecommendation[]
   enrollmentRules     EnrollmentRule[]           @relation("EnrollmentRuleProgram")
-  certificateTemplate CertificateTemplate?
+  certificateTemplate CertificateTemplate[]
   approvalInstances   ApprovalWorkflowInstance[]
   xpRules             XpRule[]
 
-  targetAudiences TargetAudience[]
-
-  programCategoryId Int?
-  programCategory   ProgramCategory? @relation(fields: [programCategoryId], references: [id])
-  liveSessions      LiveSession[]
+  programCategoryId  Int?
+  programCategory    ProgramCategory?    @relation(fields: [programCategoryId], references: [id])
+  liveSessions       LiveSession[]
+  programTagMappings ProgramTagMapping[]
 
   @@index([companyId])
   @@map("learning_programs")
@@ -1733,35 +1843,68 @@ model ProgramMilestoneProgress {
   @@map("program_milestone_progresses")
 }
 
-model ProgramTask {
+model TaskType {
   id          Int     @id @default(autoincrement())
   companyId   Int
-  programId   Int
+  name        String  @db.VarChar(100)
+  slug        String  @db.VarChar(80)
+  description String?
+  icon        String?
+
+  expectedSubmissionType TaskSubmissionType // reuses your existing enum
+  linkedEntity           TaskLinkedEntity // ADDED — tells app code which single polymorphic FK on ProgramTask should be populated for tasks of this type
+
+  isSystem  Boolean  @default(false)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company Company       @relation(fields: [companyId], references: [id])
+  tasks   ProgramTask[]
+
+  @@unique([companyId, name])
+  @@unique([companyId, slug])
+  @@index([companyId])
+  @@map("task_types")
+}
+
+model ProgramTask {
+  id        Int @id @default(autoincrement())
+  companyId Int
+  programId Int
+
   title       String  @db.VarChar(255)
   description String? @db.Text
 
-  taskType TaskType // refined enum
+  taskTypeId Int
 
-  // Linking (Polymorphic - only one should be filled based on taskType)
   courseVersionId Int?
   courseContentId Int?
   assessmentId    Int?
   liveSessionId   Int?
   surveyId        Int?
 
+  maxSubmissions    Int?    @default(1)
+  allowResubmission Boolean @default(false)
+
   isRequired   Boolean @default(true)
   isBlocking   Boolean @default(false)
   displayOrder Int
   phaseNumber  Int?
 
-  dueDate            DateTime?
-  dueOffsetDays      Int?
+  // dueDate (absolute) takes precedence if set. dueOffsetDays (relative
+  // to program enrollment date) is used only when dueDate is null.
+  // A task should realistically use one or the other, not both.
+  dueDate       DateTime?
+  dueOffsetDays Int?
+
   minimumTimeMinutes Int?
-  minimumScore       Decimal?  @db.Decimal(5, 2)
-  minimumAttendance  Decimal?  @db.Decimal(5, 2)
+  minimumScore       Decimal? @db.Decimal(5, 2)
+  minimumAttendance  Decimal? @db.Decimal(5, 2)
 
   requiresManagerApproval Boolean @default(false)
   peerReviewRequired      Boolean @default(false)
+  requiredPeerReviewCount Int?    @default(3) // ADDED — how many distinct peer reviews are needed when peerReviewRequired=true
 
   xpAward Int?
 
@@ -1769,45 +1912,55 @@ model ProgramTask {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  company       Company         @relation(fields: [companyId], references: [id])
-  program       LearningProgram @relation(fields: [programId], references: [id])
-  courseVersion CourseVersion?  @relation(fields: [courseVersionId], references: [id])
-  courseContent CourseContent?  @relation(fields: [courseContentId], references: [id])
-  assessment    Assessment?     @relation(fields: [assessmentId], references: [id])
-  liveSession   LiveSession?    @relation(fields: [liveSessionId], references: [id])
-  survey        Survey?         @relation(fields: [surveyId], references: [id])
+  company  Company         @relation(fields: [companyId], references: [id])
+  program  LearningProgram @relation(fields: [programId], references: [id])
+  taskType TaskType        @relation(fields: [taskTypeId], references: [id])
 
-  submissions ProgramTaskSubmission[]
+  courseVersion CourseVersion? @relation(fields: [courseVersionId], references: [id])
+  courseContent CourseContent? @relation(fields: [courseContentId], references: [id])
+  assessment    Assessment?    @relation(fields: [assessmentId], references: [id])
+  liveSession   LiveSession?   @relation(fields: [liveSessionId], references: [id])
+  survey        Survey?        @relation(fields: [surveyId], references: [id])
+
+  submissions Submission[]
 
   @@unique([programId, displayOrder])
   @@index([companyId])
+  @@index([taskTypeId])
   @@map("program_tasks")
 }
 
-model ProgramTaskSubmission {
-  id             Int         @id @default(autoincrement())
-  companyId      Int
-  taskId         Int
-  employeeId     String      @db.VarChar(20)
-  status         TaskStatus
-  submittedAt    DateTime?
-  reviewedAt     DateTime?
-  reviewedBy     Int?
-  score          Decimal?    @db.Decimal(5, 2)
-  remarks        String?     @db.Text
-  submissionText String?     @db.Text
-  submissionUrl  String?
-  fileUrl        String?
-  completedAt    DateTime?
-  deletedAt      DateTime?
-  company        Company     @relation(fields: [companyId], references: [id])
-  task           ProgramTask @relation(fields: [taskId], references: [id])
-  employee       Employee    @relation(fields: [employeeId], references: [id])
-  reviewer       AppUser?    @relation("TaskReviewer", fields: [reviewedBy], references: [id])
+model ProgramTag {
+  id        Int      @id @default(autoincrement())
+  companyId Int
+  name      String   @db.VarChar(100)
+  color     String?  @db.VarChar(20)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@unique([taskId, employeeId])
+  company  Company             @relation(fields: [companyId], references: [id])
+  mappings ProgramTagMapping[]
+
+  @@unique([companyId, name])
   @@index([companyId])
-  @@map("program_task_submissions")
+  @@map("program_tags")
+}
+
+model ProgramTagMapping {
+  id        Int      @id @default(autoincrement())
+  companyId Int
+  programId Int
+  tagId     Int
+  createdAt DateTime @default(now())
+
+  company Company         @relation(fields: [companyId], references: [id])
+  program LearningProgram @relation(fields: [programId], references: [id])
+  tag     ProgramTag      @relation(fields: [tagId], references: [id])
+
+  @@unique([programId, tagId])
+  @@index([companyId])
+  @@map("program_tag_mappings")
 }
 
 ///////////////////////////////////////////////////////////
@@ -1856,6 +2009,7 @@ model Enrollment {
   activityLogs           EnrollmentActivityLog[]
   liveSessionAttendances LiveSessionAttendance[]
   liveSessionWaitlists   LiveSessionWaitlist[]
+  submissions            Submission[]
 
   @@unique([employeeId, courseVersionId, enrollmentNo])
   @@index([companyId])
@@ -1864,23 +2018,42 @@ model Enrollment {
   @@map("enrollments")
 }
 
+model EnrollmentRuleType {
+  id          Int      @id @default(autoincrement())
+  companyId   Int
+  name        String   @db.VarChar(100) // e.g. "Auto Enroll"
+  slug        String   @db.VarChar(80) // e.g. "auto_enroll"
+  description String?
+  isSystem    Boolean  @default(false) // Protect defaults
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company Company          @relation(fields: [companyId], references: [id])
+  rules   EnrollmentRule[]
+
+  @@unique([companyId, name])
+  @@unique([companyId, slug])
+  @@index([companyId])
+  @@map("enrollment_rule_types")
+}
+
 model EnrollmentRule {
   id          Int     @id @default(autoincrement())
   companyId   Int
   name        String  @db.VarChar(255)
   description String? @db.Text
 
-  // What this rule applies to
-  entityType      EnrollmentEntityType // "COURSE" or "PROGRAM"
+  entityType      EnrollmentEntityType
   courseVersionId Int?
   programId       Int?
 
-  // Rule configuration
-  ruleType            EnrollmentRuleType // AUTO_ENROLL, RESTRICT_ACCESS, WAITLIST, etc.
-  priority            Int                @default(1)
-  isActive            Boolean            @default(true)
+  ruleTypeId Int // ← Changed to FK
+
+  priority Int     @default(1)
+  isActive Boolean @default(true)
+
   targetAudienceId    Int?
-  // conditionExpression as fallback for complex custom rules 
   conditionExpression Json?
 
   createdBy Int
@@ -1889,17 +2062,19 @@ model EnrollmentRule {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  company        Company          @relation(fields: [companyId], references: [id])
-  courseVersion  CourseVersion?   @relation("EnrollmentRuleCourseVersion", fields: [courseVersionId], references: [id])
-  program        LearningProgram? @relation("EnrollmentRuleProgram", fields: [programId], references: [id])
-  targetAudience TargetAudience?  @relation(fields: [targetAudienceId], references: [id])
-  creator        AppUser          @relation("EnrollmentRuleCreator", fields: [createdBy], references: [id])
-  updater        AppUser?         @relation("EnrollmentRuleUpdater", fields: [updatedBy], references: [id])
+  company        Company            @relation(fields: [companyId], references: [id])
+  courseVersion  CourseVersion?     @relation("EnrollmentRuleCourseVersion", fields: [courseVersionId], references: [id])
+  program        LearningProgram?   @relation("EnrollmentRuleProgram", fields: [programId], references: [id])
+  ruleType       EnrollmentRuleType @relation(fields: [ruleTypeId], references: [id])
+  targetAudience TargetAudience?    @relation(fields: [targetAudienceId], references: [id])
+  creator        AppUser            @relation("EnrollmentRuleCreator", fields: [createdBy], references: [id])
+  updater        AppUser?           @relation("EnrollmentRuleUpdater", fields: [updatedBy], references: [id])
 
   @@unique([companyId, name])
   @@index([companyId])
   @@index([courseVersionId])
   @@index([programId])
+  @@index([ruleTypeId])
   @@index([targetAudienceId])
   @@map("enrollment_rules")
 }
@@ -2063,90 +2238,237 @@ model ProgramCompletion {
 // ASSESSMENT & QUESTION BANK
 ///////////////////////////////////////////////////////////
 
+model GradingMethod {
+  id          Int      @id @default(autoincrement())
+  companyId   Int
+  name        String   @db.VarChar(100)
+  slug        String   @db.VarChar(80)
+  description String?
+  isSystem    Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company             Company              @relation(fields: [companyId], references: [id])
+  assessments         Assessment[]
+  assessmentTemplates AssessmentTemplate[]
+
+  @@unique([companyId, name])
+  @@unique([companyId, slug])
+  @@index([companyId])
+  @@map("grading_methods")
+}
+
+model AssessmentType {
+  id        Int  @id @default(autoincrement())
+  companyId Int?
+
+  code        String  @db.VarChar(50)
+  name        String  @db.VarChar(100)
+  description String? @db.Text
+
+  isScored   Boolean @default(true)
+  isPractice Boolean @default(false)
+  isGraded   Boolean @default(true)
+
+  isSystem Boolean @default(false) // FIXED — was @default(true), inconsistent with every other lookup table (GradingMethod, QuestionType, DifficultyLevel all default false). A company-created row must not be born "protected" by default.
+  isActive Boolean @default(true)
+
+  displayOrder Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company Company? @relation(fields: [companyId], references: [id])
+
+  assessments Assessment[]
+  templates   AssessmentTemplate[]
+
+  @@unique([companyId, code])
+  @@map("assessment_types")
+}
+
 model Assessment {
-  id                               Int            @id @default(autoincrement())
-  companyId                        Int
-  courseVersionId                  Int
-  contentId                        Int?
-  templateId                       Int?
-  title                            String         @db.VarChar(255)
-  description                      String?        @db.Text
-  assessmentType                   AssessmentType
-  gradingMethod                    GradingMethod
-  passScore                        Decimal        @db.Decimal(5, 2)
-  maxAttempts                      Int
-  durationMinutes                  Int?
-  negativeMarking                  Decimal?       @db.Decimal(8, 2)
-  showCorrectAnswersAfterAllSubmit Boolean        @default(false)
-  allowQuestionReview              Boolean        @default(true)
-  autoSubmitOnTimeLimit            Boolean        @default(false)
+  id              Int  @id @default(autoincrement())
+  companyId       Int
+  courseVersionId Int
+  contentId       Int?
+  templateId      Int?
+
+  title       String  @db.VarChar(255)
+  description String? @db.Text
+
+  assessmentTypeId Int
+  gradingMethodId  Int
+
+  passingScore Decimal @db.Decimal(5, 2) // Percentage required (e.g. 70.00)
+
+  // CACHE ONLY — always derivable via SUM(assessment_questions.weight)
+  // for this assessmentId. Recalculate and update this field every
+  // time an AssessmentQuestion is added, removed, or reweighted.
+  // Never treat as source of truth for grading/reporting; if it can
+  // drift, recompute from assessment_questions directly.
+  totalMarks Decimal @default(0) @db.Decimal(8, 2)
+
+  maxAttempts     Int
+  durationMinutes Int?
+
+  negativeMarking Decimal? @db.Decimal(5, 2)
+
+  showCorrectAnswersAfterAllSubmit Boolean @default(false)
+  allowQuestionReview              Boolean @default(true)
+  autoSubmitOnTimeLimit            Boolean @default(false)
   tabSwitchLimit                   Int?
 
-  // Anti-cheating & UX features
-  lockdownBrowser       Boolean          @default(false)
-  proctoringEnabled     Boolean          @default(false)
-  randomizeQuestions    Boolean          @default(false)
-  randomizeOptions      Boolean          @default(false)
-  showResultImmediately Boolean          @default(false)
-  status                AssessmentStatus
+  lockdownBrowser       Boolean @default(false)
+  proctoringEnabled     Boolean @default(false)
+  randomizeQuestions    Boolean @default(false)
+  randomizeOptions      Boolean @default(false)
+  showResultImmediately Boolean @default(false)
 
-  // Self-link for pre/post assessment (for knowledge lift calculation)
+  status ContentLifecycleStatus
+
   pairedAssessmentId Int?
-  createdBy          Int
-  updatedBy          Int?
-  createdAt          DateTime              @default(now())
-  updatedAt          DateTime              @updatedAt
-  deletedAt          DateTime?
-  company            Company               @relation(fields: [companyId], references: [id])
-  courseVersion      CourseVersion         @relation(fields: [courseVersionId], references: [id])
-  content            CourseContent?        @relation(fields: [contentId], references: [id])
-  template           AssessmentTemplate?   @relation(fields: [templateId], references: [id])
-  pairedAssessment   Assessment?           @relation("AssessmentPair", fields: [pairedAssessmentId], references: [id])
-  pairedWith         Assessment[]          @relation("AssessmentPair")
-  createdByUser      AppUser               @relation("AssessmentCreatedBy", fields: [createdBy], references: [id])
-  updatedByUser      AppUser?              @relation("AssessmentUpdatedBy", fields: [updatedBy], references: [id])
-  questions          AssessmentQuestion[]
-  blueprints         AssessmentBlueprint[]
-  attempts           AssessmentAttempt[]
-  programTasks       ProgramTask[]
 
-  // NEW: Target Audience Integration
-  targetAudiences TargetAudience[]
+  createdBy Int
+  updatedBy Int?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  company       Company             @relation(fields: [companyId], references: [id])
+  courseVersion CourseVersion       @relation(fields: [courseVersionId], references: [id])
+  content       CourseContent?      @relation(fields: [contentId], references: [id])
+  template      AssessmentTemplate? @relation(fields: [templateId], references: [id])
+
+  assessmentType AssessmentType @relation(fields: [assessmentTypeId], references: [id])
+  gradingMethod  GradingMethod  @relation(fields: [gradingMethodId], references: [id])
+
+  pairedAssessment Assessment?  @relation("AssessmentPair", fields: [pairedAssessmentId], references: [id])
+  pairedWith       Assessment[] @relation("AssessmentPair")
+
+  createdByUser AppUser  @relation("AssessmentCreatedBy", fields: [createdBy], references: [id])
+  updatedByUser AppUser? @relation("AssessmentUpdatedBy", fields: [updatedBy], references: [id])
+
+  questions              AssessmentQuestion[]
+  blueprints             AssessmentBlueprint[]
+  attempts               AssessmentAttempt[]
+  programTasks           ProgramTask[]
+  assessmentAttemptRules AssessmentAttemptRule[]
 
   @@index([companyId])
+  @@index([courseVersionId])
+  @@index([assessmentTypeId])
+  @@index([gradingMethodId])
   @@map("assessments")
 }
 
-model AssessmentBlueprint {
-  id            Int              @id @default(autoincrement())
-  companyId     Int
-  assessmentId  Int
-  topicId       Int?
-  difficulty    DifficultyLevel?
-  questionType  QuestionType?
-  questionCount Int
-  company       Company          @relation(fields: [companyId], references: [id])
-  assessment    Assessment       @relation(fields: [assessmentId], references: [id])
-  topic         Topic?           @relation(fields: [topicId], references: [id])
+model QuestionBank {
+  id        Int @id @default(autoincrement())
+  companyId Int
 
+  name        String  @db.VarChar(255)
+  code        String? @db.VarChar(100)
+  description String? @db.Text
+
+  categoryId Int?
+  topicId    Int?
+
+  isActive Boolean @default(true)
+
+  createdBy Int
+  updatedBy Int?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  company  Company         @relation(fields: [companyId], references: [id])
+  category CourseCategory? @relation(fields: [categoryId], references: [id])
+  topic    Topic?          @relation(fields: [topicId], references: [id])
+
+  creator AppUser  @relation("QuestionBankCreator", fields: [createdBy], references: [id])
+  updater AppUser? @relation("QuestionBankUpdater", fields: [updatedBy], references: [id])
+
+  questions Question[]
+
+  @@unique([companyId, name])
+  @@index([companyId])
+  @@index([categoryId])
+  @@index([topicId])
+  @@map("question_banks")
+}
+
+model QuestionType {
+  id              Int                     @id @default(autoincrement())
+  companyId       Int
+  name            String                  @db.VarChar(100)
+  slug            String                  @db.VarChar(80)
+  description     String?
+  answerStructure QuestionAnswerStructure
+
+  isSystem  Boolean  @default(false)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company    Company               @relation(fields: [companyId], references: [id])
+  questions  Question[]
+  blueprints AssessmentBlueprint[]
+
+  @@unique([companyId, name])
+  @@unique([companyId, slug])
+  @@index([companyId])
+  @@map("question_types")
+}
+
+model AssessmentBlueprint {
+  id           Int @id @default(autoincrement())
+  companyId    Int
+  assessmentId Int
+
+  topicId           Int?
+  questionTypeId    Int?
+  questionCount     Int
+  difficultyLevelId Int?
+
+  difficultyLevel DifficultyLevel? @relation(fields: [difficultyLevelId], references: [id])
+  company         Company          @relation(fields: [companyId], references: [id])
+  assessment      Assessment       @relation(fields: [assessmentId], references: [id])
+  topic           Topic?           @relation(fields: [topicId], references: [id])
+  questionType    QuestionType?    @relation(fields: [questionTypeId], references: [id])
+
+  @@index([companyId])
+  @@index([assessmentId])
+  @@index([questionTypeId])
+  @@index([difficultyLevelId]) // FIXED — moved before @@map, was after it (invalid placement)
   @@map("assessment_blueprints")
 }
 
 model AssessmentQuestion {
-  id                Int             @id @default(autoincrement())
-  companyId         Int
-  assessmentId      Int
+  id Int @id @default(autoincrement())
+
+  companyId    Int
+  assessmentId Int
+
+  questionId        Int
   questionVersionId Int
-  marks             Decimal         @db.Decimal(8, 2)
-  displayOrder      Int?
-  isRequired        Boolean         @default(true)
-  company           Company         @relation(fields: [companyId], references: [id])
-  assessment        Assessment      @relation(fields: [assessmentId], references: [id])
-  questionVersion   QuestionVersion @relation(fields: [questionVersionId], references: [id])
-  question          Question?       @relation(fields: [questionId], references: [id])
-  questionId        Int?
+
+  weight Decimal @default(1) @db.Decimal(8, 2)
+
+  displayOrder Int
+  isRequired   Boolean @default(true)
+
+  company    Company    @relation(fields: [companyId], references: [id])
+  assessment Assessment @relation(fields: [assessmentId], references: [id])
+
+  question        Question        @relation(fields: [questionId], references: [id])
+  questionVersion QuestionVersion @relation(fields: [questionVersionId], references: [id])
 
   @@unique([assessmentId, questionVersionId])
+  @@index([assessmentId])
+  @@index([questionId])
   @@map("assessment_questions")
 }
 
@@ -2160,51 +2482,61 @@ model Topic {
 
   company Company @relation(fields: [companyId], references: [id])
 
-  questions  Question[]
-  blueprints AssessmentBlueprint[]
+  questions     Question[]
+  blueprints    AssessmentBlueprint[]
+  questionBanks QuestionBank[]
 
   @@unique([companyId, name])
   @@map("topics")
 }
 
 model Question {
-  id               Int                  @id @default(autoincrement())
-  companyId        Int
-  currentVersionId Int?                 @unique
-  topicId          Int?
-  difficulty       DifficultyLevel
-  questionType     QuestionType
-  status           QuestionStatus
-  createdBy        Int
-  createdAt        DateTime             @default(now())
-  updatedAt        DateTime             @updatedAt
-  deletedAt        DateTime?
-  company          Company              @relation(fields: [companyId], references: [id])
-  currentVersion   QuestionVersion?     @relation("CurrentQuestionVersion", fields: [currentVersionId], references: [id])
-  createdByUser    AppUser              @relation(fields: [createdBy], references: [id])
-  versions         QuestionVersion[]    @relation("QuestionVersions")
-  mappings         AssessmentQuestion[]
-  topic            Topic?               @relation(fields: [topicId], references: [id])
+  id                Int            @id @default(autoincrement())
+  companyId         Int
+  currentVersionId  Int?           @unique
+  topicId           Int?
+  difficultyLevelId Int
+  questionTypeId    Int
+  questionBankId    Int
+  status            QuestionStatus
+  createdBy         Int
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  deletedAt         DateTime?
+
+  difficultyLevel DifficultyLevel      @relation(fields: [difficultyLevelId], references: [id])
+  company         Company              @relation(fields: [companyId], references: [id])
+  questionType    QuestionType         @relation(fields: [questionTypeId], references: [id])
+  currentVersion  QuestionVersion?     @relation("CurrentQuestionVersion", fields: [currentVersionId], references: [id])
+  createdByUser   AppUser              @relation(fields: [createdBy], references: [id])
+  questionBank    QuestionBank         @relation(fields: [questionBankId], references: [id])
+  versions        QuestionVersion[]    @relation("QuestionVersions")
+  mappings        AssessmentQuestion[]
+  topic           Topic?               @relation(fields: [topicId], references: [id])
 
   @@index([companyId])
+  @@index([difficultyLevelId])
+  @@index([questionBankId]) // FIXED — moved before @@map, was after it (invalid placement)
   @@map("questions")
 }
 
 model QuestionVersion {
-  id                  Int                  @id @default(autoincrement())
-  companyId           Int
-  questionId          Int
-  versionNo           Int
-  questionText        String               @db.Text
-  explanation         String?              @db.Text
-  defaultScore        Decimal              @db.Decimal(8, 2)
-  createdBy           Int
-  createdAt           DateTime             @default(now())
-  company             Company              @relation(fields: [companyId], references: [id])
-  question            Question             @relation("QuestionVersions", fields: [questionId], references: [id])
-  currentQuestion     Question?            @relation("CurrentQuestionVersion")
-  createdByUser       AppUser              @relation(fields: [createdBy], references: [id])
+  id           Int      @id @default(autoincrement())
+  companyId    Int
+  questionId   Int
+  versionNo    Int
+  questionText String   @db.Text
+  explanation  String?  @db.Text
+  defaultScore Decimal  @db.Decimal(8, 2)
+  createdBy    Int
+  createdAt    DateTime @default(now())
+
+  company             Company                @relation(fields: [companyId], references: [id])
+  question            Question               @relation("QuestionVersions", fields: [questionId], references: [id])
+  currentQuestion     Question?              @relation("CurrentQuestionVersion")
+  createdByUser       AppUser                @relation(fields: [createdBy], references: [id])
   options             QuestionOption[]
+  matchingPairs       QuestionMatchingPair[]
   assessmentQuestions AssessmentQuestion[]
   answers             AssessmentAnswer[]
 
@@ -2212,122 +2544,210 @@ model QuestionVersion {
   @@map("question_versions")
 }
 
+// Handles: Multiple Choice, True/False, Fill-in-the-Blank (single or
+// multi-blank via blankIndex), Ordering/Sequencing (displayOrder =
+// correct sequence). Drag-and-drop-to-order is a frontend interaction
+// on this same data, not a separate structure.
 model QuestionOption {
-  id                Int             @id @default(autoincrement())
+  id                Int @id @default(autoincrement())
   companyId         Int
   questionVersionId Int
-  optionLabel       String?
-  optionText        String          @db.Text
-  isCorrect         Boolean
-  displayOrder      Int
-  createdAt         DateTime        @default(now())
-  company           Company         @relation(fields: [companyId], references: [id])
-  questionVersion   QuestionVersion @relation(fields: [questionVersionId], references: [id])
+
+  blankIndex Int? // groups accepted answers by blank position for multi-blank FILL_BLANK; null otherwise
+
+  optionLabel   String?
+  optionText    String   @db.Text
+  isCorrect     Boolean
+  caseSensitive Boolean? // meaningful only for FILL_BLANK
+  displayOrder  Int
+
+  createdAt DateTime @default(now())
+
+  company         Company         @relation(fields: [companyId], references: [id])
+  questionVersion QuestionVersion @relation(fields: [questionVersionId], references: [id])
+
+  answerSelections AssessmentAnswerOption[]
 
   @@unique([questionVersionId, displayOrder])
+  @@index([questionVersionId, blankIndex])
   @@map("question_options")
 }
 
+// Handles: Matching, and Categorization/Drag-Drop-to-bucket (multiple
+// leftValue rows sharing one rightValue).
+model QuestionMatchingPair {
+  id                Int @id @default(autoincrement())
+  companyId         Int
+  questionVersionId Int
+
+  leftValue    String @db.Text
+  rightValue   String @db.Text
+  displayOrder Int
+
+  createdAt DateTime @default(now())
+
+  company         Company         @relation(fields: [companyId], references: [id])
+  questionVersion QuestionVersion @relation(fields: [questionVersionId], references: [id])
+
+  leftPairSubmissions  AssessmentAnswerMatch[] @relation("LeftPairSubmissions")
+  rightPairSubmissions AssessmentAnswerMatch[] @relation("RightPairSubmissions")
+
+  @@index([companyId])
+  @@index([questionVersionId])
+  @@map("question_matching_pairs")
+}
+
 model AssessmentAttempt {
-  id           Int                @id @default(autoincrement())
+  id Int @id @default(autoincrement())
+
   companyId    Int
   enrollmentId Int
   assessmentId Int
-  attemptNo    Int
-  status       AttemptStatus
-  startedAt    DateTime
-  submittedAt  DateTime?
-  gradedAt     DateTime?
-  gradedBy     Int?
-  score        Decimal?           @db.Decimal(8, 2)
-  passed       Boolean?
-  snapshot     Json?
-  deletedAt    DateTime?
-  company      Company            @relation(fields: [companyId], references: [id])
-  enrollment   Enrollment         @relation(fields: [enrollmentId], references: [id])
-  assessment   Assessment         @relation(fields: [assessmentId], references: [id])
-  gradedByUser AppUser?           @relation("GradedBy", fields: [gradedBy], references: [id])
-  answers      AssessmentAnswer[]
+
+  attemptNo Int
+  status    AttemptStatus
+
+  startedAt   DateTime
+  submittedAt DateTime?
+  gradedAt    DateTime?
+
+  gradedBy Int?
+
+  score      Decimal? @db.Decimal(8, 2)
+  percentage Decimal? @db.Decimal(5, 2)
+
+  passed   Boolean?
+  snapshot Json?
+
+  deletedAt DateTime?
+
+  company      Company    @relation(fields: [companyId], references: [id])
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id])
+  assessment   Assessment @relation(fields: [assessmentId], references: [id])
+  gradedByUser AppUser?   @relation("GradedBy", fields: [gradedBy], references: [id])
+
+  answers AssessmentAnswer[]
 
   @@unique([assessmentId, enrollmentId, attemptNo])
   @@index([companyId])
   @@map("assessment_attempts")
 }
 
+model AssessmentAttemptRule {
+  id           Int @id @default(autoincrement())
+  companyId    Int
+  assessmentId Int
+  attemptNo    Int
+
+  scoreMultiplier Decimal? @db.Decimal(5, 2) // e.g. 1.00, 0.80, 0.60
+  maxScore        Decimal? @db.Decimal(8, 2)
+
+  assessment Assessment @relation(fields: [assessmentId], references: [id])
+
+  @@unique([assessmentId, attemptNo])
+  @@index([companyId])
+  @@map("assessment_attempt_rules")
+}
+
+// Submissions stored in junction tables (AssessmentAnswerOption, AssessmentAnswerMatch) – not as JSON.
+// Benefits: FK integrity, SQL-queryable grading/reporting.
+// Follows schema's preference for structured relations over JSON.
 model AssessmentAnswer {
-  id                Int                           @id @default(autoincrement())
+  id                Int @id @default(autoincrement())
   companyId         Int
   attemptId         Int
   questionVersionId Int
-  earnedMarks       Decimal?                      @db.Decimal(8, 2)
-  isCorrect         Boolean?
-  answerSnapshot    Json?
-  approvalStatus    QuestionVersionApprovalStatus
-  approvedBy        Int?
-  approvedAt        DateTime?
-  company           Company                       @relation(fields: [companyId], references: [id])
-  attempt           AssessmentAttempt             @relation(fields: [attemptId], references: [id])
-  questionVersion   QuestionVersion               @relation(fields: [questionVersionId], references: [id])
-  approvedByUser    AppUser?                      @relation(fields: [approvedBy], references: [id])
+
+  // FREE_TEXT only (Essay/Short Answer) — the only structure genuinely
+  // suited to a single text field rather than normalized rows.
+  answerText String? @db.Text
+
+  awardedMarks   Decimal?           @db.Decimal(8, 2)
+  isCorrect      Boolean?
+  approvalStatus AnswerReviewStatus
+
+  approvedBy Int?
+  approvedAt DateTime?
+
+  company         Company           @relation(fields: [companyId], references: [id])
+  attempt         AssessmentAttempt @relation(fields: [attemptId], references: [id])
+  questionVersion QuestionVersion   @relation(fields: [questionVersionId], references: [id])
+  approvedByUser  AppUser?          @relation(fields: [approvedBy], references: [id])
+
+  selectedOptions  AssessmentAnswerOption[]
+  submittedMatches AssessmentAnswerMatch[]
 
   @@unique([attemptId, questionVersionId])
+  @@index([attemptId])
+  @@index([questionVersionId])
   @@map("assessment_answers")
+}
+
+// For OPTION_BASED questions: selected QuestionOption(s).
+// For FILL_BLANK: typedText stores the actual typed answer (compared to QuestionOption.optionText at grading, using caseSensitive). No direct FK to QuestionOption, since answers aren't pre-listed.
+model AssessmentAnswerOption {
+  id               Int     @id @default(autoincrement())
+  companyId        Int
+  answerId         Int
+  questionOptionId Int?
+  blankIndex       Int?
+  typedText        String? @db.Text
+
+  createdAt DateTime @default(now())
+
+  company        Company          @relation(fields: [companyId], references: [id])
+  answer         AssessmentAnswer @relation(fields: [answerId], references: [id])
+  questionOption QuestionOption?  @relation(fields: [questionOptionId], references: [id])
+
+  @@index([companyId])
+  @@index([answerId])
+  @@index([questionOptionId])
+  @@map("assessment_answer_options")
+}
+
+// leftPairId and rightPairId both reference QuestionMatchingPair.
+// Correct match: leftPairId == rightPairId (same row).
+// Mismatch: any other combination submitted.
+model AssessmentAnswerMatch {
+  id          Int @id @default(autoincrement())
+  companyId   Int
+  answerId    Int
+  leftPairId  Int
+  rightPairId Int
+
+  createdAt DateTime @default(now())
+
+  company   Company              @relation(fields: [companyId], references: [id])
+  answer    AssessmentAnswer     @relation(fields: [answerId], references: [id])
+  leftPair  QuestionMatchingPair @relation("LeftPairSubmissions", fields: [leftPairId], references: [id])
+  rightPair QuestionMatchingPair @relation("RightPairSubmissions", fields: [rightPairId], references: [id])
+
+  @@index([companyId])
+  @@index([answerId])
+  @@map("assessment_answer_matches")
 }
 
 ///////////////////////////////////////////////////////////
 // CERTIFICATION
 ///////////////////////////////////////////////////////////
-model CertificateTemplate {
-  id                    Int              @id @default(autoincrement())
-  companyId             Int
-  courseVersionId       Int?             @unique
-  learningProgramId     Int?             @unique
-  name                  String           @db.VarChar(255)
-  certificateType       CertificateType
-  templateFile          String?
-  certificateIdPattern  String           @db.VarChar(100)
-  validityMonths        Int?
-  sealImage             String?
-  qrVerificationEnabled Boolean          @default(true)
-  backgroundImage       String?
-  status                TemplateStatus
-  createdBy             Int
-  updatedBy             Int?
-  createdAt             DateTime         @default(now())
-  updatedAt             DateTime         @updatedAt
-  deletedAt             DateTime?
-  company               Company          @relation(fields: [companyId], references: [id])
-  courseVersion         CourseVersion?   @relation(fields: [courseVersionId], references: [id])
-  learningProgram       LearningProgram? @relation(fields: [learningProgramId], references: [id])
-  createdByUser         AppUser          @relation("CertTemplateCreatedBy", fields: [createdBy], references: [id])
-  updatedByUser         AppUser?         @relation("CertTemplateUpdatedBy", fields: [updatedBy], references: [id])
+model CertificateType {
+  id          Int      @id @default(autoincrement())
+  companyId   Int
+  name        String   @db.VarChar(100) // e.g. "Course Completion"
+  slug        String   @db.VarChar(80) // e.g. "course_completion"
+  description String?
+  isSystem    Boolean  @default(false) // Protect defaults
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  // Deliberately separate from EMS DocumentSignerConfig: that table allows only
-  // one signer per (company, document_type) with no ordering. Certificates need
-  // multiple ordered signers per specific template — not a duplicate, a real gap.
-  signers         CertificateTemplateSigner[]
-  certificates    Certificate[]
-  targetAudiences TargetAudience[]
+  company   Company               @relation(fields: [companyId], references: [id])
+  templates CertificateTemplate[]
 
+  @@unique([companyId, name])
+  @@unique([companyId, slug])
   @@index([companyId])
-  @@map("certificate_templates")
-}
-
-model CertificateTemplateSigner {
-  id           Int                 @id @default(autoincrement())
-  companyId    Int
-  templateId   Int
-  employeeId   String              @db.VarChar(20)
-  displayOrder Int
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @updatedAt
-  company      Company             @relation(fields: [companyId], references: [id])
-  template     CertificateTemplate @relation(fields: [templateId], references: [id])
-  employee     Employee            @relation(fields: [employeeId], references: [id])
-
-  @@unique([templateId, displayOrder])
-  @@unique([templateId, employeeId])
-  @@map("certificate_template_signers")
+  @@map("certificate_types")
 }
 
 model Certificate {
@@ -2378,6 +2798,26 @@ model CertificateVerification {
   @@map("certificate_verifications")
 }
 
+model CredentialSource {
+  id          Int      @id @default(autoincrement())
+  companyId   Int
+  name        String   @db.VarChar(100) // e.g. "Manual Upload"
+  slug        String   @db.VarChar(80) // e.g. "manual_upload"
+  description String?
+  isSystem    Boolean  @default(false) // Protect defaults
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company      Company               @relation(fields: [companyId], references: [id])
+  certificates ExternalCertificate[]
+
+  @@unique([companyId, name])
+  @@unique([companyId, slug])
+  @@index([companyId])
+  @@map("credential_sources")
+}
+
 model ExternalCertificate {
   id                 Int                      @id @default(autoincrement())
   companyId          Int
@@ -2388,35 +2828,67 @@ model ExternalCertificate {
   issueDate          DateTime
   expiryDate         DateTime?
   verificationStatus ExternalCredentialStatus
-  source             CredentialSource
-  uploadedFile       String?
-  apiReference       String?
-  createdAt          DateTime                 @default(now())
-  updatedAt          DateTime                 @updatedAt
-  deletedAt          DateTime?
-  company            Company                  @relation(fields: [companyId], references: [id])
-  employee           Employee                 @relation(fields: [employeeId], references: [id])
-  provider           ExternalProvider         @relation(fields: [providerId], references: [id])
+
+  sourceId Int // ← Changed to FK
+
+  uploadedFile String?
+  apiReference String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  company  Company          @relation(fields: [companyId], references: [id])
+  employee Employee         @relation(fields: [employeeId], references: [id])
+  provider ExternalProvider @relation(fields: [providerId], references: [id])
+  source   CredentialSource @relation(fields: [sourceId], references: [id])
 
   @@index([companyId])
   @@index([employeeId])
+  @@index([sourceId])
   @@map("external_certificates")
 }
 
-model ExternalProvider {
-  id              Int                   @id @default(autoincrement())
-  companyId       Int
-  name            String                @db.VarChar(150)
-  providerType    ProviderType
-  apiEndpoint     String?
-  apiKeyReference String?
-  isActive        Boolean               @default(true)
-  createdAt       DateTime              @default(now())
-  updatedAt       DateTime              @updatedAt
-  company         Company               @relation(fields: [companyId], references: [id])
-  certificates    ExternalCertificate[]
+model ProviderType {
+  id          Int      @id @default(autoincrement())
+  companyId   Int
+  name        String   @db.VarChar(100) // e.g. "Certification Body"
+  slug        String   @db.VarChar(80) // e.g. "certification_body"
+  description String?
+  isSystem    Boolean  @default(false) // Protect defaults
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company   Company            @relation(fields: [companyId], references: [id])
+  providers ExternalProvider[]
 
   @@unique([companyId, name])
+  @@unique([companyId, slug])
+  @@index([companyId])
+  @@map("provider_types")
+}
+
+model ExternalProvider {
+  id             Int    @id @default(autoincrement())
+  companyId      Int
+  name           String @db.VarChar(150)
+  providerTypeId Int // ← Changed to FK
+
+  apiEndpoint     String?
+  apiKeyReference String?
+  isActive        Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company      Company               @relation(fields: [companyId], references: [id])
+  providerType ProviderType          @relation(fields: [providerTypeId], references: [id])
+  certificates ExternalCertificate[]
+
+  @@unique([companyId, name])
+  @@index([companyId])
+  @@index([providerTypeId])
   @@map("external_providers")
 }
 
@@ -2424,45 +2896,69 @@ model ExternalProvider {
 // LIVE SESSIONS (ILT / VIRTUAL TRAINING)
 ///////////////////////////////////////////////////////////
 
+model MeetingProvider {
+  id          Int      @id @default(autoincrement())
+  companyId   Int
+  name        String   @db.VarChar(100) // e.g. "Zoom"
+  slug        String   @db.VarChar(80) // e.g. "zoom"
+  description String?
+  isSystem    Boolean  @default(false) // Protect defaults
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company      Company       @relation(fields: [companyId], references: [id])
+  liveSessions LiveSession[]
+
+  @@unique([companyId, name])
+  @@unique([companyId, slug])
+  @@index([companyId])
+  @@map("meeting_providers")
+}
+
 model LiveSession {
-  id                   Int                     @id @default(autoincrement())
-  companyId            Int
-  courseVersionId      Int
-  learningProgramId    Int?
-  title                String                  @db.VarChar(255)
-  description          String?                 @db.Text
-  sessionType          SessionType
-  status               LiveSessionStatus
-  startTime            DateTime
-  endTime              DateTime
-  timezone             String                  @db.VarChar(100)
-  venue                String?                 @db.VarChar(255)
-  meetingUrl           String?
-  meetingProvider      MeetingProvider?
-  capacity             Int
-  waitlistCapacity     Int?
-  recordingUrl         String?
-  attendanceRequired   Boolean                 @default(true)
-  createdBy            Int
-  updatedBy            Int?
-  createdAt            DateTime                @default(now())
-  updatedAt            DateTime                @updatedAt
-  deletedAt            DateTime?
-  company              Company                 @relation(fields: [companyId], references: [id])
-  courseVersion        CourseVersion           @relation("CourseVersionLiveSessions", fields: [courseVersionId], references: [id])
-  learningProgram      LearningProgram?        @relation(fields: [learningProgramId], references: [id])
-  createdByUser        AppUser                 @relation("LiveSessionCreatedBy", fields: [createdBy], references: [id])
-  updatedByUser        AppUser?                @relation("LiveSessionUpdatedBy", fields: [updatedBy], references: [id])
+  id                Int               @id @default(autoincrement())
+  companyId         Int
+  courseVersionId   Int
+  learningProgramId Int?
+  title             String            @db.VarChar(255)
+  description       String?           @db.Text
+  sessionType       SessionType
+  status            LiveSessionStatus
+  startTime         DateTime
+  endTime           DateTime
+  timezone          String            @db.VarChar(100)
+  venue             String?           @db.VarChar(255)
+  meetingUrl        String?
+  meetingProviderId Int? // ← Changed to FK
+
+  capacity           Int
+  waitlistCapacity   Int?
+  recordingUrl       String?
+  attendanceRequired Boolean @default(true)
+
+  createdBy Int
+  updatedBy Int?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  company         Company          @relation(fields: [companyId], references: [id])
+  courseVersion   CourseVersion    @relation("CourseVersionLiveSessions", fields: [courseVersionId], references: [id])
+  learningProgram LearningProgram? @relation(fields: [learningProgramId], references: [id])
+  meetingProvider MeetingProvider? @relation(fields: [meetingProviderId], references: [id])
+
+  createdByUser AppUser  @relation("LiveSessionCreatedBy", fields: [createdBy], references: [id])
+  updatedByUser AppUser? @relation("LiveSessionUpdatedBy", fields: [updatedBy], references: [id])
+
   instructors          LiveSessionInstructor[]
   attendees            LiveSessionAttendance[]
   liveSessionWaitlists LiveSessionWaitlist[]
   programTasks         ProgramTask[]
-  targetAudiences      TargetAudience[]
 
-  // NOTE: capacity vs. actual attendee count is not DB-enforced — check
-  // app-layer before confirming attendance/enrollment against a full session.
   @@index([companyId])
   @@index([courseVersionId])
+  @@index([meetingProviderId])
   @@index([startTime])
   @@map("live_sessions")
 }
@@ -2486,26 +2982,55 @@ model LiveSessionInstructor {
   @@map("live_session_instructors")
 }
 
+model AttendanceMethod {
+  id          Int      @id @default(autoincrement())
+  companyId   Int
+  name        String   @db.VarChar(100) // e.g. "QR Code", "Face Recognition"
+  slug        String   @db.VarChar(80) // e.g. "qr_code"
+  description String?
+  icon        String?
+  isSystem    Boolean  @default(false) // Protect default methods
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company     Company                 @relation(fields: [companyId], references: [id])
+  attendances LiveSessionAttendance[]
+
+  @@unique([companyId, name])
+  @@unique([companyId, slug])
+  @@index([companyId])
+  @@map("attendance_methods")
+}
+
 model LiveSessionAttendance {
-  id                   Int               @id @default(autoincrement())
-  companyId            Int
-  sessionId            Int
-  enrollmentId         Int
-  attendanceStatus     AttendanceStatus
+  id           Int @id @default(autoincrement())
+  companyId    Int
+  sessionId    Int
+  enrollmentId Int
+
+  attendanceStatus   AttendanceStatus
+  attendanceMethodId Int? // ← Changed to FK
+
   checkInTime          DateTime?
   checkOutTime         DateTime?
-  attendancePercentage Decimal?          @db.Decimal(5, 2)
-  attendanceMethod     AttendanceMethod?
-  remarks              String?           @db.Text
-  createdAt            DateTime          @default(now())
-  updatedAt            DateTime          @updatedAt
-  deletedAt            DateTime?
-  company              Company           @relation(fields: [companyId], references: [id])
-  session              LiveSession       @relation(fields: [sessionId], references: [id])
-  enrollment           Enrollment        @relation(fields: [enrollmentId], references: [id])
+  attendancePercentage Decimal?  @db.Decimal(5, 2)
+
+  remarks String? @db.Text
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  company          Company           @relation(fields: [companyId], references: [id])
+  session          LiveSession       @relation(fields: [sessionId], references: [id])
+  enrollment       Enrollment        @relation(fields: [enrollmentId], references: [id])
+  attendanceMethod AttendanceMethod? @relation(fields: [attendanceMethodId], references: [id])
 
   @@unique([sessionId, enrollmentId])
   @@index([companyId])
+  @@index([attendanceStatus])
+  @@index([attendanceMethodId])
   @@map("live_session_attendance")
 }
 
@@ -2564,18 +3089,40 @@ model Survey {
   @@map("surveys")
 }
 
+model SurveyQuestionType {
+  id          Int      @id @default(autoincrement())
+  companyId   Int
+  name        String   @db.VarChar(100) // e.g. "Rating Scale"
+  slug        String   @db.VarChar(80)
+  description String?
+  isSystem    Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company         Company          @relation(fields: [companyId], references: [id])
+  surveyQuestions SurveyQuestion[]
+
+  @@unique([companyId, name])
+  @@unique([companyId, slug])
+  @@index([companyId])
+  @@map("survey_question_types")
+}
+
 model SurveyQuestion {
-  id           Int                @id @default(autoincrement())
-  companyId    Int
-  surveyId     Int
-  questionText String             @db.Text
-  questionType SurveyQuestionType
-  displayOrder Int
-  isRequired   Boolean            @default(true)
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
+  id             Int      @id @default(autoincrement())
+  companyId      Int
+  surveyId       Int
+  questionText   String   @db.Text
+  questionTypeId Int // ← Changed to FK
+  displayOrder   Int
+  isRequired     Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
   company      Company            @relation(fields: [companyId], references: [id])
   survey       Survey             @relation(fields: [surveyId], references: [id])
+  questionType SurveyQuestionType @relation(fields: [questionTypeId], references: [id])
   responses    SurveyAnswer[]
 
   @@unique([surveyId, displayOrder])
@@ -2677,45 +3224,64 @@ model TrainingEffectiveness {
 ///////////////////////////////////////////////////////////
 // TRAINING NEEDS ANALYSIS (TNA)
 ///////////////////////////////////////////////////////////
-// Replaces the fixed TnaRequestType enum — each company defines its
-// own request categories (e.g. "Skill Development", "Certification",
-// "Compliance") without a schema migration.
+// Defines the categories of TNA requests.
 model TnaRequestTypeConfig {
-  id          Int                   @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   companyId   Int
-  name        String                @db.VarChar(100)
+  name        String   @db.VarChar(100)
   description String?
-  isActive    Boolean               @default(true)
-  createdAt   DateTime              @default(now())
-  updatedAt   DateTime              @updatedAt
-  company     Company               @relation(fields: [companyId], references: [id])
-  requests    TrainingNeedRequest[]
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company  Company               @relation(fields: [companyId], references: [id])
+  requests TrainingNeedRequest[]
 
   @@unique([companyId, name])
   @@index([companyId])
   @@map("tna_request_type_configs")
 }
 
-// Replaces fixed ApprovalLevel enum. Each company defines its own chain
-// (steps, order, names, approvers) without schema changes.
-// Company A: 2 rows; Company C: 8 rows.
-model TnaApprovalWorkflowStep {
-  id                 Int           @id @default(autoincrement())
-  companyId          Int
-  stepOrder          Int // 1, 2, 3... defines sequence
-  name               String        @db.VarChar(150) // e.g. "Manager Approval", "HR Review", "Finance Sign-off"
-  approverJobTitleId Int? // who is expected to approve at this step (optional — can also be resolved dynamically, e.g. "requester's manager")
-  isFinal            Boolean       @default(false) // marks the terminal step — request is fully approved once this step passes
-  isActive           Boolean       @default(true)
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
-  company            Company       @relation(fields: [companyId], references: [id])
-  approverJobTitle   JobTitle?     @relation(fields: [approverJobTitleId], references: [id])
-  approvals          TnaApproval[]
+// Defines how the training will be paid for.
+model FundingType {
+  id          Int      @id @default(autoincrement())
+  companyId   Int
+  name        String   @db.VarChar(100)
+  slug        String   @db.VarChar(80)
+  description String?
+  isSystem    Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  @@unique([companyId, stepOrder])
+  company  Company               @relation(fields: [companyId], references: [id])
+  requests TrainingNeedRequest[]
+
+  @@unique([companyId, name])
+  @@unique([companyId, slug])
   @@index([companyId])
-  @@map("tna_approval_workflow_steps")
+  @@map("funding_types")
+}
+
+// Defines the preferred delivery format of the training
+model TrainingFormat {
+  id          Int      @id @default(autoincrement())
+  companyId   Int
+  name        String   @db.VarChar(100)
+  slug        String   @db.VarChar(80)
+  description String?
+  isSystem    Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company  Company               @relation(fields: [companyId], references: [id])
+  requests TrainingNeedRequest[]
+
+  @@unique([companyId, name])
+  @@unique([companyId, slug])
+  @@index([companyId])
+  @@map("training_formats")
 }
 
 model TrainingNeedRequest {
@@ -2724,20 +3290,16 @@ model TrainingNeedRequest {
   employeeId String @db.VarChar(20)
 
   requestTypeId Int
-  fundingType   FundingType
+  fundingTypeId Int
   status        TnaStatus
   priority      PriorityLevel
 
-  // Primary structured targeting (recommended for rules & consistency)
   targetAudienceId Int?
+  departmentId     Int?
+  jobTitleId       Int?
+  jobLevelId       Int?
+  employmentType   String? @db.VarChar(50)
 
-  // Denormalized fields for performance and flexibility
-  departmentId   Int?
-  jobTitleId     Int?
-  jobLevelId     Int?
-  employmentType String? @db.VarChar(50) // e.g. "NEW_HIRE", "FULL_TIME"
-
-  // Business details
   trainingTitle         String  @db.VarChar(255)
   providerName          String? @db.VarChar(255)
   objective             String? @db.Text
@@ -2745,85 +3307,88 @@ model TrainingNeedRequest {
   businessJustification String  @db.Text
   expectedOutcome       String? @db.Text
 
-  preferredFormat      TrainingFormat?
+  preferredFormatId    Int?
   preferredStartDate   DateTime?
   targetCompletionDate DateTime?
-  estimatedCost        Decimal?        @db.Decimal(12, 2)
+  estimatedCost        Decimal?  @db.Decimal(12, 2)
   attachmentUrl        String?
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  // Relations
-  company        Company              @relation(fields: [companyId], references: [id])
-  employee       Employee             @relation(fields: [employeeId], references: [id])
-  requestType    TnaRequestTypeConfig @relation(fields: [requestTypeId], references: [id])
-  targetAudience TargetAudience?      @relation(fields: [targetAudienceId], references: [id])
-  department     Department?          @relation(fields: [departmentId], references: [id])
-  jobTitle       JobTitle?            @relation(fields: [jobTitleId], references: [id])
+  company         Company              @relation(fields: [companyId], references: [id])
+  employee        Employee             @relation(fields: [employeeId], references: [id])
+  requestType     TnaRequestTypeConfig @relation(fields: [requestTypeId], references: [id])
+  fundingType     FundingType          @relation(fields: [fundingTypeId], references: [id])
+  preferredFormat TrainingFormat?      @relation(fields: [preferredFormatId], references: [id])
+  targetAudience  TargetAudience?      @relation(fields: [targetAudienceId], references: [id])
+  department      Department?          @relation(fields: [departmentId], references: [id])
+  jobTitle        JobTitle?            @relation(fields: [jobTitleId], references: [id])
 
   skills          TrainingNeedSkill[]
-  approvals       TnaApproval[]
   recommendations TnaRecommendation[]
+
+  // NEW: Uses the shared Approval engine
+  approvalInstances ApprovalWorkflowInstance[]
+  tnaEmployees      TnaEmployee[]
 
   @@index([companyId])
   @@index([employeeId])
   @@index([status])
+  @@index([fundingTypeId])
+  @@index([preferredFormatId])
   @@index([targetAudienceId])
-  @@index([departmentId])
-  @@index([jobTitleId])
   @@map("training_need_requests")
 }
 
+model TnaEmployee {
+  id                    Int    @id @default(autoincrement())
+  companyId             Int
+  trainingNeedRequestId Int
+  employeeId            String @db.VarChar(20)
+
+  createdAt DateTime @default(now())
+
+  // Relation
+  company  Company             @relation(fields: [companyId], references: [id])
+  request  TrainingNeedRequest @relation(fields: [trainingNeedRequestId], references: [id], onDelete: Cascade)
+  employee Employee            @relation(fields: [employeeId], references: [id])
+
+  /// Prevent duplicate employee selection
+  @@unique([trainingNeedRequestId, employeeId])
+  @@index([companyId])
+  @@index([trainingNeedRequestId])
+  @@index([employeeId])
+  @@map("training_need_request_employees")
+}
+
 model TrainingNeedSkill {
-  id        Int                 @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   companyId Int
   requestId Int
   skillId   Int
-  createdAt DateTime            @default(now())
-  company   Company             @relation(fields: [companyId], references: [id])
-  request   TrainingNeedRequest @relation(fields: [requestId], references: [id])
-  skill     Skill               @relation(fields: [skillId], references: [id])
+  createdAt DateTime @default(now())
+
+  company Company             @relation(fields: [companyId], references: [id])
+  request TrainingNeedRequest @relation(fields: [requestId], references: [id])
+  skill   Skill               @relation(fields: [skillId], references: [id])
 
   @@unique([requestId, skillId])
   @@index([companyId])
   @@map("training_need_skills")
 }
 
-model TnaApproval {
-  id             Int                     @id @default(autoincrement())
-  companyId      Int
-  requestId      Int
-  workflowStepId Int // FK to TnaApprovalWorkflowStep, replaces the fixed ApprovalLevel enum
-  approverId     String                  @db.VarChar(20)
-  status         ApprovalStatus // existing shared enum, unchanged
-  comments       String?                 @db.Text
-  approvedAt     DateTime?
-  createdAt      DateTime                @default(now())
-  company        Company                 @relation(fields: [companyId], references: [id])
-  request        TrainingNeedRequest     @relation(fields: [requestId], references: [id])
-  workflowStep   TnaApprovalWorkflowStep @relation(fields: [workflowStepId], references: [id])
-  approver       Employee                @relation(fields: [approverId], references: [id])
-
-  @@unique([requestId, workflowStepId])
-  @@index([requestId])
-  @@map("tna_approvals")
-}
-
 model TnaRecommendation {
-  id                Int  @id @default(autoincrement())
-  companyId         Int
-  requestId         Int?
-  courseVersionId   Int?
-  learningProgramId Int?
-
+  id                   Int                  @id @default(autoincrement())
+  companyId            Int
+  requestId            Int?
+  courseVersionId      Int?                 @unique
+  learningProgramId    Int?                 @unique
   recommendationSource RecommendationSource
   confidenceScore      Decimal?             @db.Decimal(5, 2)
   recommendationReason String?
-
-  // Link to audience for better matching & filtering
-  targetAudienceId Int?
+  targetAudienceId     Int?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2843,14 +3408,15 @@ model TnaRecommendation {
 }
 
 model TnaRecommendationSkill {
-  id               Int               @id @default(autoincrement())
+  id               Int      @id @default(autoincrement())
   companyId        Int
   recommendationId Int
   skillId          Int
-  createdAt        DateTime          @default(now())
-  company          Company           @relation(fields: [companyId], references: [id])
-  recommendation   TnaRecommendation @relation(fields: [recommendationId], references: [id])
-  skill            Skill             @relation(fields: [skillId], references: [id])
+  createdAt        DateTime @default(now())
+
+  company        Company           @relation(fields: [companyId], references: [id])
+  recommendation TnaRecommendation @relation(fields: [recommendationId], references: [id])
+  skill          Skill             @relation(fields: [skillId], references: [id])
 
   @@unique([recommendationId, skillId])
   @@index([companyId])
@@ -2861,27 +3427,63 @@ model TnaRecommendationSkill {
 // GAMIFICATION & XP
 ///////////////////////////////////////////////////////////
 
+model XpRuleCategory {
+  id          Int      @id @default(autoincrement())
+  companyId   Int
+  name        String   @db.VarChar(100)
+  slug        String   @db.VarChar(80)
+  description String?
+  isSystem    Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company Company  @relation(fields: [companyId], references: [id])
+  xpRules XpRule[]
+
+  @@unique([companyId, name])
+  @@unique([companyId, slug])
+  @@index([companyId])
+  @@map("xp_rule_categories")
+}
+
+model XpTriggerEvent {
+  id          Int      @id @default(autoincrement())
+  companyId   Int
+  name        String   @db.VarChar(100)
+  slug        String   @db.VarChar(80)
+  description String?
+  isSystem    Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company    Company     @relation(fields: [companyId], references: [id])
+  xpRules    XpRule[]
+  badgeRules BadgeRule[]
+
+  @@unique([companyId, name])
+  @@unique([companyId, slug])
+  @@index([companyId])
+  @@map("xp_trigger_events")
+}
+
 model XpRule {
-  id           Int            @id @default(autoincrement())
-  companyId    Int
-  name         String         @db.VarChar(150)
-  category     XpRuleCategory
-  triggerEvent XpTriggerEvent
-  xpAmount     Int
-  maximumAward Int?
-  multiplier   Decimal?       @db.Decimal(5, 2) // e.g. 1.25 for 25% bonus
+  id             Int      @id @default(autoincrement())
+  companyId      Int
+  name           String   @db.VarChar(150)
+  categoryId     Int
+  triggerEventId Int
+  xpAmount       Int
+  maximumAward   Int?
+  multiplier     Decimal? @db.Decimal(5, 2)
 
-  // Structured targeting
-  targetAudienceId Int?
+  targetAudienceId    Int?
+  conditionExpression Json?
 
-  conditionExpression Json? // Fallback for complex custom logic
-  // Business Rule:
-  // - If targetAudienceId IS NOT NULL → rule is restricted to that audience
-  // - If conditionExpression IS NOT NULL → additional custom logic
-  // - If BOTH are NULL → global rule (applies to all employees)
-  courseVersionId     Int?
-  programId           Int?
-  isActive            Boolean @default(true)
+  courseVersionId Int?
+  programId       Int?
+  isActive        Boolean @default(true)
 
   createdBy Int
   updatedBy Int?
@@ -2889,16 +3491,18 @@ model XpRule {
   updatedAt DateTime @updatedAt
 
   company        Company          @relation(fields: [companyId], references: [id])
+  category       XpRuleCategory   @relation(fields: [categoryId], references: [id])
+  triggerEvent   XpTriggerEvent   @relation(fields: [triggerEventId], references: [id])
   targetAudience TargetAudience?  @relation(fields: [targetAudienceId], references: [id])
   courseVersion  CourseVersion?   @relation(fields: [courseVersionId], references: [id])
   program        LearningProgram? @relation(fields: [programId], references: [id])
-
-  createdByUser AppUser  @relation("XpRuleCreatedBy", fields: [createdBy], references: [id])
-  updatedByUser AppUser? @relation("XpRuleUpdatedBy", fields: [updatedBy], references: [id])
-
-  transactions XpTransaction[]
+  createdByUser  AppUser          @relation("XpRuleCreatedBy", fields: [createdBy], references: [id])
+  updatedByUser  AppUser?         @relation("XpRuleUpdatedBy", fields: [updatedBy], references: [id])
+  transactions   XpTransaction[]
 
   @@index([companyId])
+  @@index([categoryId])
+  @@index([triggerEventId])
   @@index([targetAudienceId])
   @@index([courseVersionId])
   @@index([programId])
@@ -2913,19 +3517,17 @@ model XpTransaction {
   sourceType XpSourceType
   sourceId   Int?
 
-  // xp_awarded is pre-multiplied final value — use SUM() directly for totals.
-  // multiplier stored for audit trail only, never re-derived at query time.
+  // Final pre-multiplied value — use SUM(xpAwarded) for totals.
+  // multiplier is stored for audit only.
   xpAwarded  Int
   multiplier Decimal? @db.Decimal(5, 2)
   remarks    String?
   createdAt  DateTime @default(now())
-  company    Company  @relation(fields: [companyId], references: [id])
-  employee   Employee @relation(fields: [employeeId], references: [id])
-  rule       XpRule?  @relation(fields: [ruleId], references: [id])
 
-  // Prevents duplicate awards from same source event (e.g., retried job).
-  // Only applies when sourceId is set (manual awards exempt — NULLs distinct).
-  // Duplicate manual awards caught via remarks review, not constraint.
+  company  Company  @relation(fields: [companyId], references: [id])
+  employee Employee @relation(fields: [employeeId], references: [id])
+  rule     XpRule?  @relation(fields: [ruleId], references: [id])
+
   @@unique([employeeId, ruleId, sourceId])
   @@index([companyId])
   @@index([employeeId])
@@ -2943,86 +3545,156 @@ model LearningLevel {
   displayOrder Int
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  company      Company  @relation(fields: [companyId], references: [id])
 
-  // App-layer rule, not DB-enforceable: adjacent levels' XP ranges
-  // must not overlap and must not leave gaps. Validate on every
-  // create/edit of a level against sibling rows for the same company.
+  company Company @relation(fields: [companyId], references: [id])
+
   @@unique([companyId, displayOrder])
   @@unique([companyId, minimumXp])
   @@map("learning_levels")
 }
 
+model BadgeCategory {
+  id          Int      @id @default(autoincrement())
+  companyId   Int
+  name        String   @db.VarChar(100)
+  slug        String   @db.VarChar(80)
+  description String?
+  isSystem    Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id])
+  badges  Badge[]
+
+  @@unique([companyId, name])
+  @@unique([companyId, slug])
+  @@index([companyId])
+  @@map("badge_categories")
+}
+
 model Badge {
-  id            Int             @id @default(autoincrement())
-  companyId     Int
-  name          String          @db.VarChar(150)
-  description   String?
-  iconUrl       String?
-  badgeCategory BadgeCategory
-  isActive      Boolean         @default(true)
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  id              Int      @id @default(autoincrement())
+  companyId       Int
+  name            String   @db.VarChar(150)
+  description     String?
+  iconUrl         String?
+  badgeCategoryId Int
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
   company       Company         @relation(fields: [companyId], references: [id])
+  badgeCategory BadgeCategory   @relation(fields: [badgeCategoryId], references: [id])
   rules         BadgeRule[]
   awards        EmployeeBadge[]
 
   @@unique([companyId, name])
+  @@index([badgeCategoryId])
   @@map("badges")
 }
 
-// Multiple rows per badge. Within a row: AND (all thresholds met).
-// Across rows: OR (any row unlocks). E.g., "Perfect Scorer" can have
-// alternate paths: 5 perfect quizzes OR 3 perfect + 1 certificate.  
 model BadgeRule {
-  id                  Int             @id @default(autoincrement())
+  id                  Int      @id @default(autoincrement())
   companyId           Int
   badgeId             Int
-  triggerEvent        XpTriggerEvent? // optional — badge can be event-driven, threshold-driven, or both
+  triggerEventId      Int?
   minimumXp           Int?
   minimumCourses      Int?
   minimumCertificates Int?
   minimumPrograms     Int?
-  // Structured targeting for badge eligibility
   targetAudienceId    Int?
-  // Escape hatch for app-specific logic (e.g., "3 certs in 90 days").
-  // DB stores only; app evaluates.
   customExpression    Json?
-  isActive            Boolean         @default(true)
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
-  company             Company         @relation(fields: [companyId], references: [id])
-  badge               Badge           @relation(fields: [badgeId], references: [id])
-  targetAudience      TargetAudience? @relation(fields: [targetAudienceId], references: [id])
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  company        Company         @relation(fields: [companyId], references: [id])
+  badge          Badge           @relation(fields: [badgeId], references: [id])
+  triggerEvent   XpTriggerEvent? @relation(fields: [triggerEventId], references: [id])
+  targetAudience TargetAudience? @relation(fields: [targetAudienceId], references: [id])
 
   @@index([companyId])
   @@index([badgeId])
+  @@index([triggerEventId])
+  @@index([targetAudienceId])
   @@map("badge_rules")
 }
 
 model EmployeeBadge {
-  id         Int      @id @default(autoincrement())
-  companyId  Int
-  badgeId    Int
-  employeeId String   @db.VarChar(20)
-  awardedBy  Int?
-  awardedAt  DateTime @default(now())
-  remarks    String?
-
-  // Revocation support: badges can be reversed (e.g., data error, misconduct).
-  // Correction path, not permanent once awarded. 
+  id            Int       @id @default(autoincrement())
+  companyId     Int
+  badgeId       Int
+  employeeId    String    @db.VarChar(20)
+  awardedBy     Int?
+  awardedAt     DateTime  @default(now())
+  remarks       String?
   revokedAt     DateTime?
   revokedBy     Int?
   revokedReason String?
-  company       Company   @relation(fields: [companyId], references: [id])
-  badge         Badge     @relation(fields: [badgeId], references: [id])
-  employee      Employee  @relation(fields: [employeeId], references: [id])
-  awardedByUser AppUser?  @relation("BadgeAwardedBy", fields: [awardedBy], references: [id])
-  revokedByUser AppUser?  @relation("BadgeRevokedBy", fields: [revokedBy], references: [id])
+
+  company       Company  @relation(fields: [companyId], references: [id])
+  badge         Badge    @relation(fields: [badgeId], references: [id])
+  employee      Employee @relation(fields: [employeeId], references: [id])
+  awardedByUser AppUser? @relation("BadgeAwardedBy", fields: [awardedBy], references: [id])
+  revokedByUser AppUser? @relation("BadgeRevokedBy", fields: [revokedBy], references: [id])
 
   @@unique([badgeId, employeeId])
   @@index([employeeId])
   @@map("employee_badges")
+}
+
+///////////////////////////////////////////////////////////
+// LEADERBOARD (Shared Domain)
+///////////////////////////////////////////////////////////
+
+model Leaderboard {
+  id               Int               @id @default(autoincrement())
+  companyId        Int
+  name             String            @db.VarChar(150)
+  description      String?           @db.Text
+  scopeType        LeaderboardScope
+  scopeId          Int?
+  targetAudienceId Int?
+  rankingCriteria  RankingCriteria
+  periodType       LeaderboardPeriod @default(ALL_TIME)
+  displayLimit     Int               @default(20)
+  isActive         Boolean           @default(true)
+  createdBy        Int?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  company        Company            @relation(fields: [companyId], references: [id])
+  targetAudience TargetAudience?    @relation(fields: [targetAudienceId], references: [id])
+  entries        LeaderboardEntry[]
+
+  @@index([companyId])
+  @@index([scopeType, scopeId])
+  @@index([targetAudienceId])
+  @@map("leaderboards")
+}
+
+model LeaderboardEntry {
+  id            Int       @id @default(autoincrement())
+  companyId     Int
+  leaderboardId Int
+  employeeId    String    @db.VarChar(20)
+  rank          Int
+  score         Decimal   @db.Decimal(12, 2)
+  previousRank  Int?
+  periodStart   DateTime?
+  periodEnd     DateTime?
+  calculatedAt  DateTime  @default(now())
+
+  company     Company     @relation(fields: [companyId], references: [id])
+  leaderboard Leaderboard @relation(fields: [leaderboardId], references: [id])
+  employee    Employee    @relation(fields: [employeeId], references: [id])
+
+  @@unique([leaderboardId, employeeId, periodStart])
+  @@index([companyId])
+  @@index([leaderboardId, rank])
+  @@index([employeeId])
+  @@map("leaderboard_entries")
 }
 
 // CertificateTemplate excluded — kept as standalone model with its own
@@ -3050,21 +3722,36 @@ model SystemSetting {
 }
 
 model CourseTemplate {
-  id                       Int             @id @default(autoincrement())
-  companyId                Int
-  name                     String          @db.VarChar(255)
-  description              String?         @db.Text
-  categoryId               Int
-  difficultyLevel          DifficultyLevel
-  visibility               VisibilityType
-  estimatedDurationMinutes Int
-  passingScore             Decimal         @db.Decimal(5, 2)
-  completionThreshold      Decimal         @db.Decimal(5, 2)
-  attendanceRequired       Boolean         @default(false)
-  minimumAttendance        Decimal?        @db.Decimal(5, 2)
-  certificateRequired      Boolean         @default(true)
-  language                 String?         @db.VarChar(20)
-  isActive                 Boolean         @default(true)
+  id        Int @id @default(autoincrement())
+  companyId Int
+
+  name              String  @db.VarChar(255)
+  description       String? @db.Text
+  shortSummary      String? @db.VarChar(150) // from document
+  categoryId        Int
+  difficultyLevelId Int
+
+  language                 String? @db.VarChar(20)
+  thumbnailUrl             String?
+  estimatedDurationMinutes Int?
+  targetAudienceText       String? // free-text fallback
+
+  visibility       VisibilityType   @default(COMPANY)
+  enrollmentPolicy EnrollmentPolicy @default(OPEN) // OPEN, INVITATION, PAYMENT (or make enum)
+
+  // Completion & Assessment defaults
+  passingScore        Decimal  @db.Decimal(5, 2)
+  completionThreshold Decimal  @db.Decimal(5, 2) // % of content
+  attendanceRequired  Boolean  @default(false)
+  minimumAttendance   Decimal? @db.Decimal(5, 2)
+  certificateRequired Boolean  @default(true)
+
+  // XP defaults
+  baseXpOnCompletion  Int @default(100)
+  perfectScoreBonusXp Int @default(50)
+
+  isActive   Boolean @default(true)
+  isTemplate Boolean @default(true)
 
   createdBy Int
   updatedBy Int?
@@ -3072,45 +3759,51 @@ model CourseTemplate {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  // NEW: Target Audience Integration
-  targetAudiences TargetAudience[]
-
-  company  Company        @relation(fields: [companyId], references: [id])
-  category CourseCategory @relation(fields: [categoryId], references: [id])
-  creator  AppUser        @relation("CourseTemplateCreator", fields: [createdBy], references: [id])
-  updater  AppUser?       @relation("CourseTemplateUpdater", fields: [updatedBy], references: [id])
+  // Relations
+  company         Company         @relation(fields: [companyId], references: [id])
+  category        CourseCategory  @relation(fields: [categoryId], references: [id])
+  difficultyLevel DifficultyLevel @relation(fields: [difficultyLevelId], references: [id])
+  creator         AppUser         @relation("CourseTemplateCreator", fields: [createdBy], references: [id])
+  updater         AppUser?        @relation("CourseTemplateUpdater", fields: [updatedBy], references: [id])
 
   @@unique([companyId, name])
   @@index([companyId])
   @@index([categoryId])
+  @@index([difficultyLevelId])
   @@map("course_templates")
 }
 
 model ProgramTemplate {
-  id                  Int            @id @default(autoincrement())
-  companyId           Int
-  categoryId          Int?
-  name                String         @db.VarChar(255)
-  description         String?        @db.Text
-  durationWeeks       Int?
-  visibility          VisibilityType
-  isMandatory         Boolean        @default(false)
-  autoEnroll          Boolean        @default(false)
-  certificateEnabled  Boolean        @default(true)
-  xpEnabled           Boolean        @default(true)
-  allowSelfEnrollment Boolean        @default(true)
-  rollingEnrollment   Boolean        @default(false)
+  id        Int @id @default(autoincrement())
+  companyId Int
+
+  name        String  @db.VarChar(255)
+  description String? @db.Text
+  categoryId  Int? // ProgramCategory
+
+  programType   String?        @db.VarChar(50) // Onboarding, Leadership, Compliance, etc.
+  durationWeeks Int?
+  visibility    VisibilityType @default(COMPANY)
+
+  isMandatory         Boolean @default(false)
+  autoEnroll          Boolean @default(false)
+  allowSelfEnrollment Boolean @default(true)
+  rollingEnrollment   Boolean @default(false)
   capacity            Int?
-  isActive            Boolean        @default(true)
+
+  certificateEnabled Boolean @default(true)
+  xpEnabled          Boolean @default(true)
+
+  // Default milestone configuration can be stored as JSON or separate table later
+  defaultMilestones Json?
+
+  isActive Boolean @default(true)
 
   createdBy Int
   updatedBy Int?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
-
-  // NEW: Target Audience Integration
-  targetAudiences TargetAudience[]
 
   company  Company          @relation(fields: [companyId], references: [id])
   category ProgramCategory? @relation(fields: [categoryId], references: [id])
@@ -3124,21 +3817,31 @@ model ProgramTemplate {
 }
 
 model AssessmentTemplate {
-  id                    Int            @id @default(autoincrement())
-  companyId             Int
-  name                  String         @db.VarChar(255)
-  description           String?        @db.Text
-  assessmentType        AssessmentType
-  passingScore          Decimal        @db.Decimal(5, 2)
-  maxAttempts           Int            @default(2)
-  timeLimitMinutes      Int?
-  randomizeQuestions    Boolean        @default(false)
-  randomizeOptions      Boolean        @default(false)
-  showResultImmediately Boolean        @default(false)
-  allowReview           Boolean        @default(true)
-  lockdownBrowser       Boolean        @default(false)
-  proctoringEnabled     Boolean        @default(false)
-  isActive              Boolean        @default(true)
+  id        Int @id @default(autoincrement())
+  companyId Int
+
+  name             String  @db.VarChar(255)
+  description      String? @db.Text
+  assessmentTypeId Int
+  gradingMethodId  Int
+
+  passingScore     Decimal @db.Decimal(5, 2)
+  maxAttempts      Int     @default(2)
+  timeLimitMinutes Int?
+
+  randomizeQuestions    Boolean @default(false)
+  randomizeOptions      Boolean @default(false)
+  showResultImmediately Boolean @default(false)
+  allowReview           Boolean @default(true)
+  showCorrectAnswers    String? @db.VarChar(30) // IMMEDIATELY, NEVER, AFTER_SUBMIT
+
+  lockdownBrowser   Boolean @default(false)
+  proctoringEnabled Boolean @default(false)
+
+  // Scoring rules
+  negativeMarking Decimal? @db.Decimal(3, 2)
+
+  isActive Boolean @default(true)
 
   createdBy Int
   updatedBy Int?
@@ -3146,14 +3849,13 @@ model AssessmentTemplate {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  // NEW: Target Audience Integration
-  targetAudiences TargetAudience[]
+  company        Company        @relation(fields: [companyId], references: [id])
+  assessmentType AssessmentType @relation(fields: [assessmentTypeId], references: [id])
+  gradingMethod  GradingMethod  @relation(fields: [gradingMethodId], references: [id])
+  creator        AppUser        @relation("AssessmentTemplateCreator", fields: [createdBy], references: [id])
+  updater        AppUser?       @relation("AssessmentTemplateUpdater", fields: [updatedBy], references: [id])
 
-  company Company  @relation(fields: [companyId], references: [id])
-  creator AppUser  @relation("AssessmentTemplateCreator", fields: [createdBy], references: [id])
-  updater AppUser? @relation("AssessmentTemplateUpdater", fields: [updatedBy], references: [id])
-
-  assessments Assessment[]
+  assessments Assessment[] // actual instances created from this template
 
   @@unique([companyId, name])
   @@index([companyId])
@@ -3212,18 +3914,44 @@ model NotificationTemplate {
   @@map("notification_templates")
 }
 
-model NotificationEvent {
-  id          Int                    @id @default(autoincrement())
+model NotificationModule {
+  id          Int      @id @default(autoincrement())
   companyId   Int
-  code        String                 @db.VarChar(100)
+  name        String   @db.VarChar(100) // e.g. "Course", "Program"
+  slug        String   @db.VarChar(80) // e.g. "course"
+  description String?
+  isSystem    Boolean  @default(false) // Protect defaults
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company Company             @relation(fields: [companyId], references: [id])
+  events  NotificationEvent[]
+
+  @@unique([companyId, name])
+  @@unique([companyId, slug])
+  @@index([companyId])
+  @@map("notification_modules")
+}
+
+model NotificationEvent {
+  id          Int     @id @default(autoincrement())
+  companyId   Int
+  code        String  @db.VarChar(100)
   name        String
   description String?
-  module      NotificationModule
-  isActive    Boolean                @default(true)
-  company     Company                @relation(fields: [companyId], references: [id])
-  templates   NotificationTemplate[]
+  moduleId    Int // ← Changed to FK
+
+  isActive Boolean @default(true)
+
+  company   Company                @relation(fields: [companyId], references: [id])
+  module    NotificationModule     @relation(fields: [moduleId], references: [id])
+  templates NotificationTemplate[]
 
   @@unique([companyId, code])
+  @@index([companyId])
+  @@index([moduleId])
+  @@map("notification_events")
 }
 
 model LearningPathTemplate {
@@ -3248,6 +3976,62 @@ model LearningPathTemplate {
   @@map("learning_path_templates")
 }
 
+model CertificateTemplate {
+  id                Int    @id @default(autoincrement())
+  companyId         Int
+  courseVersionId   Int?
+  learningProgramId Int?
+  name              String @db.VarChar(255)
+
+  certificateTypeId Int // ← Changed to FK
+
+  templateFile          String?
+  certificateIdPattern  String                 @db.VarChar(100)
+  validityMonths        Int?
+  sealImage             String?
+  qrVerificationEnabled Boolean                @default(true)
+  backgroundImage       String?
+  status                ContentLifecycleStatus
+
+  createdBy Int
+  updatedBy Int?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  company         Company          @relation(fields: [companyId], references: [id])
+  courseVersion   CourseVersion?   @relation(fields: [courseVersionId], references: [id])
+  learningProgram LearningProgram? @relation(fields: [learningProgramId], references: [id])
+  certificateType CertificateType  @relation(fields: [certificateTypeId], references: [id])
+
+  createdByUser AppUser  @relation("CertTemplateCreatedBy", fields: [createdBy], references: [id])
+  updatedByUser AppUser? @relation("CertTemplateUpdatedBy", fields: [updatedBy], references: [id])
+
+  signers      CertificateTemplateSigner[]
+  certificates Certificate[]
+
+  @@index([companyId])
+  @@index([certificateTypeId])
+  @@map("certificate_templates")
+}
+
+model CertificateTemplateSigner {
+  id           Int                 @id @default(autoincrement())
+  companyId    Int
+  templateId   Int
+  employeeId   String              @db.VarChar(20)
+  displayOrder Int
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  company      Company             @relation(fields: [companyId], references: [id])
+  template     CertificateTemplate @relation(fields: [templateId], references: [id])
+  employee     Employee            @relation(fields: [employeeId], references: [id])
+
+  @@unique([templateId, displayOrder])
+  @@unique([templateId, employeeId])
+  @@map("certificate_template_signers")
+}
+
 ///////////////////////////////////////////////////////////
 // Workflow Management (Shared Domain)
 ///////////////////////////////////////////////////////////
@@ -3259,7 +4043,7 @@ model ApprovalWorkflow {
   entityType  WorkflowEntityType
   description String?            @db.Text
   isDefault   Boolean            @default(false)
-  isSystem    Boolean            @default(false) // ← NEW: Protects system workflows
+  isSystem    Boolean            @default(false)
   isActive    Boolean            @default(true)
 
   createdBy Int
@@ -3281,65 +4065,84 @@ model ApprovalWorkflow {
 }
 
 model ApprovalWorkflowStep {
-  id                 Int                @id @default(autoincrement())
-  workflowId         Int
-  approvalOrder      Int
-  approverRole       String?            @db.VarChar(100)
-  approverEmployeeId String?            @db.VarChar(20)
-  isRequired         Boolean            @default(true)
-  autoApprove        Boolean            @default(false)
-  timeoutDays        Int?
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
-  workflow           ApprovalWorkflow   @relation(fields: [workflowId], references: [id])
-  approver           Employee?          @relation(fields: [approverEmployeeId], references: [id])
-  decisions          ApprovalDecision[]
+  id            Int @id @default(autoincrement())
+  companyId     Int
+  workflowId    Int
+  approvalOrder Int
+
+  // Designation of who approves this step
+  approverRoleId     Int? // FK to EMS AppRole
+  approverEmployeeId String? @db.VarChar(20)
+
+  isRequired  Boolean @default(true)
+  autoApprove Boolean @default(false)
+  timeoutDays Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company      Company            @relation(fields: [companyId], references: [id])
+  workflow     ApprovalWorkflow   @relation(fields: [workflowId], references: [id])
+  approverRole AppRole?           @relation(fields: [approverRoleId], references: [id])
+  approver     Employee?          @relation(fields: [approverEmployeeId], references: [id])
+  decisions    ApprovalDecision[]
 
   @@unique([workflowId, approvalOrder])
+  @@index([companyId])
+  @@index([approverRoleId])
   @@map("approval_workflow_steps")
 }
 
 model ApprovalWorkflowInstance {
-  id                Int                    @id @default(autoincrement())
-  companyId         Int
-  workflowId        Int
-  entityType        WorkflowEntityType
-  courseVersionId   Int?
-  learningProgramId Int?
-  status            WorkflowInstanceStatus @default(DRAFT)
-  submittedBy       Int?
-  submittedAt       DateTime?
-  completedAt       DateTime?
-  latestComment     String?                @db.Text
-  createdAt         DateTime               @default(now())
-  updatedAt         DateTime               @updatedAt
-  company           Company                @relation(fields: [companyId], references: [id])
-  workflow          ApprovalWorkflow       @relation(fields: [workflowId], references: [id])
-  courseVersion     CourseVersion?         @relation(fields: [courseVersionId], references: [id])
-  learningProgram   LearningProgram?       @relation(fields: [learningProgramId], references: [id])
-  submittedByUser   AppUser?               @relation("ApprovalInstanceSubmittedBy", fields: [submittedBy], references: [id])
-  decisions         ApprovalDecision[]
+  id         Int                @id @default(autoincrement())
+  companyId  Int
+  workflowId Int
+  entityType WorkflowEntityType
+
+  // Polymorphic links to what is being approved
+  courseVersionId       Int?
+  learningProgramId     Int?
+  trainingNeedRequestId Int? // ← ADDED for TNA
+
+  status        WorkflowInstanceStatus @default(DRAFT)
+  submittedBy   Int?
+  submittedAt   DateTime?
+  completedAt   DateTime?
+  latestComment String?                @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company             Company              @relation(fields: [companyId], references: [id])
+  workflow            ApprovalWorkflow     @relation(fields: [workflowId], references: [id])
+  courseVersion       CourseVersion?       @relation(fields: [courseVersionId], references: [id])
+  learningProgram     LearningProgram?     @relation(fields: [learningProgramId], references: [id])
+  trainingNeedRequest TrainingNeedRequest? @relation(fields: [trainingNeedRequestId], references: [id])
+  submittedByUser     AppUser?             @relation("ApprovalInstanceSubmittedBy", fields: [submittedBy], references: [id])
+  decisions           ApprovalDecision[]
 
   @@index([companyId])
   @@index([workflowId])
   @@index([courseVersionId])
   @@index([learningProgramId])
+  @@index([trainingNeedRequestId])
   @@map("approval_workflow_instances")
 }
 
 model ApprovalDecision {
-  id             Int                      @id @default(autoincrement())
+  id             Int            @id @default(autoincrement())
   companyId      Int
   instanceId     Int
   workflowStepId Int
   status         ApprovalStatus
-  comment        String?                  @db.Text
+  comment        String?        @db.Text
   decidedBy      Int?
-  decidedAt      DateTime                 @default(now())
-  company        Company                  @relation(fields: [companyId], references: [id])
-  instance       ApprovalWorkflowInstance @relation(fields: [instanceId], references: [id])
-  workflowStep   ApprovalWorkflowStep     @relation(fields: [workflowStepId], references: [id])
-  decidedByUser  AppUser?                 @relation("ApprovalDecisionMadeBy", fields: [decidedBy], references: [id])
+  decidedAt      DateTime       @default(now())
+
+  company       Company                  @relation(fields: [companyId], references: [id])
+  instance      ApprovalWorkflowInstance @relation(fields: [instanceId], references: [id])
+  workflowStep  ApprovalWorkflowStep     @relation(fields: [workflowStepId], references: [id])
+  decidedByUser AppUser?                 @relation("ApprovalDecisionMadeBy", fields: [decidedBy], references: [id])
 
   @@unique([instanceId, workflowStepId])
   @@index([companyId])
