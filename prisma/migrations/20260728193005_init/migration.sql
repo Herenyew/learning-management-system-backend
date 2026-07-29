@@ -14,9 +14,6 @@ CREATE TYPE "WorkflowInstanceStatus" AS ENUM ('DRAFT', 'PENDING', 'CHANGES_REQUE
 CREATE TYPE "MilestoneStatus" AS ENUM ('NOT_STARTED', 'ACHIEVED', 'OVERDUE', 'WAIVED');
 
 -- CreateEnum
-CREATE TYPE "DifficultyLevel" AS ENUM ('BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT');
-
--- CreateEnum
 CREATE TYPE "EnrollmentSource" AS ENUM ('SELF_SERVICE', 'ADMIN_ASSIGNED', 'MANAGER_ASSIGNED', 'HRIS_SYNC', 'API', 'CSV_IMPORT', 'INVITE_CODE');
 
 -- CreateEnum
@@ -32,16 +29,16 @@ CREATE TYPE "EnrollmentEntityType" AS ENUM ('COURSE', 'PROGRAM');
 CREATE TYPE "WaitlistStatus" AS ENUM ('WAITING', 'OFFERED', 'ACCEPTED', 'EXPIRED', 'CANCELLED');
 
 -- CreateEnum
-CREATE TYPE "CourseStatus" AS ENUM ('DRAFT', 'IN_REVIEW', 'APPROVED', 'PUBLISHED', 'ARCHIVED');
+CREATE TYPE "ContentCategory" AS ENUM ('RESOURCE', 'INTERACTIVE');
 
 -- CreateEnum
-CREATE TYPE "ChapterStatus" AS ENUM ('DRAFT', 'IN_REVIEW', 'APPROVED', 'PUBLISHED', 'ARCHIVED');
+CREATE TYPE "ContentLifecycleStatus" AS ENUM ('DRAFT', 'IN_REVIEW', 'APPROVED', 'PUBLISHED', 'ARCHIVED', 'RETIRED');
 
 -- CreateEnum
 CREATE TYPE "VersionStatus" AS ENUM ('DRAFT', 'PUBLISHED', 'ARCHIVED');
 
 -- CreateEnum
-CREATE TYPE "AudienceType" AS ENUM ('ALL_USERS', 'DEPARTMENT', 'JOB_TITLE', 'JOB_LEVEL', 'APP_ROLE', 'EMPLOYMENT_TYPE', 'CUSTOM');
+CREATE TYPE "AudienceType" AS ENUM ('ALL_USERS', 'DEPARTMENT', 'ROLE', 'AUDIENCE_GROUP');
 
 -- CreateEnum
 CREATE TYPE "ProgressStatus" AS ENUM ('NOT_STARTED', 'IN_PROGRESS', 'COMPLETED');
@@ -53,9 +50,6 @@ CREATE TYPE "ApprovalStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED', 'CANCEL
 CREATE TYPE "AttendanceStatus" AS ENUM ('PRESENT', 'ABSENT', 'LATE', 'PARTIAL', 'NO_SHOW');
 
 -- CreateEnum
-CREATE TYPE "TaskType" AS ENUM ('COURSE_CONTENT', 'ASSESSMENT', 'LIVE_SESSION', 'ASSIGNMENT', 'SURVEY', 'MANAGER_CHECKIN', 'PEER_REVIEW', 'EXTERNAL_ACTIVITY', 'READING', 'OTHER');
-
--- CreateEnum
 CREATE TYPE "TaskSubmissionType" AS ENUM ('FILE_UPLOAD', 'TEXT_INPUT', 'LINK', 'QUIZ', 'NONE');
 
 -- CreateEnum
@@ -65,37 +59,16 @@ CREATE TYPE "TaskStatus" AS ENUM ('PENDING', 'IN_PROGRESS', 'SUBMITTED', 'UNDER_
 CREATE TYPE "LearningProgramStatus" AS ENUM ('DRAFT', 'ACTIVE', 'COMPLETED', 'ARCHIVED');
 
 -- CreateEnum
-CREATE TYPE "AttendanceMethod" AS ENUM ('QR_CODE', 'MANUAL', 'SYSTEM_AUTO', 'BIOMETRIC');
-
--- CreateEnum
-CREATE TYPE "AssessmentType" AS ENUM ('PRE_ASSESSMENT', 'POST_ASSESSMENT', 'CHAPTER_QUIZ', 'COURSE_FINAL', 'PRACTICE');
-
--- CreateEnum
-CREATE TYPE "AssessmentStatus" AS ENUM ('DRAFT', 'IN_REVIEW', 'APPROVED', 'PUBLISHED', 'ARCHIVED');
-
--- CreateEnum
-CREATE TYPE "QuestionType" AS ENUM ('MULTIPLE_CHOICE', 'TRUE_FALSE', 'SHORT_ANSWER', 'ESSAY', 'MATCHING', 'ORDERING', 'FILL_BLANK', 'MULTI_SELECT', 'DRAG_DROP');
-
--- CreateEnum
-CREATE TYPE "GradingMethod" AS ENUM ('HIGHEST_SCORE', 'LATEST_ATTEMPT', 'AVERAGE_SCORE', 'FIRST_ATTEMPT');
-
--- CreateEnum
 CREATE TYPE "QuestionStatus" AS ENUM ('ACTIVE', 'ARCHIVED');
 
 -- CreateEnum
-CREATE TYPE "QuestionVersionApprovalStatus" AS ENUM ('DRAFT', 'PENDING_REVIEW', 'APPROVED', 'REJECTED');
+CREATE TYPE "AnswerReviewStatus" AS ENUM ('DRAFT', 'PENDING_REVIEW', 'APPROVED', 'REJECTED');
 
 -- CreateEnum
 CREATE TYPE "AttemptStatus" AS ENUM ('IN_PROGRESS', 'SUBMITTED', 'GRADED', 'EXPIRED');
 
 -- CreateEnum
-CREATE TYPE "CertificateType" AS ENUM ('COURSE_COMPLETION', 'PROGRAM_COMPLETION', 'CERTIFICATION', 'BADGE', 'ATTENDANCE', 'EXTERNAL');
-
--- CreateEnum
 CREATE TYPE "CertificateStatus" AS ENUM ('ACTIVE', 'EXPIRED', 'REVOKED');
-
--- CreateEnum
-CREATE TYPE "TemplateStatus" AS ENUM ('DRAFT', 'IN_REVIEW', 'APPROVED', 'PUBLISHED', 'ARCHIVED');
 
 -- CreateEnum
 CREATE TYPE "VerificationMethod" AS ENUM ('QR_CODE', 'VERIFICATION_CODE', 'API', 'MANUAL', 'PUBLIC_LINK');
@@ -104,22 +77,10 @@ CREATE TYPE "VerificationMethod" AS ENUM ('QR_CODE', 'VERIFICATION_CODE', 'API',
 CREATE TYPE "ExternalCredentialStatus" AS ENUM ('PENDING', 'VERIFIED', 'REJECTED', 'EXPIRED', 'REVOKED');
 
 -- CreateEnum
-CREATE TYPE "CredentialSource" AS ENUM ('MANUAL_UPLOAD', 'API_INTEGRATION', 'EMAIL_SUBMISSION', 'LINKEDIN', 'OTHER');
-
--- CreateEnum
-CREATE TYPE "ProviderType" AS ENUM ('CERTIFICATION_BODY', 'UNIVERSITY', 'ONLINE_PLATFORM', 'GOVERNMENT', 'INTERNAL', 'OTHER');
-
--- CreateEnum
 CREATE TYPE "SessionType" AS ENUM ('VIRTUAL', 'PHYSICAL', 'HYBRID');
 
 -- CreateEnum
 CREATE TYPE "LiveSessionStatus" AS ENUM ('SCHEDULED', 'LIVE', 'COMPLETED', 'CANCELLED');
-
--- CreateEnum
-CREATE TYPE "MeetingProvider" AS ENUM ('ZOOM', 'MICROSOFT_TEAMS', 'GOOGLE_MEET', 'WEBEX', 'INPERSON', 'OTHER');
-
--- CreateEnum
-CREATE TYPE "SurveyQuestionType" AS ENUM ('RATING', 'MULTIPLE_CHOICE', 'MULTI_SELECT', 'TEXT', 'YES_NO', 'SCALE');
 
 -- CreateEnum
 CREATE TYPE "SurveyType" AS ENUM ('PRE_COURSE', 'POST_COURSE', 'MANAGER_FOLLOWUP');
@@ -137,28 +98,13 @@ CREATE TYPE "TrainingRequestType" AS ENUM ('INTERNAL', 'EXTERNAL');
 CREATE TYPE "PriorityLevel" AS ENUM ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL');
 
 -- CreateEnum
-CREATE TYPE "FundingType" AS ENUM ('COMPANY_FUNDED', 'SELF_FUNDED', 'SHARED');
-
--- CreateEnum
 CREATE TYPE "TnaStatus" AS ENUM ('DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'CANCELLED');
 
 -- CreateEnum
 CREATE TYPE "RecommendationSource" AS ENUM ('AI', 'MANUAL', 'MANAGER', 'HR');
 
 -- CreateEnum
-CREATE TYPE "XpRuleCategory" AS ENUM ('ENROLLMENT', 'COMPLETION', 'ASSESSMENT', 'ENGAGEMENT', 'MANUAL');
-
--- CreateEnum
-CREATE TYPE "XpTriggerEvent" AS ENUM ('COURSE_COMPLETED', 'ASSESSMENT_PASSED', 'PERFECT_SCORE', 'PROGRAM_COMPLETED', 'CERTIFICATE_EARNED', 'BADGE_AWARDED', 'MANUAL_ADJUSTMENT');
-
--- CreateEnum
 CREATE TYPE "XpSourceType" AS ENUM ('COURSE_COMPLETION', 'ASSESSMENT_ATTEMPT', 'PROGRAM_COMPLETION', 'CERTIFICATE', 'BADGE', 'MANUAL');
-
--- CreateEnum
-CREATE TYPE "BadgeCategory" AS ENUM ('ACHIEVEMENT', 'MILESTONE', 'STREAK', 'SKILL', 'PARTICIPATION');
-
--- CreateEnum
-CREATE TYPE "TrainingFormat" AS ENUM ('ONLINE', 'INSTRUCTOR_LED', 'BLENDED', 'EXTERNAL', 'CONFERENCE', 'ON_THE_JOB');
 
 -- CreateEnum
 CREATE TYPE "SettingCategory" AS ENUM ('GENERAL', 'ENROLLMENT', 'NOTIFICATIONS', 'CERTIFICATION', 'GAMIFICATION', 'SECURITY', 'INTEGRATIONS');
@@ -167,22 +113,37 @@ CREATE TYPE "SettingCategory" AS ENUM ('GENERAL', 'ENROLLMENT', 'NOTIFICATIONS',
 CREATE TYPE "NotificationChannel" AS ENUM ('IN_APP', 'EMAIL', 'SMS', 'PUSH');
 
 -- CreateEnum
-CREATE TYPE "NotificationModule" AS ENUM ('COURSE', 'PROGRAM', 'ENROLLMENT', 'ASSESSMENT', 'CERTIFICATION', 'LIVE_SESSION', 'SURVEY', 'TNA', 'GAMIFICATION', 'SYSTEM');
-
--- CreateEnum
-CREATE TYPE "EnrollmentTargetType" AS ENUM ('COURSE', 'PROGRAM', 'LEARNING_PATH');
-
--- CreateEnum
-CREATE TYPE "EnrollmentRuleType" AS ENUM ('AUTO_ENROLL', 'RESTRICT_ACCESS', 'REQUIRE_APPROVAL', 'WAITLIST_PRIORITY', 'CUSTOM');
-
--- CreateEnum
 CREATE TYPE "SettingDataType" AS ENUM ('STRING', 'NUMBER', 'BOOLEAN', 'JSON');
 
 -- CreateEnum
-CREATE TYPE "ApprovalRole" AS ENUM ('MANAGER', 'HR', 'FINANCE', 'ADMIN', 'CEO', 'CUSTOM');
+CREATE TYPE "WorkflowEntityType" AS ENUM ('COURSE', 'COURSE_VERSION', 'LEARNING_PROGRAM', 'TNA_REQUEST', 'CERTIFICATE', 'LIVE_SESSION');
 
 -- CreateEnum
-CREATE TYPE "WorkflowEntityType" AS ENUM ('COURSE', 'COURSE_VERSION', 'LEARNING_PROGRAM', 'TNA_REQUEST', 'CERTIFICATE', 'LIVE_SESSION', 'OTHER');
+CREATE TYPE "LeaderboardScope" AS ENUM ('COMPANY', 'DEPARTMENT', 'PROGRAM', 'COURSE', 'GLOBAL');
+
+-- CreateEnum
+CREATE TYPE "RankingCriteria" AS ENUM ('XP', 'COURSE_COMPLETIONS', 'PROGRAM_COMPLETIONS', 'CERTIFICATES', 'ASSESSMENT_SCORE');
+
+-- CreateEnum
+CREATE TYPE "LeaderboardPeriod" AS ENUM ('ALL_TIME', 'MONTHLY', 'QUARTERLY', 'YEARLY');
+
+-- CreateEnum
+CREATE TYPE "QuestionAnswerStructure" AS ENUM ('OPTION_BASED', 'MATCHING_PAIR_BASED', 'FREE_TEXT');
+
+-- CreateEnum
+CREATE TYPE "TargetAudienceEntityType" AS ENUM ('COURSE', 'LEARNING_PROGRAM', 'ASSESSMENT', 'CERTIFICATE_TEMPLATE', 'LIVE_SESSION', 'COURSE_TEMPLATE', 'PROGRAM_TEMPLATE', 'ASSESSMENT_TEMPLATE');
+
+-- CreateEnum
+CREATE TYPE "ScormTrackingMode" AS ENUM ('COMPLETION_ONLY', 'SCORE_ONLY', 'COMPLETION_AND_SCORE', 'TIME_ONLY');
+
+-- CreateEnum
+CREATE TYPE "FileOwnerType" AS ENUM ('COURSE_CONTENT', 'SUBMISSION');
+
+-- CreateEnum
+CREATE TYPE "SubmissionOwnerType" AS ENUM ('COURSE_CONTENT', 'PROGRAM_TASK');
+
+-- CreateEnum
+CREATE TYPE "TaskLinkedEntity" AS ENUM ('COURSE_VERSION', 'COURSE_CONTENT', 'ASSESSMENT', 'LIVE_SESSION', 'SURVEY', 'NONE');
 
 -- CreateTable
 CREATE TABLE "company" (
@@ -201,6 +162,7 @@ CREATE TABLE "employee" (
     "id" VARCHAR(20) NOT NULL,
     "company_id" INTEGER NOT NULL,
     "full_name" VARCHAR(150) NOT NULL,
+    "start_date" DATE,
     "is_active" BOOLEAN NOT NULL DEFAULT true,
     "last_synced_at" TIMESTAMP(3),
     "department_id" INTEGER,
@@ -259,6 +221,18 @@ CREATE TABLE "job_level" (
 );
 
 -- CreateTable
+CREATE TABLE "app_role" (
+    "id" INTEGER NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "description" TEXT,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "lastSyncedAt" TIMESTAMP(3),
+
+    CONSTRAINT "app_role_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "lms_permissions" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
@@ -283,15 +257,121 @@ CREATE TABLE "lms_role_permissions" (
 );
 
 -- CreateTable
-CREATE TABLE "app_role" (
-    "id" INTEGER NOT NULL,
+CREATE TABLE "stored_files" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "ownerType" "FileOwnerType" NOT NULL,
+    "ownerId" INTEGER NOT NULL,
+    "fileTypeId" INTEGER,
+    "originalFileName" VARCHAR(255) NOT NULL,
+    "storedFileName" VARCHAR(255) NOT NULL,
+    "mimeType" VARCHAR(100) NOT NULL,
+    "fileExtension" VARCHAR(20),
+    "fileSizeBytes" BIGINT NOT NULL,
+    "checksum" TEXT,
+    "storageProvider" VARCHAR(50),
+    "bucket" VARCHAR(255),
+    "objectKey" VARCHAR(1000),
+    "region" VARCHAR(100),
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "uploadedBy" INTEGER,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
+    "courseContentId" INTEGER,
+
+    CONSTRAINT "stored_files_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "submissions" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "ownerType" "SubmissionOwnerType" NOT NULL,
+    "ownerId" INTEGER NOT NULL,
+    "enrollmentId" INTEGER,
+    "employeeId" VARCHAR(20) NOT NULL,
+    "submissionNo" INTEGER NOT NULL DEFAULT 1,
+    "submissionType" "TaskSubmissionType" NOT NULL,
+    "status" "TaskStatus" NOT NULL,
+    "textAnswer" TEXT,
+    "submissionUrl" TEXT,
+    "dueDate" TIMESTAMP(3),
+    "submittedAt" TIMESTAMP(3),
+    "reviewedAt" TIMESTAMP(3),
+    "reviewedBy" INTEGER,
+    "score" DECIMAL(5,2),
+    "reviewComment" TEXT,
+    "completedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
+    "programTaskId" INTEGER,
+
+    CONSTRAINT "submissions_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "submission_peer_reviews" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "submissionId" INTEGER NOT NULL,
+    "reviewerEmployeeId" VARCHAR(20) NOT NULL,
+    "reviewText" TEXT,
+    "rating" INTEGER,
+    "reviewedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "submission_peer_reviews_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "audience_group_rules" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "audienceGroupId" INTEGER NOT NULL,
+    "departmentId" INTEGER,
+    "appRoleId" INTEGER,
+    "jobTitleId" INTEGER,
+    "jobLevelId" INTEGER,
+    "employmentType" VARCHAR(20),
+    "hireWithinDays" INTEGER,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "audience_group_rules_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "audience_groups" (
+    "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
     "name" VARCHAR(100) NOT NULL,
     "description" TEXT,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "lastSyncedAt" TIMESTAMP(3),
+    "createdBy" INTEGER NOT NULL,
+    "updatedBy" INTEGER,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
 
-    CONSTRAINT "app_role_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "audience_groups_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "target_audiences" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "entityType" "TargetAudienceEntityType" NOT NULL,
+    "entityId" INTEGER NOT NULL,
+    "audienceType" "AudienceType" NOT NULL,
+    "departmentId" INTEGER,
+    "appRoleId" INTEGER,
+    "audienceGroupId" INTEGER,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "target_audiences_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -312,7 +392,7 @@ CREATE TABLE "courses" (
     "ownerEmployeeId" VARCHAR(20),
     "visibility" "VisibilityType" NOT NULL DEFAULT 'COMPANY',
     "enrollmentPolicy" "EnrollmentPolicy" NOT NULL DEFAULT 'OPEN',
-    "status" "CourseStatus" NOT NULL DEFAULT 'DRAFT',
+    "status" "ContentLifecycleStatus" NOT NULL DEFAULT 'DRAFT',
     "isTemplate" BOOLEAN NOT NULL DEFAULT false,
     "sourceTemplateId" INTEGER,
     "createdBy" INTEGER NOT NULL,
@@ -325,6 +405,24 @@ CREATE TABLE "courses" (
 );
 
 -- CreateTable
+CREATE TABLE "difficulty_levels" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER,
+    "code" VARCHAR(50) NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "description" TEXT,
+    "displayOrder" INTEGER NOT NULL DEFAULT 0,
+    "color" VARCHAR(20),
+    "icon" VARCHAR(100),
+    "isSystem" BOOLEAN NOT NULL DEFAULT false,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "difficulty_levels_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "course_versions" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
@@ -333,11 +431,11 @@ CREATE TABLE "course_versions" (
     "minorVersion" INTEGER NOT NULL DEFAULT 0,
     "versionLabel" VARCHAR(50),
     "changeLog" TEXT,
+    "difficultyLevelId" INTEGER NOT NULL,
     "status" "VersionStatus" NOT NULL DEFAULT 'DRAFT',
     "approvalStatus" "ApprovalStatus" NOT NULL DEFAULT 'PENDING',
-    "difficultyLevel" "DifficultyLevel" NOT NULL,
     "estimatedDurationMinutes" INTEGER,
-    "passingScore" DECIMAL(5,2) NOT NULL,
+    "requiredAssessmentScore" DECIMAL(5,2) NOT NULL,
     "completionThreshold" DECIMAL(5,2) NOT NULL,
     "certificateRequired" BOOLEAN NOT NULL DEFAULT true,
     "attendanceRequired" BOOLEAN NOT NULL DEFAULT false,
@@ -529,7 +627,8 @@ CREATE TABLE "course_chapters" (
     "title" VARCHAR(255) NOT NULL,
     "description" TEXT,
     "displayOrder" INTEGER NOT NULL,
-    "status" "ChapterStatus" NOT NULL DEFAULT 'DRAFT',
+    "estimatedMinutes" DECIMAL(65,30),
+    "status" "ContentLifecycleStatus" NOT NULL DEFAULT 'DRAFT',
     "isRequired" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -559,16 +658,26 @@ CREATE TABLE "course_contents" (
     "title" VARCHAR(255) NOT NULL,
     "description" TEXT,
     "displayOrder" INTEGER NOT NULL,
-    "durationMinutes" INTEGER,
-    "externalUrl" TEXT,
-    "isRequired" BOOLEAN NOT NULL DEFAULT true,
-    "allowDownload" BOOLEAN NOT NULL DEFAULT false,
     "transcriptUrl" TEXT,
-    "pageCount" INTEGER,
+    "thumbnailUrl" TEXT,
+    "openInNewTab" BOOLEAN NOT NULL DEFAULT true,
+    "isRequired" BOOLEAN NOT NULL DEFAULT true,
+    "estimatedDurationMinutes" INTEGER,
     "completionThreshold" DECIMAL(5,2),
     "minimumTimeMinutes" INTEGER,
-    "scormLaunchUrl" TEXT,
-    "scormTrackingMode" VARCHAR(50),
+    "allowDownload" BOOLEAN NOT NULL DEFAULT false,
+    "additionalLink" VARCHAR(500),
+    "maxSubmissions" INTEGER DEFAULT 1,
+    "allowResubmission" BOOLEAN NOT NULL DEFAULT false,
+    "requiresManagerApproval" BOOLEAN NOT NULL DEFAULT false,
+    "requiresInstructorApproval" BOOLEAN NOT NULL DEFAULT false,
+    "peerReviewRequired" BOOLEAN NOT NULL DEFAULT false,
+    "pageCount" INTEGER,
+    "externalUrl" VARCHAR(1000),
+    "scormLaunchUrl" VARCHAR(1000),
+    "scormTrackingMode" "ScormTrackingMode",
+    "createdBy" INTEGER NOT NULL,
+    "updatedBy" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "deletedAt" TIMESTAMP(3),
@@ -577,35 +686,11 @@ CREATE TABLE "course_contents" (
 );
 
 -- CreateTable
-CREATE TABLE "content_files" (
-    "id" SERIAL NOT NULL,
-    "companyId" INTEGER NOT NULL,
-    "contentId" INTEGER NOT NULL,
-    "fileTypeId" INTEGER NOT NULL,
-    "originalFileName" VARCHAR(255) NOT NULL,
-    "storedFileName" VARCHAR(255) NOT NULL,
-    "mimeType" VARCHAR(100) NOT NULL,
-    "fileExtension" VARCHAR(20),
-    "fileSizeBytes" BIGINT NOT NULL,
-    "checksum" TEXT,
-    "s3Bucket" VARCHAR(255) NOT NULL,
-    "s3Key" VARCHAR(1000) NOT NULL,
-    "s3Region" VARCHAR(100),
-    "version" INTEGER NOT NULL DEFAULT 1,
-    "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "uploadedBy" INTEGER,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "deletedAt" TIMESTAMP(3),
-
-    CONSTRAINT "content_files_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "ContentType" (
     "id" SERIAL NOT NULL,
     "slug" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "category" "ContentCategory" NOT NULL,
     "description" TEXT,
     "icon" TEXT,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
@@ -692,33 +777,6 @@ CREATE TABLE "course_faqs" (
     "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "course_faqs_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "target_audiences" (
-    "id" SERIAL NOT NULL,
-    "companyId" INTEGER NOT NULL,
-    "entityType" VARCHAR(20) NOT NULL,
-    "entityId" INTEGER NOT NULL,
-    "audienceType" "AudienceType" NOT NULL,
-    "departmentId" INTEGER NOT NULL,
-    "jobTitleId" INTEGER,
-    "jobLevelId" INTEGER,
-    "appRoleId" INTEGER,
-    "employmentType" VARCHAR(50),
-    "customValue" VARCHAR(100),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "courseId" INTEGER,
-    "learningProgramId" INTEGER,
-    "assessmentId" INTEGER,
-    "certificateTemplateId" INTEGER,
-    "liveSessionId" INTEGER,
-    "courseTemplateId" INTEGER,
-    "programTemplateId" INTEGER,
-    "assessmentTemplateId" INTEGER,
-
-    CONSTRAINT "target_audiences_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -852,18 +910,38 @@ CREATE TABLE "program_milestone_progresses" (
 );
 
 -- CreateTable
+CREATE TABLE "task_types" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "slug" VARCHAR(80) NOT NULL,
+    "description" TEXT,
+    "icon" TEXT,
+    "expectedSubmissionType" "TaskSubmissionType" NOT NULL,
+    "linkedEntity" "TaskLinkedEntity" NOT NULL,
+    "isSystem" BOOLEAN NOT NULL DEFAULT false,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "task_types_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "program_tasks" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
     "programId" INTEGER NOT NULL,
     "title" VARCHAR(255) NOT NULL,
     "description" TEXT,
-    "taskType" "TaskType" NOT NULL,
+    "taskTypeId" INTEGER NOT NULL,
     "courseVersionId" INTEGER,
     "courseContentId" INTEGER,
     "assessmentId" INTEGER,
     "liveSessionId" INTEGER,
     "surveyId" INTEGER,
+    "maxSubmissions" INTEGER DEFAULT 1,
+    "allowResubmission" BOOLEAN NOT NULL DEFAULT false,
     "isRequired" BOOLEAN NOT NULL DEFAULT true,
     "isBlocking" BOOLEAN NOT NULL DEFAULT false,
     "displayOrder" INTEGER NOT NULL,
@@ -875,6 +953,7 @@ CREATE TABLE "program_tasks" (
     "minimumAttendance" DECIMAL(5,2),
     "requiresManagerApproval" BOOLEAN NOT NULL DEFAULT false,
     "peerReviewRequired" BOOLEAN NOT NULL DEFAULT false,
+    "requiredPeerReviewCount" INTEGER DEFAULT 3,
     "xpAward" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -884,24 +963,27 @@ CREATE TABLE "program_tasks" (
 );
 
 -- CreateTable
-CREATE TABLE "program_task_submissions" (
+CREATE TABLE "program_tags" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
-    "taskId" INTEGER NOT NULL,
-    "employeeId" VARCHAR(20) NOT NULL,
-    "status" "TaskStatus" NOT NULL,
-    "submittedAt" TIMESTAMP(3),
-    "reviewedAt" TIMESTAMP(3),
-    "reviewedBy" INTEGER,
-    "score" DECIMAL(5,2),
-    "remarks" TEXT,
-    "submissionText" TEXT,
-    "submissionUrl" TEXT,
-    "fileUrl" TEXT,
-    "completedAt" TIMESTAMP(3),
-    "deletedAt" TIMESTAMP(3),
+    "name" VARCHAR(100) NOT NULL,
+    "color" VARCHAR(20),
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "program_task_submissions_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "program_tags_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "program_tag_mappings" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "programId" INTEGER NOT NULL,
+    "tagId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "program_tag_mappings_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -934,6 +1016,21 @@ CREATE TABLE "enrollments" (
 );
 
 -- CreateTable
+CREATE TABLE "enrollment_rule_types" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "slug" VARCHAR(80) NOT NULL,
+    "description" TEXT,
+    "isSystem" BOOLEAN NOT NULL DEFAULT false,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "enrollment_rule_types_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "enrollment_rules" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
@@ -942,7 +1039,7 @@ CREATE TABLE "enrollment_rules" (
     "entityType" "EnrollmentEntityType" NOT NULL,
     "courseVersionId" INTEGER,
     "programId" INTEGER,
-    "ruleType" "EnrollmentRuleType" NOT NULL,
+    "ruleTypeId" INTEGER NOT NULL,
     "priority" INTEGER NOT NULL DEFAULT 1,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "targetAudienceId" INTEGER,
@@ -1071,6 +1168,40 @@ CREATE TABLE "program_completions" (
 );
 
 -- CreateTable
+CREATE TABLE "grading_methods" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "slug" VARCHAR(80) NOT NULL,
+    "description" TEXT,
+    "isSystem" BOOLEAN NOT NULL DEFAULT false,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "grading_methods_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "assessment_types" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER,
+    "code" VARCHAR(50) NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "description" TEXT,
+    "isScored" BOOLEAN NOT NULL DEFAULT true,
+    "isPractice" BOOLEAN NOT NULL DEFAULT false,
+    "isGraded" BOOLEAN NOT NULL DEFAULT true,
+    "isSystem" BOOLEAN NOT NULL DEFAULT false,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "displayOrder" INTEGER,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "assessment_types_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "assessments" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
@@ -1079,12 +1210,13 @@ CREATE TABLE "assessments" (
     "templateId" INTEGER,
     "title" VARCHAR(255) NOT NULL,
     "description" TEXT,
-    "assessmentType" "AssessmentType" NOT NULL,
-    "gradingMethod" "GradingMethod" NOT NULL,
-    "passScore" DECIMAL(5,2) NOT NULL,
+    "assessmentTypeId" INTEGER NOT NULL,
+    "gradingMethodId" INTEGER NOT NULL,
+    "passingScore" DECIMAL(5,2) NOT NULL,
+    "totalMarks" DECIMAL(8,2) NOT NULL DEFAULT 0,
     "maxAttempts" INTEGER NOT NULL,
     "durationMinutes" INTEGER,
-    "negativeMarking" DECIMAL(8,2),
+    "negativeMarking" DECIMAL(5,2),
     "showCorrectAnswersAfterAllSubmit" BOOLEAN NOT NULL DEFAULT false,
     "allowQuestionReview" BOOLEAN NOT NULL DEFAULT true,
     "autoSubmitOnTimeLimit" BOOLEAN NOT NULL DEFAULT false,
@@ -1094,7 +1226,7 @@ CREATE TABLE "assessments" (
     "randomizeQuestions" BOOLEAN NOT NULL DEFAULT false,
     "randomizeOptions" BOOLEAN NOT NULL DEFAULT false,
     "showResultImmediately" BOOLEAN NOT NULL DEFAULT false,
-    "status" "AssessmentStatus" NOT NULL,
+    "status" "ContentLifecycleStatus" NOT NULL,
     "pairedAssessmentId" INTEGER,
     "createdBy" INTEGER NOT NULL,
     "updatedBy" INTEGER,
@@ -1106,14 +1238,49 @@ CREATE TABLE "assessments" (
 );
 
 -- CreateTable
+CREATE TABLE "question_banks" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "name" VARCHAR(255) NOT NULL,
+    "code" VARCHAR(100),
+    "description" TEXT,
+    "categoryId" INTEGER,
+    "topicId" INTEGER,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdBy" INTEGER NOT NULL,
+    "updatedBy" INTEGER,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
+
+    CONSTRAINT "question_banks_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "question_types" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "slug" VARCHAR(80) NOT NULL,
+    "description" TEXT,
+    "answerStructure" "QuestionAnswerStructure" NOT NULL,
+    "isSystem" BOOLEAN NOT NULL DEFAULT false,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "question_types_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "assessment_blueprints" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
     "assessmentId" INTEGER NOT NULL,
     "topicId" INTEGER,
-    "difficulty" "DifficultyLevel",
-    "questionType" "QuestionType",
+    "questionTypeId" INTEGER,
     "questionCount" INTEGER NOT NULL,
+    "difficultyLevelId" INTEGER,
 
     CONSTRAINT "assessment_blueprints_pkey" PRIMARY KEY ("id")
 );
@@ -1123,11 +1290,11 @@ CREATE TABLE "assessment_questions" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
     "assessmentId" INTEGER NOT NULL,
+    "questionId" INTEGER NOT NULL,
     "questionVersionId" INTEGER NOT NULL,
-    "marks" DECIMAL(8,2) NOT NULL,
-    "displayOrder" INTEGER,
+    "weight" DECIMAL(8,2) NOT NULL DEFAULT 1,
+    "displayOrder" INTEGER NOT NULL,
     "isRequired" BOOLEAN NOT NULL DEFAULT true,
-    "questionId" INTEGER,
 
     CONSTRAINT "assessment_questions_pkey" PRIMARY KEY ("id")
 );
@@ -1150,8 +1317,9 @@ CREATE TABLE "questions" (
     "companyId" INTEGER NOT NULL,
     "currentVersionId" INTEGER,
     "topicId" INTEGER,
-    "difficulty" "DifficultyLevel" NOT NULL,
-    "questionType" "QuestionType" NOT NULL,
+    "difficultyLevelId" INTEGER NOT NULL,
+    "questionTypeId" INTEGER NOT NULL,
+    "questionBankId" INTEGER NOT NULL,
     "status" "QuestionStatus" NOT NULL,
     "createdBy" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1181,13 +1349,28 @@ CREATE TABLE "question_options" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
     "questionVersionId" INTEGER NOT NULL,
+    "blankIndex" INTEGER,
     "optionLabel" TEXT,
     "optionText" TEXT NOT NULL,
     "isCorrect" BOOLEAN NOT NULL,
+    "caseSensitive" BOOLEAN,
     "displayOrder" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "question_options_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "question_matching_pairs" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "questionVersionId" INTEGER NOT NULL,
+    "leftValue" TEXT NOT NULL,
+    "rightValue" TEXT NOT NULL,
+    "displayOrder" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "question_matching_pairs_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -1203,6 +1386,7 @@ CREATE TABLE "assessment_attempts" (
     "gradedAt" TIMESTAMP(3),
     "gradedBy" INTEGER,
     "score" DECIMAL(8,2),
+    "percentage" DECIMAL(5,2),
     "passed" BOOLEAN,
     "snapshot" JSONB,
     "deletedAt" TIMESTAMP(3),
@@ -1211,15 +1395,27 @@ CREATE TABLE "assessment_attempts" (
 );
 
 -- CreateTable
+CREATE TABLE "assessment_attempt_rules" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "assessmentId" INTEGER NOT NULL,
+    "attemptNo" INTEGER NOT NULL,
+    "scoreMultiplier" DECIMAL(5,2),
+    "maxScore" DECIMAL(8,2),
+
+    CONSTRAINT "assessment_attempt_rules_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "assessment_answers" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
     "attemptId" INTEGER NOT NULL,
     "questionVersionId" INTEGER NOT NULL,
-    "earnedMarks" DECIMAL(8,2),
+    "answerText" TEXT,
+    "awardedMarks" DECIMAL(8,2),
     "isCorrect" BOOLEAN,
-    "answerSnapshot" JSONB,
-    "approvalStatus" "QuestionVersionApprovalStatus" NOT NULL,
+    "approvalStatus" "AnswerReviewStatus" NOT NULL,
     "approvedBy" INTEGER,
     "approvedAt" TIMESTAMP(3),
 
@@ -1227,40 +1423,43 @@ CREATE TABLE "assessment_answers" (
 );
 
 -- CreateTable
-CREATE TABLE "certificate_templates" (
+CREATE TABLE "assessment_answer_options" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
-    "courseVersionId" INTEGER,
-    "learningProgramId" INTEGER,
-    "name" VARCHAR(255) NOT NULL,
-    "certificateType" "CertificateType" NOT NULL,
-    "templateFile" TEXT,
-    "certificateIdPattern" VARCHAR(100) NOT NULL,
-    "validityMonths" INTEGER,
-    "sealImage" TEXT,
-    "qrVerificationEnabled" BOOLEAN NOT NULL DEFAULT true,
-    "backgroundImage" TEXT,
-    "status" "TemplateStatus" NOT NULL,
-    "createdBy" INTEGER NOT NULL,
-    "updatedBy" INTEGER,
+    "answerId" INTEGER NOT NULL,
+    "questionOptionId" INTEGER,
+    "blankIndex" INTEGER,
+    "typedText" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "deletedAt" TIMESTAMP(3),
 
-    CONSTRAINT "certificate_templates_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "assessment_answer_options_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "certificate_template_signers" (
+CREATE TABLE "assessment_answer_matches" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
-    "templateId" INTEGER NOT NULL,
-    "employeeId" VARCHAR(20) NOT NULL,
-    "displayOrder" INTEGER NOT NULL,
+    "answerId" INTEGER NOT NULL,
+    "leftPairId" INTEGER NOT NULL,
+    "rightPairId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "assessment_answer_matches_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "certificate_types" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "slug" VARCHAR(80) NOT NULL,
+    "description" TEXT,
+    "isSystem" BOOLEAN NOT NULL DEFAULT false,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "certificate_template_signers_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "certificate_types_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -1300,6 +1499,21 @@ CREATE TABLE "certificate_verifications" (
 );
 
 -- CreateTable
+CREATE TABLE "credential_sources" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "slug" VARCHAR(80) NOT NULL,
+    "description" TEXT,
+    "isSystem" BOOLEAN NOT NULL DEFAULT false,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "credential_sources_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "external_certificates" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
@@ -1310,7 +1524,7 @@ CREATE TABLE "external_certificates" (
     "issueDate" TIMESTAMP(3) NOT NULL,
     "expiryDate" TIMESTAMP(3),
     "verificationStatus" "ExternalCredentialStatus" NOT NULL,
-    "source" "CredentialSource" NOT NULL,
+    "sourceId" INTEGER NOT NULL,
     "uploadedFile" TEXT,
     "apiReference" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1321,11 +1535,26 @@ CREATE TABLE "external_certificates" (
 );
 
 -- CreateTable
+CREATE TABLE "provider_types" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "slug" VARCHAR(80) NOT NULL,
+    "description" TEXT,
+    "isSystem" BOOLEAN NOT NULL DEFAULT false,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "provider_types_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "external_providers" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
     "name" VARCHAR(150) NOT NULL,
-    "providerType" "ProviderType" NOT NULL,
+    "providerTypeId" INTEGER NOT NULL,
     "apiEndpoint" TEXT,
     "apiKeyReference" TEXT,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
@@ -1333,6 +1562,21 @@ CREATE TABLE "external_providers" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "external_providers_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "meeting_providers" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "slug" VARCHAR(80) NOT NULL,
+    "description" TEXT,
+    "isSystem" BOOLEAN NOT NULL DEFAULT false,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "meeting_providers_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -1350,7 +1594,7 @@ CREATE TABLE "live_sessions" (
     "timezone" VARCHAR(100) NOT NULL,
     "venue" VARCHAR(255),
     "meetingUrl" TEXT,
-    "meetingProvider" "MeetingProvider",
+    "meetingProviderId" INTEGER,
     "capacity" INTEGER NOT NULL,
     "waitlistCapacity" INTEGER,
     "recordingUrl" TEXT,
@@ -1377,16 +1621,32 @@ CREATE TABLE "live_session_instructors" (
 );
 
 -- CreateTable
+CREATE TABLE "attendance_methods" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "slug" VARCHAR(80) NOT NULL,
+    "description" TEXT,
+    "icon" TEXT,
+    "isSystem" BOOLEAN NOT NULL DEFAULT false,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "attendance_methods_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "live_session_attendance" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
     "sessionId" INTEGER NOT NULL,
     "enrollmentId" INTEGER NOT NULL,
     "attendanceStatus" "AttendanceStatus" NOT NULL,
+    "attendanceMethodId" INTEGER,
     "checkInTime" TIMESTAMP(3),
     "checkOutTime" TIMESTAMP(3),
     "attendancePercentage" DECIMAL(5,2),
-    "attendanceMethod" "AttendanceMethod",
     "remarks" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -1435,12 +1695,27 @@ CREATE TABLE "surveys" (
 );
 
 -- CreateTable
+CREATE TABLE "survey_question_types" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "slug" VARCHAR(80) NOT NULL,
+    "description" TEXT,
+    "isSystem" BOOLEAN NOT NULL DEFAULT false,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "survey_question_types_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "survey_questions" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
     "surveyId" INTEGER NOT NULL,
     "questionText" TEXT NOT NULL,
-    "questionType" "SurveyQuestionType" NOT NULL,
+    "questionTypeId" INTEGER NOT NULL,
     "displayOrder" INTEGER NOT NULL,
     "isRequired" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1529,18 +1804,33 @@ CREATE TABLE "tna_request_type_configs" (
 );
 
 -- CreateTable
-CREATE TABLE "tna_approval_workflow_steps" (
+CREATE TABLE "funding_types" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
-    "stepOrder" INTEGER NOT NULL,
-    "name" VARCHAR(150) NOT NULL,
-    "approverJobTitleId" INTEGER,
-    "isFinal" BOOLEAN NOT NULL DEFAULT false,
+    "name" VARCHAR(100) NOT NULL,
+    "slug" VARCHAR(80) NOT NULL,
+    "description" TEXT,
+    "isSystem" BOOLEAN NOT NULL DEFAULT false,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "tna_approval_workflow_steps_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "funding_types_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "training_formats" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "slug" VARCHAR(80) NOT NULL,
+    "description" TEXT,
+    "isSystem" BOOLEAN NOT NULL DEFAULT false,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "training_formats_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -1549,7 +1839,7 @@ CREATE TABLE "training_need_requests" (
     "companyId" INTEGER NOT NULL,
     "employeeId" VARCHAR(20) NOT NULL,
     "requestTypeId" INTEGER NOT NULL,
-    "fundingType" "FundingType" NOT NULL,
+    "fundingTypeId" INTEGER NOT NULL,
     "status" "TnaStatus" NOT NULL,
     "priority" "PriorityLevel" NOT NULL,
     "targetAudienceId" INTEGER,
@@ -1563,7 +1853,7 @@ CREATE TABLE "training_need_requests" (
     "competencyGap" TEXT NOT NULL,
     "businessJustification" TEXT NOT NULL,
     "expectedOutcome" TEXT,
-    "preferredFormat" "TrainingFormat",
+    "preferredFormatId" INTEGER,
     "preferredStartDate" TIMESTAMP(3),
     "targetCompletionDate" TIMESTAMP(3),
     "estimatedCost" DECIMAL(12,2),
@@ -1576,6 +1866,17 @@ CREATE TABLE "training_need_requests" (
 );
 
 -- CreateTable
+CREATE TABLE "training_need_request_employees" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "trainingNeedRequestId" INTEGER NOT NULL,
+    "employeeId" VARCHAR(20) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "training_need_request_employees_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "training_need_skills" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
@@ -1584,21 +1885,6 @@ CREATE TABLE "training_need_skills" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "training_need_skills_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "tna_approvals" (
-    "id" SERIAL NOT NULL,
-    "companyId" INTEGER NOT NULL,
-    "requestId" INTEGER NOT NULL,
-    "workflowStepId" INTEGER NOT NULL,
-    "approverId" VARCHAR(20) NOT NULL,
-    "status" "ApprovalStatus" NOT NULL,
-    "comments" TEXT,
-    "approvedAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "tna_approvals_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -1630,12 +1916,42 @@ CREATE TABLE "tna_recommendation_skills" (
 );
 
 -- CreateTable
+CREATE TABLE "xp_rule_categories" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "slug" VARCHAR(80) NOT NULL,
+    "description" TEXT,
+    "isSystem" BOOLEAN NOT NULL DEFAULT false,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "xp_rule_categories_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "xp_trigger_events" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "slug" VARCHAR(80) NOT NULL,
+    "description" TEXT,
+    "isSystem" BOOLEAN NOT NULL DEFAULT false,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "xp_trigger_events_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "xp_rules" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
     "name" VARCHAR(150) NOT NULL,
-    "category" "XpRuleCategory" NOT NULL,
-    "triggerEvent" "XpTriggerEvent" NOT NULL,
+    "categoryId" INTEGER NOT NULL,
+    "triggerEventId" INTEGER NOT NULL,
     "xpAmount" INTEGER NOT NULL,
     "maximumAward" INTEGER,
     "multiplier" DECIMAL(5,2),
@@ -1684,13 +2000,28 @@ CREATE TABLE "learning_levels" (
 );
 
 -- CreateTable
+CREATE TABLE "badge_categories" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "slug" VARCHAR(80) NOT NULL,
+    "description" TEXT,
+    "isSystem" BOOLEAN NOT NULL DEFAULT false,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "badge_categories_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "badges" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
     "name" VARCHAR(150) NOT NULL,
     "description" TEXT,
     "iconUrl" TEXT,
-    "badgeCategory" "BadgeCategory" NOT NULL,
+    "badgeCategoryId" INTEGER NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -1703,7 +2034,7 @@ CREATE TABLE "badge_rules" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
     "badgeId" INTEGER NOT NULL,
-    "triggerEvent" "XpTriggerEvent",
+    "triggerEventId" INTEGER,
     "minimumXp" INTEGER,
     "minimumCourses" INTEGER,
     "minimumCertificates" INTEGER,
@@ -1734,6 +2065,42 @@ CREATE TABLE "employee_badges" (
 );
 
 -- CreateTable
+CREATE TABLE "leaderboards" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "name" VARCHAR(150) NOT NULL,
+    "description" TEXT,
+    "scopeType" "LeaderboardScope" NOT NULL,
+    "scopeId" INTEGER,
+    "targetAudienceId" INTEGER,
+    "rankingCriteria" "RankingCriteria" NOT NULL,
+    "periodType" "LeaderboardPeriod" NOT NULL DEFAULT 'ALL_TIME',
+    "displayLimit" INTEGER NOT NULL DEFAULT 20,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdBy" INTEGER,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "leaderboards_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "leaderboard_entries" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "leaderboardId" INTEGER NOT NULL,
+    "employeeId" VARCHAR(20) NOT NULL,
+    "rank" INTEGER NOT NULL,
+    "score" DECIMAL(12,2) NOT NULL,
+    "previousRank" INTEGER,
+    "periodStart" TIMESTAMP(3),
+    "periodEnd" TIMESTAMP(3),
+    "calculatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "leaderboard_entries_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "system_settings" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
@@ -1754,17 +2121,24 @@ CREATE TABLE "course_templates" (
     "companyId" INTEGER NOT NULL,
     "name" VARCHAR(255) NOT NULL,
     "description" TEXT,
+    "shortSummary" VARCHAR(150),
     "categoryId" INTEGER NOT NULL,
-    "difficultyLevel" "DifficultyLevel" NOT NULL,
-    "visibility" "VisibilityType" NOT NULL,
-    "estimatedDurationMinutes" INTEGER NOT NULL,
+    "difficultyLevelId" INTEGER NOT NULL,
+    "language" VARCHAR(20),
+    "thumbnailUrl" TEXT,
+    "estimatedDurationMinutes" INTEGER,
+    "targetAudienceText" TEXT,
+    "visibility" "VisibilityType" NOT NULL DEFAULT 'COMPANY',
+    "enrollmentPolicy" "EnrollmentPolicy" NOT NULL DEFAULT 'OPEN',
     "passingScore" DECIMAL(5,2) NOT NULL,
     "completionThreshold" DECIMAL(5,2) NOT NULL,
     "attendanceRequired" BOOLEAN NOT NULL DEFAULT false,
     "minimumAttendance" DECIMAL(5,2),
     "certificateRequired" BOOLEAN NOT NULL DEFAULT true,
-    "language" VARCHAR(20),
+    "baseXpOnCompletion" INTEGER NOT NULL DEFAULT 100,
+    "perfectScoreBonusXp" INTEGER NOT NULL DEFAULT 50,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "isTemplate" BOOLEAN NOT NULL DEFAULT true,
     "createdBy" INTEGER NOT NULL,
     "updatedBy" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1778,18 +2152,20 @@ CREATE TABLE "course_templates" (
 CREATE TABLE "program_templates" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
-    "categoryId" INTEGER,
     "name" VARCHAR(255) NOT NULL,
     "description" TEXT,
+    "categoryId" INTEGER,
+    "programType" VARCHAR(50),
     "durationWeeks" INTEGER,
-    "visibility" "VisibilityType" NOT NULL,
+    "visibility" "VisibilityType" NOT NULL DEFAULT 'COMPANY',
     "isMandatory" BOOLEAN NOT NULL DEFAULT false,
     "autoEnroll" BOOLEAN NOT NULL DEFAULT false,
-    "certificateEnabled" BOOLEAN NOT NULL DEFAULT true,
-    "xpEnabled" BOOLEAN NOT NULL DEFAULT true,
     "allowSelfEnrollment" BOOLEAN NOT NULL DEFAULT true,
     "rollingEnrollment" BOOLEAN NOT NULL DEFAULT false,
     "capacity" INTEGER,
+    "certificateEnabled" BOOLEAN NOT NULL DEFAULT true,
+    "xpEnabled" BOOLEAN NOT NULL DEFAULT true,
+    "defaultMilestones" JSONB,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "createdBy" INTEGER NOT NULL,
     "updatedBy" INTEGER,
@@ -1806,7 +2182,8 @@ CREATE TABLE "assessment_templates" (
     "companyId" INTEGER NOT NULL,
     "name" VARCHAR(255) NOT NULL,
     "description" TEXT,
-    "assessmentType" "AssessmentType" NOT NULL,
+    "assessmentTypeId" INTEGER NOT NULL,
+    "gradingMethodId" INTEGER NOT NULL,
     "passingScore" DECIMAL(5,2) NOT NULL,
     "maxAttempts" INTEGER NOT NULL DEFAULT 2,
     "timeLimitMinutes" INTEGER,
@@ -1814,8 +2191,10 @@ CREATE TABLE "assessment_templates" (
     "randomizeOptions" BOOLEAN NOT NULL DEFAULT false,
     "showResultImmediately" BOOLEAN NOT NULL DEFAULT false,
     "allowReview" BOOLEAN NOT NULL DEFAULT true,
+    "showCorrectAnswers" VARCHAR(30),
     "lockdownBrowser" BOOLEAN NOT NULL DEFAULT false,
     "proctoringEnabled" BOOLEAN NOT NULL DEFAULT false,
+    "negativeMarking" DECIMAL(3,2),
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "createdBy" INTEGER NOT NULL,
     "updatedBy" INTEGER,
@@ -1870,16 +2249,31 @@ CREATE TABLE "notification_templates" (
 );
 
 -- CreateTable
-CREATE TABLE "NotificationEvent" (
+CREATE TABLE "notification_modules" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "slug" VARCHAR(80) NOT NULL,
+    "description" TEXT,
+    "isSystem" BOOLEAN NOT NULL DEFAULT false,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "notification_modules_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "notification_events" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
     "code" VARCHAR(100) NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT,
-    "module" "NotificationModule" NOT NULL,
+    "moduleId" INTEGER NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
 
-    CONSTRAINT "NotificationEvent_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "notification_events_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -1898,6 +2292,43 @@ CREATE TABLE "learning_path_templates" (
     "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "learning_path_templates_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "certificate_templates" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "courseVersionId" INTEGER,
+    "learningProgramId" INTEGER,
+    "name" VARCHAR(255) NOT NULL,
+    "certificateTypeId" INTEGER NOT NULL,
+    "templateFile" TEXT,
+    "certificateIdPattern" VARCHAR(100) NOT NULL,
+    "validityMonths" INTEGER,
+    "sealImage" TEXT,
+    "qrVerificationEnabled" BOOLEAN NOT NULL DEFAULT true,
+    "backgroundImage" TEXT,
+    "status" "ContentLifecycleStatus" NOT NULL,
+    "createdBy" INTEGER NOT NULL,
+    "updatedBy" INTEGER,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
+
+    CONSTRAINT "certificate_templates_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "certificate_template_signers" (
+    "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
+    "templateId" INTEGER NOT NULL,
+    "employeeId" VARCHAR(20) NOT NULL,
+    "displayOrder" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "certificate_template_signers_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -1922,9 +2353,10 @@ CREATE TABLE "approval_workflows" (
 -- CreateTable
 CREATE TABLE "approval_workflow_steps" (
     "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
     "workflowId" INTEGER NOT NULL,
     "approvalOrder" INTEGER NOT NULL,
-    "approverRole" VARCHAR(100),
+    "approverRoleId" INTEGER,
     "approverEmployeeId" VARCHAR(20),
     "isRequired" BOOLEAN NOT NULL DEFAULT true,
     "autoApprove" BOOLEAN NOT NULL DEFAULT false,
@@ -1943,6 +2375,7 @@ CREATE TABLE "approval_workflow_instances" (
     "entityType" "WorkflowEntityType" NOT NULL,
     "courseVersionId" INTEGER,
     "learningProgramId" INTEGER,
+    "trainingNeedRequestId" INTEGER,
     "status" "WorkflowInstanceStatus" NOT NULL DEFAULT 'DRAFT',
     "submittedBy" INTEGER,
     "submittedAt" TIMESTAMP(3),
@@ -1996,6 +2429,12 @@ CREATE INDEX "job_level_companyId_idx" ON "job_level"("companyId");
 CREATE UNIQUE INDEX "job_level_companyId_name_key" ON "job_level"("companyId", "name");
 
 -- CreateIndex
+CREATE INDEX "app_role_companyId_idx" ON "app_role"("companyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "app_role_companyId_name_key" ON "app_role"("companyId", "name");
+
+-- CreateIndex
 CREATE INDEX "lms_permissions_companyId_idx" ON "lms_permissions"("companyId");
 
 -- CreateIndex
@@ -2011,10 +2450,70 @@ CREATE INDEX "lms_role_permissions_companyId_idx" ON "lms_role_permissions"("com
 CREATE UNIQUE INDEX "lms_role_permissions_appRoleId_permissionId_key" ON "lms_role_permissions"("appRoleId", "permissionId");
 
 -- CreateIndex
-CREATE INDEX "app_role_companyId_idx" ON "app_role"("companyId");
+CREATE INDEX "stored_files_companyId_idx" ON "stored_files"("companyId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "app_role_companyId_name_key" ON "app_role"("companyId", "name");
+CREATE INDEX "stored_files_ownerType_ownerId_idx" ON "stored_files"("ownerType", "ownerId");
+
+-- CreateIndex
+CREATE INDEX "stored_files_fileTypeId_idx" ON "stored_files"("fileTypeId");
+
+-- CreateIndex
+CREATE INDEX "submissions_companyId_idx" ON "submissions"("companyId");
+
+-- CreateIndex
+CREATE INDEX "submissions_ownerType_ownerId_idx" ON "submissions"("ownerType", "ownerId");
+
+-- CreateIndex
+CREATE INDEX "submissions_enrollmentId_idx" ON "submissions"("enrollmentId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "submissions_ownerType_ownerId_employeeId_submissionNo_key" ON "submissions"("ownerType", "ownerId", "employeeId", "submissionNo");
+
+-- CreateIndex
+CREATE INDEX "submission_peer_reviews_companyId_idx" ON "submission_peer_reviews"("companyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "submission_peer_reviews_submissionId_reviewerEmployeeId_key" ON "submission_peer_reviews"("submissionId", "reviewerEmployeeId");
+
+-- CreateIndex
+CREATE INDEX "audience_group_rules_companyId_idx" ON "audience_group_rules"("companyId");
+
+-- CreateIndex
+CREATE INDEX "audience_group_rules_audienceGroupId_idx" ON "audience_group_rules"("audienceGroupId");
+
+-- CreateIndex
+CREATE INDEX "audience_group_rules_departmentId_idx" ON "audience_group_rules"("departmentId");
+
+-- CreateIndex
+CREATE INDEX "audience_group_rules_jobTitleId_idx" ON "audience_group_rules"("jobTitleId");
+
+-- CreateIndex
+CREATE INDEX "audience_group_rules_jobLevelId_idx" ON "audience_group_rules"("jobLevelId");
+
+-- CreateIndex
+CREATE INDEX "audience_group_rules_appRoleId_idx" ON "audience_group_rules"("appRoleId");
+
+-- CreateIndex
+CREATE INDEX "audience_groups_companyId_idx" ON "audience_groups"("companyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "audience_groups_companyId_name_key" ON "audience_groups"("companyId", "name");
+
+-- CreateIndex
+CREATE INDEX "target_audiences_companyId_idx" ON "target_audiences"("companyId");
+
+-- CreateIndex
+CREATE INDEX "target_audiences_entityType_entityId_idx" ON "target_audiences"("entityType", "entityId");
+
+-- CreateIndex
+CREATE INDEX "target_audiences_departmentId_idx" ON "target_audiences"("departmentId");
+
+-- CreateIndex
+CREATE INDEX "target_audiences_appRoleId_idx" ON "target_audiences"("appRoleId");
+
+-- CreateIndex
+CREATE INDEX "target_audiences_audienceGroupId_idx" ON "target_audiences"("audienceGroupId");
 
 -- CreateIndex
 CREATE INDEX "courses_companyId_idx" ON "courses"("companyId");
@@ -2036,6 +2535,18 @@ CREATE UNIQUE INDEX "courses_companyId_code_key" ON "courses"("companyId", "code
 
 -- CreateIndex
 CREATE UNIQUE INDEX "courses_companyId_categoryId_title_key" ON "courses"("companyId", "categoryId", "title");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "difficulty_levels_code_key" ON "difficulty_levels"("code");
+
+-- CreateIndex
+CREATE INDEX "difficulty_levels_companyId_idx" ON "difficulty_levels"("companyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "difficulty_levels_companyId_code_key" ON "difficulty_levels"("companyId", "code");
+
+-- CreateIndex
+CREATE INDEX "course_versions_difficultyLevelId_idx" ON "course_versions"("difficultyLevelId");
 
 -- CreateIndex
 CREATE INDEX "course_versions_companyId_idx" ON "course_versions"("companyId");
@@ -2158,18 +2669,6 @@ CREATE INDEX "course_contents_companyId_idx" ON "course_contents"("companyId");
 CREATE UNIQUE INDEX "course_contents_chapterId_displayOrder_key" ON "course_contents"("chapterId", "displayOrder");
 
 -- CreateIndex
-CREATE INDEX "content_files_companyId_idx" ON "content_files"("companyId");
-
--- CreateIndex
-CREATE INDEX "content_files_contentId_idx" ON "content_files"("contentId");
-
--- CreateIndex
-CREATE INDEX "content_files_fileTypeId_idx" ON "content_files"("fileTypeId");
-
--- CreateIndex
-CREATE INDEX "content_files_s3Key_idx" ON "content_files"("s3Key");
-
--- CreateIndex
 CREATE UNIQUE INDEX "ContentType_slug_key" ON "ContentType"("slug");
 
 -- CreateIndex
@@ -2207,15 +2706,6 @@ CREATE INDEX "course_faqs_courseId_idx" ON "course_faqs"("courseId");
 
 -- CreateIndex
 CREATE INDEX "course_faqs_courseVersionId_idx" ON "course_faqs"("courseVersionId");
-
--- CreateIndex
-CREATE INDEX "target_audiences_companyId_idx" ON "target_audiences"("companyId");
-
--- CreateIndex
-CREATE INDEX "target_audiences_entityType_entityId_idx" ON "target_audiences"("entityType", "entityId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "target_audiences_entityType_entityId_audienceType_departmen_key" ON "target_audiences"("entityType", "entityId", "audienceType", "departmentId", "jobTitleId", "jobLevelId", "appRoleId");
 
 -- CreateIndex
 CREATE INDEX "learning_programs_companyId_idx" ON "learning_programs"("companyId");
@@ -2263,16 +2753,34 @@ CREATE INDEX "program_milestone_progresses_companyId_idx" ON "program_milestone_
 CREATE UNIQUE INDEX "program_milestone_progresses_milestoneId_programEnrollmentI_key" ON "program_milestone_progresses"("milestoneId", "programEnrollmentId");
 
 -- CreateIndex
+CREATE INDEX "task_types_companyId_idx" ON "task_types"("companyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "task_types_companyId_name_key" ON "task_types"("companyId", "name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "task_types_companyId_slug_key" ON "task_types"("companyId", "slug");
+
+-- CreateIndex
 CREATE INDEX "program_tasks_companyId_idx" ON "program_tasks"("companyId");
+
+-- CreateIndex
+CREATE INDEX "program_tasks_taskTypeId_idx" ON "program_tasks"("taskTypeId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "program_tasks_programId_displayOrder_key" ON "program_tasks"("programId", "displayOrder");
 
 -- CreateIndex
-CREATE INDEX "program_task_submissions_companyId_idx" ON "program_task_submissions"("companyId");
+CREATE INDEX "program_tags_companyId_idx" ON "program_tags"("companyId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "program_task_submissions_taskId_employeeId_key" ON "program_task_submissions"("taskId", "employeeId");
+CREATE UNIQUE INDEX "program_tags_companyId_name_key" ON "program_tags"("companyId", "name");
+
+-- CreateIndex
+CREATE INDEX "program_tag_mappings_companyId_idx" ON "program_tag_mappings"("companyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "program_tag_mappings_programId_tagId_key" ON "program_tag_mappings"("programId", "tagId");
 
 -- CreateIndex
 CREATE INDEX "enrollments_companyId_idx" ON "enrollments"("companyId");
@@ -2287,6 +2795,15 @@ CREATE INDEX "enrollments_courseVersionId_idx" ON "enrollments"("courseVersionId
 CREATE UNIQUE INDEX "enrollments_employeeId_courseVersionId_enrollmentNo_key" ON "enrollments"("employeeId", "courseVersionId", "enrollmentNo");
 
 -- CreateIndex
+CREATE INDEX "enrollment_rule_types_companyId_idx" ON "enrollment_rule_types"("companyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "enrollment_rule_types_companyId_name_key" ON "enrollment_rule_types"("companyId", "name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "enrollment_rule_types_companyId_slug_key" ON "enrollment_rule_types"("companyId", "slug");
+
+-- CreateIndex
 CREATE INDEX "enrollment_rules_companyId_idx" ON "enrollment_rules"("companyId");
 
 -- CreateIndex
@@ -2294,6 +2811,9 @@ CREATE INDEX "enrollment_rules_courseVersionId_idx" ON "enrollment_rules"("cours
 
 -- CreateIndex
 CREATE INDEX "enrollment_rules_programId_idx" ON "enrollment_rules"("programId");
+
+-- CreateIndex
+CREATE INDEX "enrollment_rules_ruleTypeId_idx" ON "enrollment_rules"("ruleTypeId");
 
 -- CreateIndex
 CREATE INDEX "enrollment_rules_targetAudienceId_idx" ON "enrollment_rules"("targetAudienceId");
@@ -2350,7 +2870,67 @@ CREATE UNIQUE INDEX "program_completions_programEnrollmentId_key" ON "program_co
 CREATE INDEX "program_completions_companyId_idx" ON "program_completions"("companyId");
 
 -- CreateIndex
+CREATE INDEX "grading_methods_companyId_idx" ON "grading_methods"("companyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "grading_methods_companyId_name_key" ON "grading_methods"("companyId", "name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "grading_methods_companyId_slug_key" ON "grading_methods"("companyId", "slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "assessment_types_companyId_code_key" ON "assessment_types"("companyId", "code");
+
+-- CreateIndex
 CREATE INDEX "assessments_companyId_idx" ON "assessments"("companyId");
+
+-- CreateIndex
+CREATE INDEX "assessments_courseVersionId_idx" ON "assessments"("courseVersionId");
+
+-- CreateIndex
+CREATE INDEX "assessments_assessmentTypeId_idx" ON "assessments"("assessmentTypeId");
+
+-- CreateIndex
+CREATE INDEX "assessments_gradingMethodId_idx" ON "assessments"("gradingMethodId");
+
+-- CreateIndex
+CREATE INDEX "question_banks_companyId_idx" ON "question_banks"("companyId");
+
+-- CreateIndex
+CREATE INDEX "question_banks_categoryId_idx" ON "question_banks"("categoryId");
+
+-- CreateIndex
+CREATE INDEX "question_banks_topicId_idx" ON "question_banks"("topicId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "question_banks_companyId_name_key" ON "question_banks"("companyId", "name");
+
+-- CreateIndex
+CREATE INDEX "question_types_companyId_idx" ON "question_types"("companyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "question_types_companyId_name_key" ON "question_types"("companyId", "name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "question_types_companyId_slug_key" ON "question_types"("companyId", "slug");
+
+-- CreateIndex
+CREATE INDEX "assessment_blueprints_companyId_idx" ON "assessment_blueprints"("companyId");
+
+-- CreateIndex
+CREATE INDEX "assessment_blueprints_assessmentId_idx" ON "assessment_blueprints"("assessmentId");
+
+-- CreateIndex
+CREATE INDEX "assessment_blueprints_questionTypeId_idx" ON "assessment_blueprints"("questionTypeId");
+
+-- CreateIndex
+CREATE INDEX "assessment_blueprints_difficultyLevelId_idx" ON "assessment_blueprints"("difficultyLevelId");
+
+-- CreateIndex
+CREATE INDEX "assessment_questions_assessmentId_idx" ON "assessment_questions"("assessmentId");
+
+-- CreateIndex
+CREATE INDEX "assessment_questions_questionId_idx" ON "assessment_questions"("questionId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "assessment_questions_assessmentId_questionVersionId_key" ON "assessment_questions"("assessmentId", "questionVersionId");
@@ -2365,10 +2945,25 @@ CREATE UNIQUE INDEX "questions_currentVersionId_key" ON "questions"("currentVers
 CREATE INDEX "questions_companyId_idx" ON "questions"("companyId");
 
 -- CreateIndex
+CREATE INDEX "questions_difficultyLevelId_idx" ON "questions"("difficultyLevelId");
+
+-- CreateIndex
+CREATE INDEX "questions_questionBankId_idx" ON "questions"("questionBankId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "question_versions_questionId_versionNo_key" ON "question_versions"("questionId", "versionNo");
 
 -- CreateIndex
+CREATE INDEX "question_options_questionVersionId_blankIndex_idx" ON "question_options"("questionVersionId", "blankIndex");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "question_options_questionVersionId_displayOrder_key" ON "question_options"("questionVersionId", "displayOrder");
+
+-- CreateIndex
+CREATE INDEX "question_matching_pairs_companyId_idx" ON "question_matching_pairs"("companyId");
+
+-- CreateIndex
+CREATE INDEX "question_matching_pairs_questionVersionId_idx" ON "question_matching_pairs"("questionVersionId");
 
 -- CreateIndex
 CREATE INDEX "assessment_attempts_companyId_idx" ON "assessment_attempts"("companyId");
@@ -2377,22 +2972,43 @@ CREATE INDEX "assessment_attempts_companyId_idx" ON "assessment_attempts"("compa
 CREATE UNIQUE INDEX "assessment_attempts_assessmentId_enrollmentId_attemptNo_key" ON "assessment_attempts"("assessmentId", "enrollmentId", "attemptNo");
 
 -- CreateIndex
+CREATE INDEX "assessment_attempt_rules_companyId_idx" ON "assessment_attempt_rules"("companyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "assessment_attempt_rules_assessmentId_attemptNo_key" ON "assessment_attempt_rules"("assessmentId", "attemptNo");
+
+-- CreateIndex
+CREATE INDEX "assessment_answers_attemptId_idx" ON "assessment_answers"("attemptId");
+
+-- CreateIndex
+CREATE INDEX "assessment_answers_questionVersionId_idx" ON "assessment_answers"("questionVersionId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "assessment_answers_attemptId_questionVersionId_key" ON "assessment_answers"("attemptId", "questionVersionId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "certificate_templates_courseVersionId_key" ON "certificate_templates"("courseVersionId");
+CREATE INDEX "assessment_answer_options_companyId_idx" ON "assessment_answer_options"("companyId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "certificate_templates_learningProgramId_key" ON "certificate_templates"("learningProgramId");
+CREATE INDEX "assessment_answer_options_answerId_idx" ON "assessment_answer_options"("answerId");
 
 -- CreateIndex
-CREATE INDEX "certificate_templates_companyId_idx" ON "certificate_templates"("companyId");
+CREATE INDEX "assessment_answer_options_questionOptionId_idx" ON "assessment_answer_options"("questionOptionId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "certificate_template_signers_templateId_displayOrder_key" ON "certificate_template_signers"("templateId", "displayOrder");
+CREATE INDEX "assessment_answer_matches_companyId_idx" ON "assessment_answer_matches"("companyId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "certificate_template_signers_templateId_employeeId_key" ON "certificate_template_signers"("templateId", "employeeId");
+CREATE INDEX "assessment_answer_matches_answerId_idx" ON "assessment_answer_matches"("answerId");
+
+-- CreateIndex
+CREATE INDEX "certificate_types_companyId_idx" ON "certificate_types"("companyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "certificate_types_companyId_name_key" ON "certificate_types"("companyId", "name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "certificate_types_companyId_slug_key" ON "certificate_types"("companyId", "slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "certificates_completionId_key" ON "certificates"("completionId");
@@ -2416,19 +3032,58 @@ CREATE INDEX "certificate_verifications_companyId_idx" ON "certificate_verificat
 CREATE INDEX "certificate_verifications_certificateId_idx" ON "certificate_verifications"("certificateId");
 
 -- CreateIndex
+CREATE INDEX "credential_sources_companyId_idx" ON "credential_sources"("companyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "credential_sources_companyId_name_key" ON "credential_sources"("companyId", "name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "credential_sources_companyId_slug_key" ON "credential_sources"("companyId", "slug");
+
+-- CreateIndex
 CREATE INDEX "external_certificates_companyId_idx" ON "external_certificates"("companyId");
 
 -- CreateIndex
 CREATE INDEX "external_certificates_employeeId_idx" ON "external_certificates"("employeeId");
 
 -- CreateIndex
+CREATE INDEX "external_certificates_sourceId_idx" ON "external_certificates"("sourceId");
+
+-- CreateIndex
+CREATE INDEX "provider_types_companyId_idx" ON "provider_types"("companyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "provider_types_companyId_name_key" ON "provider_types"("companyId", "name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "provider_types_companyId_slug_key" ON "provider_types"("companyId", "slug");
+
+-- CreateIndex
+CREATE INDEX "external_providers_companyId_idx" ON "external_providers"("companyId");
+
+-- CreateIndex
+CREATE INDEX "external_providers_providerTypeId_idx" ON "external_providers"("providerTypeId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "external_providers_companyId_name_key" ON "external_providers"("companyId", "name");
+
+-- CreateIndex
+CREATE INDEX "meeting_providers_companyId_idx" ON "meeting_providers"("companyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "meeting_providers_companyId_name_key" ON "meeting_providers"("companyId", "name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "meeting_providers_companyId_slug_key" ON "meeting_providers"("companyId", "slug");
 
 -- CreateIndex
 CREATE INDEX "live_sessions_companyId_idx" ON "live_sessions"("companyId");
 
 -- CreateIndex
 CREATE INDEX "live_sessions_courseVersionId_idx" ON "live_sessions"("courseVersionId");
+
+-- CreateIndex
+CREATE INDEX "live_sessions_meetingProviderId_idx" ON "live_sessions"("meetingProviderId");
 
 -- CreateIndex
 CREATE INDEX "live_sessions_startTime_idx" ON "live_sessions"("startTime");
@@ -2440,7 +3095,22 @@ CREATE INDEX "live_session_instructors_companyId_idx" ON "live_session_instructo
 CREATE UNIQUE INDEX "live_session_instructors_sessionId_employeeId_key" ON "live_session_instructors"("sessionId", "employeeId");
 
 -- CreateIndex
+CREATE INDEX "attendance_methods_companyId_idx" ON "attendance_methods"("companyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "attendance_methods_companyId_name_key" ON "attendance_methods"("companyId", "name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "attendance_methods_companyId_slug_key" ON "attendance_methods"("companyId", "slug");
+
+-- CreateIndex
 CREATE INDEX "live_session_attendance_companyId_idx" ON "live_session_attendance"("companyId");
+
+-- CreateIndex
+CREATE INDEX "live_session_attendance_attendanceStatus_idx" ON "live_session_attendance"("attendanceStatus");
+
+-- CreateIndex
+CREATE INDEX "live_session_attendance_attendanceMethodId_idx" ON "live_session_attendance"("attendanceMethodId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "live_session_attendance_sessionId_enrollmentId_key" ON "live_session_attendance"("sessionId", "enrollmentId");
@@ -2456,6 +3126,15 @@ CREATE UNIQUE INDEX "live_session_waitlists_sessionId_queuePosition_key" ON "liv
 
 -- CreateIndex
 CREATE INDEX "surveys_companyId_idx" ON "surveys"("companyId");
+
+-- CreateIndex
+CREATE INDEX "survey_question_types_companyId_idx" ON "survey_question_types"("companyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "survey_question_types_companyId_name_key" ON "survey_question_types"("companyId", "name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "survey_question_types_companyId_slug_key" ON "survey_question_types"("companyId", "slug");
 
 -- CreateIndex
 CREATE INDEX "survey_questions_companyId_idx" ON "survey_questions"("companyId");
@@ -2494,10 +3173,22 @@ CREATE INDEX "tna_request_type_configs_companyId_idx" ON "tna_request_type_confi
 CREATE UNIQUE INDEX "tna_request_type_configs_companyId_name_key" ON "tna_request_type_configs"("companyId", "name");
 
 -- CreateIndex
-CREATE INDEX "tna_approval_workflow_steps_companyId_idx" ON "tna_approval_workflow_steps"("companyId");
+CREATE INDEX "funding_types_companyId_idx" ON "funding_types"("companyId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "tna_approval_workflow_steps_companyId_stepOrder_key" ON "tna_approval_workflow_steps"("companyId", "stepOrder");
+CREATE UNIQUE INDEX "funding_types_companyId_name_key" ON "funding_types"("companyId", "name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "funding_types_companyId_slug_key" ON "funding_types"("companyId", "slug");
+
+-- CreateIndex
+CREATE INDEX "training_formats_companyId_idx" ON "training_formats"("companyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "training_formats_companyId_name_key" ON "training_formats"("companyId", "name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "training_formats_companyId_slug_key" ON "training_formats"("companyId", "slug");
 
 -- CreateIndex
 CREATE INDEX "training_need_requests_companyId_idx" ON "training_need_requests"("companyId");
@@ -2509,13 +3200,25 @@ CREATE INDEX "training_need_requests_employeeId_idx" ON "training_need_requests"
 CREATE INDEX "training_need_requests_status_idx" ON "training_need_requests"("status");
 
 -- CreateIndex
+CREATE INDEX "training_need_requests_fundingTypeId_idx" ON "training_need_requests"("fundingTypeId");
+
+-- CreateIndex
+CREATE INDEX "training_need_requests_preferredFormatId_idx" ON "training_need_requests"("preferredFormatId");
+
+-- CreateIndex
 CREATE INDEX "training_need_requests_targetAudienceId_idx" ON "training_need_requests"("targetAudienceId");
 
 -- CreateIndex
-CREATE INDEX "training_need_requests_departmentId_idx" ON "training_need_requests"("departmentId");
+CREATE INDEX "training_need_request_employees_companyId_idx" ON "training_need_request_employees"("companyId");
 
 -- CreateIndex
-CREATE INDEX "training_need_requests_jobTitleId_idx" ON "training_need_requests"("jobTitleId");
+CREATE INDEX "training_need_request_employees_trainingNeedRequestId_idx" ON "training_need_request_employees"("trainingNeedRequestId");
+
+-- CreateIndex
+CREATE INDEX "training_need_request_employees_employeeId_idx" ON "training_need_request_employees"("employeeId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "training_need_request_employees_trainingNeedRequestId_emplo_key" ON "training_need_request_employees"("trainingNeedRequestId", "employeeId");
 
 -- CreateIndex
 CREATE INDEX "training_need_skills_companyId_idx" ON "training_need_skills"("companyId");
@@ -2524,10 +3227,10 @@ CREATE INDEX "training_need_skills_companyId_idx" ON "training_need_skills"("com
 CREATE UNIQUE INDEX "training_need_skills_requestId_skillId_key" ON "training_need_skills"("requestId", "skillId");
 
 -- CreateIndex
-CREATE INDEX "tna_approvals_requestId_idx" ON "tna_approvals"("requestId");
+CREATE UNIQUE INDEX "tna_recommendations_courseVersionId_key" ON "tna_recommendations"("courseVersionId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "tna_approvals_requestId_workflowStepId_key" ON "tna_approvals"("requestId", "workflowStepId");
+CREATE UNIQUE INDEX "tna_recommendations_learningProgramId_key" ON "tna_recommendations"("learningProgramId");
 
 -- CreateIndex
 CREATE INDEX "tna_recommendations_companyId_idx" ON "tna_recommendations"("companyId");
@@ -2545,7 +3248,31 @@ CREATE INDEX "tna_recommendation_skills_companyId_idx" ON "tna_recommendation_sk
 CREATE UNIQUE INDEX "tna_recommendation_skills_recommendationId_skillId_key" ON "tna_recommendation_skills"("recommendationId", "skillId");
 
 -- CreateIndex
+CREATE INDEX "xp_rule_categories_companyId_idx" ON "xp_rule_categories"("companyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "xp_rule_categories_companyId_name_key" ON "xp_rule_categories"("companyId", "name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "xp_rule_categories_companyId_slug_key" ON "xp_rule_categories"("companyId", "slug");
+
+-- CreateIndex
+CREATE INDEX "xp_trigger_events_companyId_idx" ON "xp_trigger_events"("companyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "xp_trigger_events_companyId_name_key" ON "xp_trigger_events"("companyId", "name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "xp_trigger_events_companyId_slug_key" ON "xp_trigger_events"("companyId", "slug");
+
+-- CreateIndex
 CREATE INDEX "xp_rules_companyId_idx" ON "xp_rules"("companyId");
+
+-- CreateIndex
+CREATE INDEX "xp_rules_categoryId_idx" ON "xp_rules"("categoryId");
+
+-- CreateIndex
+CREATE INDEX "xp_rules_triggerEventId_idx" ON "xp_rules"("triggerEventId");
 
 -- CreateIndex
 CREATE INDEX "xp_rules_targetAudienceId_idx" ON "xp_rules"("targetAudienceId");
@@ -2575,6 +3302,18 @@ CREATE UNIQUE INDEX "learning_levels_companyId_displayOrder_key" ON "learning_le
 CREATE UNIQUE INDEX "learning_levels_companyId_minimumXp_key" ON "learning_levels"("companyId", "minimumXp");
 
 -- CreateIndex
+CREATE INDEX "badge_categories_companyId_idx" ON "badge_categories"("companyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "badge_categories_companyId_name_key" ON "badge_categories"("companyId", "name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "badge_categories_companyId_slug_key" ON "badge_categories"("companyId", "slug");
+
+-- CreateIndex
+CREATE INDEX "badges_badgeCategoryId_idx" ON "badges"("badgeCategoryId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "badges_companyId_name_key" ON "badges"("companyId", "name");
 
 -- CreateIndex
@@ -2584,10 +3323,37 @@ CREATE INDEX "badge_rules_companyId_idx" ON "badge_rules"("companyId");
 CREATE INDEX "badge_rules_badgeId_idx" ON "badge_rules"("badgeId");
 
 -- CreateIndex
+CREATE INDEX "badge_rules_triggerEventId_idx" ON "badge_rules"("triggerEventId");
+
+-- CreateIndex
+CREATE INDEX "badge_rules_targetAudienceId_idx" ON "badge_rules"("targetAudienceId");
+
+-- CreateIndex
 CREATE INDEX "employee_badges_employeeId_idx" ON "employee_badges"("employeeId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "employee_badges_badgeId_employeeId_key" ON "employee_badges"("badgeId", "employeeId");
+
+-- CreateIndex
+CREATE INDEX "leaderboards_companyId_idx" ON "leaderboards"("companyId");
+
+-- CreateIndex
+CREATE INDEX "leaderboards_scopeType_scopeId_idx" ON "leaderboards"("scopeType", "scopeId");
+
+-- CreateIndex
+CREATE INDEX "leaderboards_targetAudienceId_idx" ON "leaderboards"("targetAudienceId");
+
+-- CreateIndex
+CREATE INDEX "leaderboard_entries_companyId_idx" ON "leaderboard_entries"("companyId");
+
+-- CreateIndex
+CREATE INDEX "leaderboard_entries_leaderboardId_rank_idx" ON "leaderboard_entries"("leaderboardId", "rank");
+
+-- CreateIndex
+CREATE INDEX "leaderboard_entries_employeeId_idx" ON "leaderboard_entries"("employeeId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "leaderboard_entries_leaderboardId_employeeId_periodStart_key" ON "leaderboard_entries"("leaderboardId", "employeeId", "periodStart");
 
 -- CreateIndex
 CREATE INDEX "system_settings_companyId_category_idx" ON "system_settings"("companyId", "category");
@@ -2600,6 +3366,9 @@ CREATE INDEX "course_templates_companyId_idx" ON "course_templates"("companyId")
 
 -- CreateIndex
 CREATE INDEX "course_templates_categoryId_idx" ON "course_templates"("categoryId");
+
+-- CreateIndex
+CREATE INDEX "course_templates_difficultyLevelId_idx" ON "course_templates"("difficultyLevelId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "course_templates_companyId_name_key" ON "course_templates"("companyId", "name");
@@ -2632,7 +3401,22 @@ CREATE INDEX "notification_templates_companyId_idx" ON "notification_templates"(
 CREATE UNIQUE INDEX "notification_templates_companyId_name_key" ON "notification_templates"("companyId", "name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "NotificationEvent_companyId_code_key" ON "NotificationEvent"("companyId", "code");
+CREATE INDEX "notification_modules_companyId_idx" ON "notification_modules"("companyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "notification_modules_companyId_name_key" ON "notification_modules"("companyId", "name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "notification_modules_companyId_slug_key" ON "notification_modules"("companyId", "slug");
+
+-- CreateIndex
+CREATE INDEX "notification_events_companyId_idx" ON "notification_events"("companyId");
+
+-- CreateIndex
+CREATE INDEX "notification_events_moduleId_idx" ON "notification_events"("moduleId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "notification_events_companyId_code_key" ON "notification_events"("companyId", "code");
 
 -- CreateIndex
 CREATE INDEX "learning_path_templates_companyId_idx" ON "learning_path_templates"("companyId");
@@ -2641,10 +3425,28 @@ CREATE INDEX "learning_path_templates_companyId_idx" ON "learning_path_templates
 CREATE UNIQUE INDEX "learning_path_templates_companyId_name_key" ON "learning_path_templates"("companyId", "name");
 
 -- CreateIndex
+CREATE INDEX "certificate_templates_companyId_idx" ON "certificate_templates"("companyId");
+
+-- CreateIndex
+CREATE INDEX "certificate_templates_certificateTypeId_idx" ON "certificate_templates"("certificateTypeId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "certificate_template_signers_templateId_displayOrder_key" ON "certificate_template_signers"("templateId", "displayOrder");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "certificate_template_signers_templateId_employeeId_key" ON "certificate_template_signers"("templateId", "employeeId");
+
+-- CreateIndex
 CREATE INDEX "approval_workflows_companyId_idx" ON "approval_workflows"("companyId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "approval_workflows_companyId_name_key" ON "approval_workflows"("companyId", "name");
+
+-- CreateIndex
+CREATE INDEX "approval_workflow_steps_companyId_idx" ON "approval_workflow_steps"("companyId");
+
+-- CreateIndex
+CREATE INDEX "approval_workflow_steps_approverRoleId_idx" ON "approval_workflow_steps"("approverRoleId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "approval_workflow_steps_workflowId_approvalOrder_key" ON "approval_workflow_steps"("workflowId", "approvalOrder");
@@ -2660,6 +3462,9 @@ CREATE INDEX "approval_workflow_instances_courseVersionId_idx" ON "approval_work
 
 -- CreateIndex
 CREATE INDEX "approval_workflow_instances_learningProgramId_idx" ON "approval_workflow_instances"("learningProgramId");
+
+-- CreateIndex
+CREATE INDEX "approval_workflow_instances_trainingNeedRequestId_idx" ON "approval_workflow_instances"("trainingNeedRequestId");
 
 -- CreateIndex
 CREATE INDEX "approval_decisions_companyId_idx" ON "approval_decisions"("companyId");
@@ -2695,6 +3500,9 @@ ALTER TABLE "job_titles" ADD CONSTRAINT "job_titles_companyId_fkey" FOREIGN KEY 
 ALTER TABLE "job_level" ADD CONSTRAINT "job_level_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "app_role" ADD CONSTRAINT "app_role_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "lms_permissions" ADD CONSTRAINT "lms_permissions_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -2707,7 +3515,79 @@ ALTER TABLE "lms_role_permissions" ADD CONSTRAINT "lms_role_permissions_appRoleI
 ALTER TABLE "lms_role_permissions" ADD CONSTRAINT "lms_role_permissions_permissionId_fkey" FOREIGN KEY ("permissionId") REFERENCES "lms_permissions"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "app_role" ADD CONSTRAINT "app_role_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "stored_files" ADD CONSTRAINT "stored_files_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "stored_files" ADD CONSTRAINT "stored_files_fileTypeId_fkey" FOREIGN KEY ("fileTypeId") REFERENCES "ContentFileType"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "stored_files" ADD CONSTRAINT "stored_files_uploadedBy_fkey" FOREIGN KEY ("uploadedBy") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "stored_files" ADD CONSTRAINT "stored_files_courseContentId_fkey" FOREIGN KEY ("courseContentId") REFERENCES "course_contents"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "submissions" ADD CONSTRAINT "submissions_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "submissions" ADD CONSTRAINT "submissions_enrollmentId_fkey" FOREIGN KEY ("enrollmentId") REFERENCES "enrollments"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "submissions" ADD CONSTRAINT "submissions_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "submissions" ADD CONSTRAINT "submissions_reviewedBy_fkey" FOREIGN KEY ("reviewedBy") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "submissions" ADD CONSTRAINT "submissions_programTaskId_fkey" FOREIGN KEY ("programTaskId") REFERENCES "program_tasks"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "submission_peer_reviews" ADD CONSTRAINT "submission_peer_reviews_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "submission_peer_reviews" ADD CONSTRAINT "submission_peer_reviews_submissionId_fkey" FOREIGN KEY ("submissionId") REFERENCES "submissions"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "submission_peer_reviews" ADD CONSTRAINT "submission_peer_reviews_reviewerEmployeeId_fkey" FOREIGN KEY ("reviewerEmployeeId") REFERENCES "employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "audience_group_rules" ADD CONSTRAINT "audience_group_rules_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "audience_group_rules" ADD CONSTRAINT "audience_group_rules_audienceGroupId_fkey" FOREIGN KEY ("audienceGroupId") REFERENCES "audience_groups"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "audience_group_rules" ADD CONSTRAINT "audience_group_rules_departmentId_fkey" FOREIGN KEY ("departmentId") REFERENCES "departments"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "audience_group_rules" ADD CONSTRAINT "audience_group_rules_appRoleId_fkey" FOREIGN KEY ("appRoleId") REFERENCES "app_role"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "audience_group_rules" ADD CONSTRAINT "audience_group_rules_jobTitleId_fkey" FOREIGN KEY ("jobTitleId") REFERENCES "job_titles"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "audience_group_rules" ADD CONSTRAINT "audience_group_rules_jobLevelId_fkey" FOREIGN KEY ("jobLevelId") REFERENCES "job_level"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "audience_groups" ADD CONSTRAINT "audience_groups_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "audience_groups" ADD CONSTRAINT "audience_groups_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "app_user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "audience_groups" ADD CONSTRAINT "audience_groups_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_departmentId_fkey" FOREIGN KEY ("departmentId") REFERENCES "departments"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_appRoleId_fkey" FOREIGN KEY ("appRoleId") REFERENCES "app_role"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_audienceGroupId_fkey" FOREIGN KEY ("audienceGroupId") REFERENCES "audience_groups"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "courses" ADD CONSTRAINT "courses_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -2729,6 +3609,12 @@ ALTER TABLE "courses" ADD CONSTRAINT "courses_updatedBy_fkey" FOREIGN KEY ("upda
 
 -- AddForeignKey
 ALTER TABLE "courses" ADD CONSTRAINT "courses_sourceTemplateId_fkey" FOREIGN KEY ("sourceTemplateId") REFERENCES "courses"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "difficulty_levels" ADD CONSTRAINT "difficulty_levels_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "course_versions" ADD CONSTRAINT "course_versions_difficultyLevelId_fkey" FOREIGN KEY ("difficultyLevelId") REFERENCES "difficulty_levels"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "course_versions" ADD CONSTRAINT "course_versions_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -2860,25 +3746,19 @@ ALTER TABLE "chapter_prerequisites" ADD CONSTRAINT "chapter_prerequisites_chapte
 ALTER TABLE "chapter_prerequisites" ADD CONSTRAINT "chapter_prerequisites_prerequisiteChapterId_fkey" FOREIGN KEY ("prerequisiteChapterId") REFERENCES "course_chapters"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "course_contents" ADD CONSTRAINT "course_contents_contentTypeId_fkey" FOREIGN KEY ("contentTypeId") REFERENCES "ContentType"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "course_contents" ADD CONSTRAINT "course_contents_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "course_contents" ADD CONSTRAINT "course_contents_chapterId_fkey" FOREIGN KEY ("chapterId") REFERENCES "course_chapters"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "content_files" ADD CONSTRAINT "content_files_fileTypeId_fkey" FOREIGN KEY ("fileTypeId") REFERENCES "ContentFileType"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "course_contents" ADD CONSTRAINT "course_contents_contentTypeId_fkey" FOREIGN KEY ("contentTypeId") REFERENCES "ContentType"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "content_files" ADD CONSTRAINT "content_files_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "course_contents" ADD CONSTRAINT "course_contents_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "app_user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "content_files" ADD CONSTRAINT "content_files_contentId_fkey" FOREIGN KEY ("contentId") REFERENCES "course_contents"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "content_files" ADD CONSTRAINT "content_files_uploadedBy_fkey" FOREIGN KEY ("uploadedBy") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "course_contents" ADD CONSTRAINT "course_contents_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "bookmarks" ADD CONSTRAINT "bookmarks_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -2924,45 +3804,6 @@ ALTER TABLE "course_faqs" ADD CONSTRAINT "course_faqs_createdBy_fkey" FOREIGN KE
 
 -- AddForeignKey
 ALTER TABLE "course_faqs" ADD CONSTRAINT "course_faqs_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_departmentId_fkey" FOREIGN KEY ("departmentId") REFERENCES "departments"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_jobTitleId_fkey" FOREIGN KEY ("jobTitleId") REFERENCES "job_titles"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_jobLevelId_fkey" FOREIGN KEY ("jobLevelId") REFERENCES "job_level"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_appRoleId_fkey" FOREIGN KEY ("appRoleId") REFERENCES "app_role"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "courses"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_learningProgramId_fkey" FOREIGN KEY ("learningProgramId") REFERENCES "learning_programs"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_assessmentId_fkey" FOREIGN KEY ("assessmentId") REFERENCES "assessments"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_certificateTemplateId_fkey" FOREIGN KEY ("certificateTemplateId") REFERENCES "certificate_templates"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_liveSessionId_fkey" FOREIGN KEY ("liveSessionId") REFERENCES "live_sessions"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_courseTemplateId_fkey" FOREIGN KEY ("courseTemplateId") REFERENCES "course_templates"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_programTemplateId_fkey" FOREIGN KEY ("programTemplateId") REFERENCES "program_templates"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_assessmentTemplateId_fkey" FOREIGN KEY ("assessmentTemplateId") REFERENCES "assessment_templates"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "learning_programs" ADD CONSTRAINT "learning_programs_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -3040,10 +3881,16 @@ ALTER TABLE "program_milestone_progresses" ADD CONSTRAINT "program_milestone_pro
 ALTER TABLE "program_milestone_progresses" ADD CONSTRAINT "program_milestone_progresses_programEnrollmentId_fkey" FOREIGN KEY ("programEnrollmentId") REFERENCES "program_enrollments"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "task_types" ADD CONSTRAINT "task_types_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "program_tasks" ADD CONSTRAINT "program_tasks_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "program_tasks" ADD CONSTRAINT "program_tasks_programId_fkey" FOREIGN KEY ("programId") REFERENCES "learning_programs"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "program_tasks" ADD CONSTRAINT "program_tasks_taskTypeId_fkey" FOREIGN KEY ("taskTypeId") REFERENCES "task_types"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "program_tasks" ADD CONSTRAINT "program_tasks_courseVersionId_fkey" FOREIGN KEY ("courseVersionId") REFERENCES "course_versions"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -3061,16 +3908,16 @@ ALTER TABLE "program_tasks" ADD CONSTRAINT "program_tasks_liveSessionId_fkey" FO
 ALTER TABLE "program_tasks" ADD CONSTRAINT "program_tasks_surveyId_fkey" FOREIGN KEY ("surveyId") REFERENCES "surveys"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "program_task_submissions" ADD CONSTRAINT "program_task_submissions_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "program_tags" ADD CONSTRAINT "program_tags_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "program_task_submissions" ADD CONSTRAINT "program_task_submissions_taskId_fkey" FOREIGN KEY ("taskId") REFERENCES "program_tasks"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "program_tag_mappings" ADD CONSTRAINT "program_tag_mappings_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "program_task_submissions" ADD CONSTRAINT "program_task_submissions_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "program_tag_mappings" ADD CONSTRAINT "program_tag_mappings_programId_fkey" FOREIGN KEY ("programId") REFERENCES "learning_programs"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "program_task_submissions" ADD CONSTRAINT "program_task_submissions_reviewedBy_fkey" FOREIGN KEY ("reviewedBy") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "program_tag_mappings" ADD CONSTRAINT "program_tag_mappings_tagId_fkey" FOREIGN KEY ("tagId") REFERENCES "program_tags"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "enrollments" ADD CONSTRAINT "enrollments_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -3091,6 +3938,9 @@ ALTER TABLE "enrollments" ADD CONSTRAINT "enrollments_assignedBy_fkey" FOREIGN K
 ALTER TABLE "enrollments" ADD CONSTRAINT "enrollments_approvedBy_fkey" FOREIGN KEY ("approvedBy") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "enrollment_rule_types" ADD CONSTRAINT "enrollment_rule_types_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "enrollment_rules" ADD CONSTRAINT "enrollment_rules_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -3098,6 +3948,9 @@ ALTER TABLE "enrollment_rules" ADD CONSTRAINT "enrollment_rules_courseVersionId_
 
 -- AddForeignKey
 ALTER TABLE "enrollment_rules" ADD CONSTRAINT "enrollment_rules_programId_fkey" FOREIGN KEY ("programId") REFERENCES "learning_programs"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "enrollment_rules" ADD CONSTRAINT "enrollment_rules_ruleTypeId_fkey" FOREIGN KEY ("ruleTypeId") REFERENCES "enrollment_rule_types"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "enrollment_rules" ADD CONSTRAINT "enrollment_rules_targetAudienceId_fkey" FOREIGN KEY ("targetAudienceId") REFERENCES "target_audiences"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -3160,6 +4013,12 @@ ALTER TABLE "program_completions" ADD CONSTRAINT "program_completions_companyId_
 ALTER TABLE "program_completions" ADD CONSTRAINT "program_completions_programEnrollmentId_fkey" FOREIGN KEY ("programEnrollmentId") REFERENCES "program_enrollments"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "grading_methods" ADD CONSTRAINT "grading_methods_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "assessment_types" ADD CONSTRAINT "assessment_types_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "assessments" ADD CONSTRAINT "assessments_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -3172,6 +4031,12 @@ ALTER TABLE "assessments" ADD CONSTRAINT "assessments_contentId_fkey" FOREIGN KE
 ALTER TABLE "assessments" ADD CONSTRAINT "assessments_templateId_fkey" FOREIGN KEY ("templateId") REFERENCES "assessment_templates"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "assessments" ADD CONSTRAINT "assessments_assessmentTypeId_fkey" FOREIGN KEY ("assessmentTypeId") REFERENCES "assessment_types"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "assessments" ADD CONSTRAINT "assessments_gradingMethodId_fkey" FOREIGN KEY ("gradingMethodId") REFERENCES "grading_methods"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "assessments" ADD CONSTRAINT "assessments_pairedAssessmentId_fkey" FOREIGN KEY ("pairedAssessmentId") REFERENCES "assessments"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -3179,6 +4044,27 @@ ALTER TABLE "assessments" ADD CONSTRAINT "assessments_createdBy_fkey" FOREIGN KE
 
 -- AddForeignKey
 ALTER TABLE "assessments" ADD CONSTRAINT "assessments_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "question_banks" ADD CONSTRAINT "question_banks_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "question_banks" ADD CONSTRAINT "question_banks_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "course_categories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "question_banks" ADD CONSTRAINT "question_banks_topicId_fkey" FOREIGN KEY ("topicId") REFERENCES "topics"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "question_banks" ADD CONSTRAINT "question_banks_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "app_user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "question_banks" ADD CONSTRAINT "question_banks_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "question_types" ADD CONSTRAINT "question_types_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "assessment_blueprints" ADD CONSTRAINT "assessment_blueprints_difficultyLevelId_fkey" FOREIGN KEY ("difficultyLevelId") REFERENCES "difficulty_levels"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "assessment_blueprints" ADD CONSTRAINT "assessment_blueprints_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -3190,28 +4076,40 @@ ALTER TABLE "assessment_blueprints" ADD CONSTRAINT "assessment_blueprints_assess
 ALTER TABLE "assessment_blueprints" ADD CONSTRAINT "assessment_blueprints_topicId_fkey" FOREIGN KEY ("topicId") REFERENCES "topics"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "assessment_blueprints" ADD CONSTRAINT "assessment_blueprints_questionTypeId_fkey" FOREIGN KEY ("questionTypeId") REFERENCES "question_types"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "assessment_questions" ADD CONSTRAINT "assessment_questions_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "assessment_questions" ADD CONSTRAINT "assessment_questions_assessmentId_fkey" FOREIGN KEY ("assessmentId") REFERENCES "assessments"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "assessment_questions" ADD CONSTRAINT "assessment_questions_questionVersionId_fkey" FOREIGN KEY ("questionVersionId") REFERENCES "question_versions"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "assessment_questions" ADD CONSTRAINT "assessment_questions_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "questions"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "assessment_questions" ADD CONSTRAINT "assessment_questions_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "questions"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "assessment_questions" ADD CONSTRAINT "assessment_questions_questionVersionId_fkey" FOREIGN KEY ("questionVersionId") REFERENCES "question_versions"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "topics" ADD CONSTRAINT "topics_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "questions" ADD CONSTRAINT "questions_difficultyLevelId_fkey" FOREIGN KEY ("difficultyLevelId") REFERENCES "difficulty_levels"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "questions" ADD CONSTRAINT "questions_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "questions" ADD CONSTRAINT "questions_questionTypeId_fkey" FOREIGN KEY ("questionTypeId") REFERENCES "question_types"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "questions" ADD CONSTRAINT "questions_currentVersionId_fkey" FOREIGN KEY ("currentVersionId") REFERENCES "question_versions"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "questions" ADD CONSTRAINT "questions_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "app_user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "questions" ADD CONSTRAINT "questions_questionBankId_fkey" FOREIGN KEY ("questionBankId") REFERENCES "question_banks"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "questions" ADD CONSTRAINT "questions_topicId_fkey" FOREIGN KEY ("topicId") REFERENCES "topics"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -3232,6 +4130,12 @@ ALTER TABLE "question_options" ADD CONSTRAINT "question_options_companyId_fkey" 
 ALTER TABLE "question_options" ADD CONSTRAINT "question_options_questionVersionId_fkey" FOREIGN KEY ("questionVersionId") REFERENCES "question_versions"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "question_matching_pairs" ADD CONSTRAINT "question_matching_pairs_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "question_matching_pairs" ADD CONSTRAINT "question_matching_pairs_questionVersionId_fkey" FOREIGN KEY ("questionVersionId") REFERENCES "question_versions"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "assessment_attempts" ADD CONSTRAINT "assessment_attempts_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -3242,6 +4146,9 @@ ALTER TABLE "assessment_attempts" ADD CONSTRAINT "assessment_attempts_assessment
 
 -- AddForeignKey
 ALTER TABLE "assessment_attempts" ADD CONSTRAINT "assessment_attempts_gradedBy_fkey" FOREIGN KEY ("gradedBy") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "assessment_attempt_rules" ADD CONSTRAINT "assessment_attempt_rules_assessmentId_fkey" FOREIGN KEY ("assessmentId") REFERENCES "assessments"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "assessment_answers" ADD CONSTRAINT "assessment_answers_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -3256,28 +4163,28 @@ ALTER TABLE "assessment_answers" ADD CONSTRAINT "assessment_answers_questionVers
 ALTER TABLE "assessment_answers" ADD CONSTRAINT "assessment_answers_approvedBy_fkey" FOREIGN KEY ("approvedBy") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "certificate_templates" ADD CONSTRAINT "certificate_templates_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "assessment_answer_options" ADD CONSTRAINT "assessment_answer_options_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "certificate_templates" ADD CONSTRAINT "certificate_templates_courseVersionId_fkey" FOREIGN KEY ("courseVersionId") REFERENCES "course_versions"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "assessment_answer_options" ADD CONSTRAINT "assessment_answer_options_answerId_fkey" FOREIGN KEY ("answerId") REFERENCES "assessment_answers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "certificate_templates" ADD CONSTRAINT "certificate_templates_learningProgramId_fkey" FOREIGN KEY ("learningProgramId") REFERENCES "learning_programs"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "assessment_answer_options" ADD CONSTRAINT "assessment_answer_options_questionOptionId_fkey" FOREIGN KEY ("questionOptionId") REFERENCES "question_options"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "certificate_templates" ADD CONSTRAINT "certificate_templates_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "app_user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "assessment_answer_matches" ADD CONSTRAINT "assessment_answer_matches_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "certificate_templates" ADD CONSTRAINT "certificate_templates_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "assessment_answer_matches" ADD CONSTRAINT "assessment_answer_matches_answerId_fkey" FOREIGN KEY ("answerId") REFERENCES "assessment_answers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "certificate_template_signers" ADD CONSTRAINT "certificate_template_signers_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "assessment_answer_matches" ADD CONSTRAINT "assessment_answer_matches_leftPairId_fkey" FOREIGN KEY ("leftPairId") REFERENCES "question_matching_pairs"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "certificate_template_signers" ADD CONSTRAINT "certificate_template_signers_templateId_fkey" FOREIGN KEY ("templateId") REFERENCES "certificate_templates"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "assessment_answer_matches" ADD CONSTRAINT "assessment_answer_matches_rightPairId_fkey" FOREIGN KEY ("rightPairId") REFERENCES "question_matching_pairs"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "certificate_template_signers" ADD CONSTRAINT "certificate_template_signers_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "certificate_types" ADD CONSTRAINT "certificate_types_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "certificates" ADD CONSTRAINT "certificates_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -3301,6 +4208,9 @@ ALTER TABLE "certificate_verifications" ADD CONSTRAINT "certificate_verification
 ALTER TABLE "certificate_verifications" ADD CONSTRAINT "certificate_verifications_verifiedByEmployeeId_fkey" FOREIGN KEY ("verifiedByEmployeeId") REFERENCES "employee"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "credential_sources" ADD CONSTRAINT "credential_sources_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "external_certificates" ADD CONSTRAINT "external_certificates_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -3310,7 +4220,19 @@ ALTER TABLE "external_certificates" ADD CONSTRAINT "external_certificates_employ
 ALTER TABLE "external_certificates" ADD CONSTRAINT "external_certificates_providerId_fkey" FOREIGN KEY ("providerId") REFERENCES "external_providers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "external_certificates" ADD CONSTRAINT "external_certificates_sourceId_fkey" FOREIGN KEY ("sourceId") REFERENCES "credential_sources"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "provider_types" ADD CONSTRAINT "provider_types_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "external_providers" ADD CONSTRAINT "external_providers_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "external_providers" ADD CONSTRAINT "external_providers_providerTypeId_fkey" FOREIGN KEY ("providerTypeId") REFERENCES "provider_types"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "meeting_providers" ADD CONSTRAINT "meeting_providers_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "live_sessions" ADD CONSTRAINT "live_sessions_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -3320,6 +4242,9 @@ ALTER TABLE "live_sessions" ADD CONSTRAINT "live_sessions_courseVersionId_fkey" 
 
 -- AddForeignKey
 ALTER TABLE "live_sessions" ADD CONSTRAINT "live_sessions_learningProgramId_fkey" FOREIGN KEY ("learningProgramId") REFERENCES "learning_programs"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "live_sessions" ADD CONSTRAINT "live_sessions_meetingProviderId_fkey" FOREIGN KEY ("meetingProviderId") REFERENCES "meeting_providers"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "live_sessions" ADD CONSTRAINT "live_sessions_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "app_user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -3337,6 +4262,9 @@ ALTER TABLE "live_session_instructors" ADD CONSTRAINT "live_session_instructors_
 ALTER TABLE "live_session_instructors" ADD CONSTRAINT "live_session_instructors_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "attendance_methods" ADD CONSTRAINT "attendance_methods_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "live_session_attendance" ADD CONSTRAINT "live_session_attendance_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -3344,6 +4272,9 @@ ALTER TABLE "live_session_attendance" ADD CONSTRAINT "live_session_attendance_se
 
 -- AddForeignKey
 ALTER TABLE "live_session_attendance" ADD CONSTRAINT "live_session_attendance_enrollmentId_fkey" FOREIGN KEY ("enrollmentId") REFERENCES "enrollments"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "live_session_attendance" ADD CONSTRAINT "live_session_attendance_attendanceMethodId_fkey" FOREIGN KEY ("attendanceMethodId") REFERENCES "attendance_methods"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "live_session_waitlists" ADD CONSTRAINT "live_session_waitlists_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -3367,10 +4298,16 @@ ALTER TABLE "surveys" ADD CONSTRAINT "surveys_createdBy_fkey" FOREIGN KEY ("crea
 ALTER TABLE "surveys" ADD CONSTRAINT "surveys_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "survey_question_types" ADD CONSTRAINT "survey_question_types_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "survey_questions" ADD CONSTRAINT "survey_questions_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "survey_questions" ADD CONSTRAINT "survey_questions_surveyId_fkey" FOREIGN KEY ("surveyId") REFERENCES "surveys"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "survey_questions" ADD CONSTRAINT "survey_questions_questionTypeId_fkey" FOREIGN KEY ("questionTypeId") REFERENCES "survey_question_types"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "survey_responses" ADD CONSTRAINT "survey_responses_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -3409,10 +4346,10 @@ ALTER TABLE "training_effectiveness" ADD CONSTRAINT "training_effectiveness_comp
 ALTER TABLE "tna_request_type_configs" ADD CONSTRAINT "tna_request_type_configs_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "tna_approval_workflow_steps" ADD CONSTRAINT "tna_approval_workflow_steps_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "funding_types" ADD CONSTRAINT "funding_types_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "tna_approval_workflow_steps" ADD CONSTRAINT "tna_approval_workflow_steps_approverJobTitleId_fkey" FOREIGN KEY ("approverJobTitleId") REFERENCES "job_titles"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "training_formats" ADD CONSTRAINT "training_formats_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "training_need_requests" ADD CONSTRAINT "training_need_requests_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -3424,6 +4361,12 @@ ALTER TABLE "training_need_requests" ADD CONSTRAINT "training_need_requests_empl
 ALTER TABLE "training_need_requests" ADD CONSTRAINT "training_need_requests_requestTypeId_fkey" FOREIGN KEY ("requestTypeId") REFERENCES "tna_request_type_configs"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "training_need_requests" ADD CONSTRAINT "training_need_requests_fundingTypeId_fkey" FOREIGN KEY ("fundingTypeId") REFERENCES "funding_types"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "training_need_requests" ADD CONSTRAINT "training_need_requests_preferredFormatId_fkey" FOREIGN KEY ("preferredFormatId") REFERENCES "training_formats"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "training_need_requests" ADD CONSTRAINT "training_need_requests_targetAudienceId_fkey" FOREIGN KEY ("targetAudienceId") REFERENCES "target_audiences"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -3433,6 +4376,15 @@ ALTER TABLE "training_need_requests" ADD CONSTRAINT "training_need_requests_depa
 ALTER TABLE "training_need_requests" ADD CONSTRAINT "training_need_requests_jobTitleId_fkey" FOREIGN KEY ("jobTitleId") REFERENCES "job_titles"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "training_need_request_employees" ADD CONSTRAINT "training_need_request_employees_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "training_need_request_employees" ADD CONSTRAINT "training_need_request_employees_trainingNeedRequestId_fkey" FOREIGN KEY ("trainingNeedRequestId") REFERENCES "training_need_requests"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "training_need_request_employees" ADD CONSTRAINT "training_need_request_employees_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "training_need_skills" ADD CONSTRAINT "training_need_skills_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -3440,18 +4392,6 @@ ALTER TABLE "training_need_skills" ADD CONSTRAINT "training_need_skills_requestI
 
 -- AddForeignKey
 ALTER TABLE "training_need_skills" ADD CONSTRAINT "training_need_skills_skillId_fkey" FOREIGN KEY ("skillId") REFERENCES "skills"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "tna_approvals" ADD CONSTRAINT "tna_approvals_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "tna_approvals" ADD CONSTRAINT "tna_approvals_requestId_fkey" FOREIGN KEY ("requestId") REFERENCES "training_need_requests"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "tna_approvals" ADD CONSTRAINT "tna_approvals_workflowStepId_fkey" FOREIGN KEY ("workflowStepId") REFERENCES "tna_approval_workflow_steps"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "tna_approvals" ADD CONSTRAINT "tna_approvals_approverId_fkey" FOREIGN KEY ("approverId") REFERENCES "employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "tna_recommendations" ADD CONSTRAINT "tna_recommendations_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -3478,7 +4418,19 @@ ALTER TABLE "tna_recommendation_skills" ADD CONSTRAINT "tna_recommendation_skill
 ALTER TABLE "tna_recommendation_skills" ADD CONSTRAINT "tna_recommendation_skills_skillId_fkey" FOREIGN KEY ("skillId") REFERENCES "skills"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "xp_rule_categories" ADD CONSTRAINT "xp_rule_categories_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "xp_trigger_events" ADD CONSTRAINT "xp_trigger_events_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "xp_rules" ADD CONSTRAINT "xp_rules_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "xp_rules" ADD CONSTRAINT "xp_rules_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "xp_rule_categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "xp_rules" ADD CONSTRAINT "xp_rules_triggerEventId_fkey" FOREIGN KEY ("triggerEventId") REFERENCES "xp_trigger_events"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "xp_rules" ADD CONSTRAINT "xp_rules_targetAudienceId_fkey" FOREIGN KEY ("targetAudienceId") REFERENCES "target_audiences"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -3508,13 +4460,22 @@ ALTER TABLE "xp_transactions" ADD CONSTRAINT "xp_transactions_ruleId_fkey" FOREI
 ALTER TABLE "learning_levels" ADD CONSTRAINT "learning_levels_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "badge_categories" ADD CONSTRAINT "badge_categories_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "badges" ADD CONSTRAINT "badges_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "badges" ADD CONSTRAINT "badges_badgeCategoryId_fkey" FOREIGN KEY ("badgeCategoryId") REFERENCES "badge_categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "badge_rules" ADD CONSTRAINT "badge_rules_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "badge_rules" ADD CONSTRAINT "badge_rules_badgeId_fkey" FOREIGN KEY ("badgeId") REFERENCES "badges"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "badge_rules" ADD CONSTRAINT "badge_rules_triggerEventId_fkey" FOREIGN KEY ("triggerEventId") REFERENCES "xp_trigger_events"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "badge_rules" ADD CONSTRAINT "badge_rules_targetAudienceId_fkey" FOREIGN KEY ("targetAudienceId") REFERENCES "target_audiences"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -3535,6 +4496,21 @@ ALTER TABLE "employee_badges" ADD CONSTRAINT "employee_badges_awardedBy_fkey" FO
 ALTER TABLE "employee_badges" ADD CONSTRAINT "employee_badges_revokedBy_fkey" FOREIGN KEY ("revokedBy") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "leaderboards" ADD CONSTRAINT "leaderboards_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "leaderboards" ADD CONSTRAINT "leaderboards_targetAudienceId_fkey" FOREIGN KEY ("targetAudienceId") REFERENCES "target_audiences"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "leaderboard_entries" ADD CONSTRAINT "leaderboard_entries_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "leaderboard_entries" ADD CONSTRAINT "leaderboard_entries_leaderboardId_fkey" FOREIGN KEY ("leaderboardId") REFERENCES "leaderboards"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "leaderboard_entries" ADD CONSTRAINT "leaderboard_entries_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "system_settings" ADD CONSTRAINT "system_settings_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -3545,6 +4521,9 @@ ALTER TABLE "course_templates" ADD CONSTRAINT "course_templates_companyId_fkey" 
 
 -- AddForeignKey
 ALTER TABLE "course_templates" ADD CONSTRAINT "course_templates_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "course_categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "course_templates" ADD CONSTRAINT "course_templates_difficultyLevelId_fkey" FOREIGN KEY ("difficultyLevelId") REFERENCES "difficulty_levels"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "course_templates" ADD CONSTRAINT "course_templates_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "app_user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -3566,6 +4545,12 @@ ALTER TABLE "program_templates" ADD CONSTRAINT "program_templates_updatedBy_fkey
 
 -- AddForeignKey
 ALTER TABLE "assessment_templates" ADD CONSTRAINT "assessment_templates_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "assessment_templates" ADD CONSTRAINT "assessment_templates_assessmentTypeId_fkey" FOREIGN KEY ("assessmentTypeId") REFERENCES "assessment_types"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "assessment_templates" ADD CONSTRAINT "assessment_templates_gradingMethodId_fkey" FOREIGN KEY ("gradingMethodId") REFERENCES "grading_methods"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "assessment_templates" ADD CONSTRAINT "assessment_templates_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "app_user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -3592,10 +4577,16 @@ ALTER TABLE "notification_templates" ADD CONSTRAINT "notification_templates_crea
 ALTER TABLE "notification_templates" ADD CONSTRAINT "notification_templates_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "notification_templates" ADD CONSTRAINT "notification_templates_notificationEventId_fkey" FOREIGN KEY ("notificationEventId") REFERENCES "NotificationEvent"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "notification_templates" ADD CONSTRAINT "notification_templates_notificationEventId_fkey" FOREIGN KEY ("notificationEventId") REFERENCES "notification_events"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "NotificationEvent" ADD CONSTRAINT "NotificationEvent_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "notification_modules" ADD CONSTRAINT "notification_modules_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "notification_events" ADD CONSTRAINT "notification_events_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "notification_events" ADD CONSTRAINT "notification_events_moduleId_fkey" FOREIGN KEY ("moduleId") REFERENCES "notification_modules"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "learning_path_templates" ADD CONSTRAINT "learning_path_templates_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -3607,6 +4598,33 @@ ALTER TABLE "learning_path_templates" ADD CONSTRAINT "learning_path_templates_cr
 ALTER TABLE "learning_path_templates" ADD CONSTRAINT "learning_path_templates_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "certificate_templates" ADD CONSTRAINT "certificate_templates_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "certificate_templates" ADD CONSTRAINT "certificate_templates_courseVersionId_fkey" FOREIGN KEY ("courseVersionId") REFERENCES "course_versions"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "certificate_templates" ADD CONSTRAINT "certificate_templates_learningProgramId_fkey" FOREIGN KEY ("learningProgramId") REFERENCES "learning_programs"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "certificate_templates" ADD CONSTRAINT "certificate_templates_certificateTypeId_fkey" FOREIGN KEY ("certificateTypeId") REFERENCES "certificate_types"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "certificate_templates" ADD CONSTRAINT "certificate_templates_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "app_user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "certificate_templates" ADD CONSTRAINT "certificate_templates_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "certificate_template_signers" ADD CONSTRAINT "certificate_template_signers_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "certificate_template_signers" ADD CONSTRAINT "certificate_template_signers_templateId_fkey" FOREIGN KEY ("templateId") REFERENCES "certificate_templates"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "certificate_template_signers" ADD CONSTRAINT "certificate_template_signers_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "approval_workflows" ADD CONSTRAINT "approval_workflows_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -3616,7 +4634,13 @@ ALTER TABLE "approval_workflows" ADD CONSTRAINT "approval_workflows_createdBy_fk
 ALTER TABLE "approval_workflows" ADD CONSTRAINT "approval_workflows_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "approval_workflow_steps" ADD CONSTRAINT "approval_workflow_steps_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "approval_workflow_steps" ADD CONSTRAINT "approval_workflow_steps_workflowId_fkey" FOREIGN KEY ("workflowId") REFERENCES "approval_workflows"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "approval_workflow_steps" ADD CONSTRAINT "approval_workflow_steps_approverRoleId_fkey" FOREIGN KEY ("approverRoleId") REFERENCES "app_role"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "approval_workflow_steps" ADD CONSTRAINT "approval_workflow_steps_approverEmployeeId_fkey" FOREIGN KEY ("approverEmployeeId") REFERENCES "employee"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -3632,6 +4656,9 @@ ALTER TABLE "approval_workflow_instances" ADD CONSTRAINT "approval_workflow_inst
 
 -- AddForeignKey
 ALTER TABLE "approval_workflow_instances" ADD CONSTRAINT "approval_workflow_instances_learningProgramId_fkey" FOREIGN KEY ("learningProgramId") REFERENCES "learning_programs"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "approval_workflow_instances" ADD CONSTRAINT "approval_workflow_instances_trainingNeedRequestId_fkey" FOREIGN KEY ("trainingNeedRequestId") REFERENCES "training_need_requests"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "approval_workflow_instances" ADD CONSTRAINT "approval_workflow_instances_submittedBy_fkey" FOREIGN KEY ("submittedBy") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
