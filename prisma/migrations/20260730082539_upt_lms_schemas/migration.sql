@@ -137,13 +137,16 @@ CREATE TYPE "TargetAudienceEntityType" AS ENUM ('COURSE', 'LEARNING_PROGRAM', 'A
 CREATE TYPE "ScormTrackingMode" AS ENUM ('COMPLETION_ONLY', 'SCORE_ONLY', 'COMPLETION_AND_SCORE', 'TIME_ONLY');
 
 -- CreateEnum
-CREATE TYPE "FileOwnerType" AS ENUM ('COURSE_CONTENT', 'SUBMISSION');
-
--- CreateEnum
-CREATE TYPE "SubmissionOwnerType" AS ENUM ('COURSE_CONTENT', 'PROGRAM_TASK');
+CREATE TYPE "ShowCorrectAnswersTiming" AS ENUM ('IMMEDIATELY', 'NEVER', 'AFTER_SUBMIT');
 
 -- CreateEnum
 CREATE TYPE "TaskLinkedEntity" AS ENUM ('COURSE_VERSION', 'COURSE_CONTENT', 'ASSESSMENT', 'LIVE_SESSION', 'SURVEY', 'NONE');
+
+-- CreateEnum
+CREATE TYPE "CertificateIssuanceType" AS ENUM ('COURSE_COMPLETION', 'PROGRAM_COMPLETION', 'MANUAL');
+
+-- CreateEnum
+CREATE TYPE "RuleOperator" AS ENUM ('AND', 'OR');
 
 -- CreateTable
 CREATE TABLE "company" (
@@ -260,8 +263,8 @@ CREATE TABLE "lms_role_permissions" (
 CREATE TABLE "stored_files" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
-    "ownerType" "FileOwnerType" NOT NULL,
-    "ownerId" INTEGER NOT NULL,
+    "courseContentId" INTEGER,
+    "submissionId" INTEGER,
     "fileTypeId" INTEGER,
     "originalFileName" VARCHAR(255) NOT NULL,
     "storedFileName" VARCHAR(255) NOT NULL,
@@ -279,7 +282,6 @@ CREATE TABLE "stored_files" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "deletedAt" TIMESTAMP(3),
-    "courseContentId" INTEGER,
 
     CONSTRAINT "stored_files_pkey" PRIMARY KEY ("id")
 );
@@ -288,8 +290,8 @@ CREATE TABLE "stored_files" (
 CREATE TABLE "submissions" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
-    "ownerType" "SubmissionOwnerType" NOT NULL,
-    "ownerId" INTEGER NOT NULL,
+    "courseContentId" INTEGER,
+    "programTaskId" INTEGER,
     "enrollmentId" INTEGER,
     "employeeId" VARCHAR(20) NOT NULL,
     "submissionNo" INTEGER NOT NULL DEFAULT 1,
@@ -307,7 +309,6 @@ CREATE TABLE "submissions" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "deletedAt" TIMESTAMP(3),
-    "programTaskId" INTEGER,
 
     CONSTRAINT "submissions_pkey" PRIMARY KEY ("id")
 );
@@ -328,7 +329,6 @@ CREATE TABLE "submission_peer_reviews" (
 -- CreateTable
 CREATE TABLE "audience_group_rules" (
     "id" SERIAL NOT NULL,
-    "companyId" INTEGER NOT NULL,
     "audienceGroupId" INTEGER NOT NULL,
     "departmentId" INTEGER,
     "appRoleId" INTEGER,
@@ -336,8 +336,11 @@ CREATE TABLE "audience_group_rules" (
     "jobLevelId" INTEGER,
     "employmentType" VARCHAR(20),
     "hireWithinDays" INTEGER,
+    "operator" "RuleOperator" NOT NULL DEFAULT 'OR',
+    "isExclusion" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "companyId" INTEGER,
 
     CONSTRAINT "audience_group_rules_pkey" PRIMARY KEY ("id")
 );
@@ -364,12 +367,11 @@ CREATE TABLE "target_audiences" (
     "companyId" INTEGER NOT NULL,
     "entityType" "TargetAudienceEntityType" NOT NULL,
     "entityId" INTEGER NOT NULL,
-    "audienceType" "AudienceType" NOT NULL,
-    "departmentId" INTEGER,
-    "appRoleId" INTEGER,
-    "audienceGroupId" INTEGER,
+    "audienceGroupId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "departmentId" INTEGER,
+    "appRoleId" INTEGER,
 
     CONSTRAINT "target_audiences_pkey" PRIMARY KEY ("id")
 );
@@ -1466,8 +1468,12 @@ CREATE TABLE "certificate_types" (
 CREATE TABLE "certificates" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
+    "issuanceType" "CertificateIssuanceType" NOT NULL,
     "completionId" INTEGER,
     "programCompletionId" INTEGER,
+    "manualIssueReason" TEXT,
+    "manualIssuedByUserId" INTEGER,
+    "manualRecipientEmployeeId" VARCHAR(20),
     "templateId" INTEGER NOT NULL,
     "certificateNumber" VARCHAR(100) NOT NULL,
     "issuedAt" TIMESTAMP(3) NOT NULL,
@@ -2155,7 +2161,7 @@ CREATE TABLE "program_templates" (
     "name" VARCHAR(255) NOT NULL,
     "description" TEXT,
     "categoryId" INTEGER,
-    "programType" VARCHAR(50),
+    "programTypeId" INTEGER,
     "durationWeeks" INTEGER,
     "visibility" "VisibilityType" NOT NULL DEFAULT 'COMPANY',
     "isMandatory" BOOLEAN NOT NULL DEFAULT false,
@@ -2191,7 +2197,7 @@ CREATE TABLE "assessment_templates" (
     "randomizeOptions" BOOLEAN NOT NULL DEFAULT false,
     "showResultImmediately" BOOLEAN NOT NULL DEFAULT false,
     "allowReview" BOOLEAN NOT NULL DEFAULT true,
-    "showCorrectAnswers" VARCHAR(30),
+    "showCorrectAnswers" "ShowCorrectAnswersTiming" NOT NULL,
     "lockdownBrowser" BOOLEAN NOT NULL DEFAULT false,
     "proctoringEnabled" BOOLEAN NOT NULL DEFAULT false,
     "negativeMarking" DECIMAL(3,2),
@@ -2453,7 +2459,10 @@ CREATE UNIQUE INDEX "lms_role_permissions_appRoleId_permissionId_key" ON "lms_ro
 CREATE INDEX "stored_files_companyId_idx" ON "stored_files"("companyId");
 
 -- CreateIndex
-CREATE INDEX "stored_files_ownerType_ownerId_idx" ON "stored_files"("ownerType", "ownerId");
+CREATE INDEX "stored_files_courseContentId_idx" ON "stored_files"("courseContentId");
+
+-- CreateIndex
+CREATE INDEX "stored_files_submissionId_idx" ON "stored_files"("submissionId");
 
 -- CreateIndex
 CREATE INDEX "stored_files_fileTypeId_idx" ON "stored_files"("fileTypeId");
@@ -2462,22 +2471,22 @@ CREATE INDEX "stored_files_fileTypeId_idx" ON "stored_files"("fileTypeId");
 CREATE INDEX "submissions_companyId_idx" ON "submissions"("companyId");
 
 -- CreateIndex
-CREATE INDEX "submissions_ownerType_ownerId_idx" ON "submissions"("ownerType", "ownerId");
+CREATE INDEX "submissions_courseContentId_idx" ON "submissions"("courseContentId");
+
+-- CreateIndex
+CREATE INDEX "submissions_programTaskId_idx" ON "submissions"("programTaskId");
 
 -- CreateIndex
 CREATE INDEX "submissions_enrollmentId_idx" ON "submissions"("enrollmentId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "submissions_ownerType_ownerId_employeeId_submissionNo_key" ON "submissions"("ownerType", "ownerId", "employeeId", "submissionNo");
+CREATE UNIQUE INDEX "submissions_courseContentId_programTaskId_employeeId_submis_key" ON "submissions"("courseContentId", "programTaskId", "employeeId", "submissionNo");
 
 -- CreateIndex
 CREATE INDEX "submission_peer_reviews_companyId_idx" ON "submission_peer_reviews"("companyId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "submission_peer_reviews_submissionId_reviewerEmployeeId_key" ON "submission_peer_reviews"("submissionId", "reviewerEmployeeId");
-
--- CreateIndex
-CREATE INDEX "audience_group_rules_companyId_idx" ON "audience_group_rules"("companyId");
 
 -- CreateIndex
 CREATE INDEX "audience_group_rules_audienceGroupId_idx" ON "audience_group_rules"("audienceGroupId");
@@ -2507,13 +2516,10 @@ CREATE INDEX "target_audiences_companyId_idx" ON "target_audiences"("companyId")
 CREATE INDEX "target_audiences_entityType_entityId_idx" ON "target_audiences"("entityType", "entityId");
 
 -- CreateIndex
-CREATE INDEX "target_audiences_departmentId_idx" ON "target_audiences"("departmentId");
-
--- CreateIndex
-CREATE INDEX "target_audiences_appRoleId_idx" ON "target_audiences"("appRoleId");
-
--- CreateIndex
 CREATE INDEX "target_audiences_audienceGroupId_idx" ON "target_audiences"("audienceGroupId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "target_audiences_entityType_entityId_audienceGroupId_key" ON "target_audiences"("entityType", "entityId", "audienceGroupId");
 
 -- CreateIndex
 CREATE INDEX "courses_companyId_idx" ON "courses"("companyId");
@@ -3023,6 +3029,9 @@ CREATE UNIQUE INDEX "certificates_verificationCode_key" ON "certificates"("verif
 CREATE INDEX "certificates_companyId_idx" ON "certificates"("companyId");
 
 -- CreateIndex
+CREATE INDEX "certificates_issuanceType_idx" ON "certificates"("issuanceType");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "certificates_companyId_certificateNumber_key" ON "certificates"("companyId", "certificateNumber");
 
 -- CreateIndex
@@ -3225,12 +3234,6 @@ CREATE INDEX "training_need_skills_companyId_idx" ON "training_need_skills"("com
 
 -- CreateIndex
 CREATE UNIQUE INDEX "training_need_skills_requestId_skillId_key" ON "training_need_skills"("requestId", "skillId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "tna_recommendations_courseVersionId_key" ON "tna_recommendations"("courseVersionId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "tna_recommendations_learningProgramId_key" ON "tna_recommendations"("learningProgramId");
 
 -- CreateIndex
 CREATE INDEX "tna_recommendations_companyId_idx" ON "tna_recommendations"("companyId");
@@ -3518,16 +3521,25 @@ ALTER TABLE "lms_role_permissions" ADD CONSTRAINT "lms_role_permissions_permissi
 ALTER TABLE "stored_files" ADD CONSTRAINT "stored_files_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "stored_files" ADD CONSTRAINT "stored_files_courseContentId_fkey" FOREIGN KEY ("courseContentId") REFERENCES "course_contents"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "stored_files" ADD CONSTRAINT "stored_files_submissionId_fkey" FOREIGN KEY ("submissionId") REFERENCES "submissions"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "stored_files" ADD CONSTRAINT "stored_files_fileTypeId_fkey" FOREIGN KEY ("fileTypeId") REFERENCES "ContentFileType"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "stored_files" ADD CONSTRAINT "stored_files_uploadedBy_fkey" FOREIGN KEY ("uploadedBy") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "stored_files" ADD CONSTRAINT "stored_files_courseContentId_fkey" FOREIGN KEY ("courseContentId") REFERENCES "course_contents"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "submissions" ADD CONSTRAINT "submissions_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "submissions" ADD CONSTRAINT "submissions_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "submissions" ADD CONSTRAINT "submissions_courseContentId_fkey" FOREIGN KEY ("courseContentId") REFERENCES "course_contents"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "submissions" ADD CONSTRAINT "submissions_programTaskId_fkey" FOREIGN KEY ("programTaskId") REFERENCES "program_tasks"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "submissions" ADD CONSTRAINT "submissions_enrollmentId_fkey" FOREIGN KEY ("enrollmentId") REFERENCES "enrollments"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -3539,9 +3551,6 @@ ALTER TABLE "submissions" ADD CONSTRAINT "submissions_employeeId_fkey" FOREIGN K
 ALTER TABLE "submissions" ADD CONSTRAINT "submissions_reviewedBy_fkey" FOREIGN KEY ("reviewedBy") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "submissions" ADD CONSTRAINT "submissions_programTaskId_fkey" FOREIGN KEY ("programTaskId") REFERENCES "program_tasks"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "submission_peer_reviews" ADD CONSTRAINT "submission_peer_reviews_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -3551,10 +3560,7 @@ ALTER TABLE "submission_peer_reviews" ADD CONSTRAINT "submission_peer_reviews_su
 ALTER TABLE "submission_peer_reviews" ADD CONSTRAINT "submission_peer_reviews_reviewerEmployeeId_fkey" FOREIGN KEY ("reviewerEmployeeId") REFERENCES "employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "audience_group_rules" ADD CONSTRAINT "audience_group_rules_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "audience_group_rules" ADD CONSTRAINT "audience_group_rules_audienceGroupId_fkey" FOREIGN KEY ("audienceGroupId") REFERENCES "audience_groups"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "audience_group_rules" ADD CONSTRAINT "audience_group_rules_audienceGroupId_fkey" FOREIGN KEY ("audienceGroupId") REFERENCES "audience_groups"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "audience_group_rules" ADD CONSTRAINT "audience_group_rules_departmentId_fkey" FOREIGN KEY ("departmentId") REFERENCES "departments"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -3569,7 +3575,10 @@ ALTER TABLE "audience_group_rules" ADD CONSTRAINT "audience_group_rules_jobTitle
 ALTER TABLE "audience_group_rules" ADD CONSTRAINT "audience_group_rules_jobLevelId_fkey" FOREIGN KEY ("jobLevelId") REFERENCES "job_level"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "audience_groups" ADD CONSTRAINT "audience_groups_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "audience_group_rules" ADD CONSTRAINT "audience_group_rules_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "audience_groups" ADD CONSTRAINT "audience_groups_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "audience_groups" ADD CONSTRAINT "audience_groups_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "app_user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -3578,16 +3587,16 @@ ALTER TABLE "audience_groups" ADD CONSTRAINT "audience_groups_createdBy_fkey" FO
 ALTER TABLE "audience_groups" ADD CONSTRAINT "audience_groups_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_audienceGroupId_fkey" FOREIGN KEY ("audienceGroupId") REFERENCES "audience_groups"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_departmentId_fkey" FOREIGN KEY ("departmentId") REFERENCES "departments"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_appRoleId_fkey" FOREIGN KEY ("appRoleId") REFERENCES "app_role"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_audienceGroupId_fkey" FOREIGN KEY ("audienceGroupId") REFERENCES "audience_groups"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "courses" ADD CONSTRAINT "courses_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -4151,6 +4160,9 @@ ALTER TABLE "assessment_attempts" ADD CONSTRAINT "assessment_attempts_gradedBy_f
 ALTER TABLE "assessment_attempt_rules" ADD CONSTRAINT "assessment_attempt_rules_assessmentId_fkey" FOREIGN KEY ("assessmentId") REFERENCES "assessments"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "assessment_attempt_rules" ADD CONSTRAINT "assessment_attempt_rules_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "assessment_answers" ADD CONSTRAINT "assessment_answers_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -4197,6 +4209,12 @@ ALTER TABLE "certificates" ADD CONSTRAINT "certificates_programCompletionId_fkey
 
 -- AddForeignKey
 ALTER TABLE "certificates" ADD CONSTRAINT "certificates_templateId_fkey" FOREIGN KEY ("templateId") REFERENCES "certificate_templates"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "certificates" ADD CONSTRAINT "certificates_manualIssuedByUserId_fkey" FOREIGN KEY ("manualIssuedByUserId") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "certificates" ADD CONSTRAINT "certificates_manualRecipientEmployeeId_fkey" FOREIGN KEY ("manualRecipientEmployeeId") REFERENCES "employee"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "certificate_verifications" ADD CONSTRAINT "certificate_verifications_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
