@@ -1,129 +1,133 @@
-// prisma/seed.ts
-
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-async function seedLookupTables(companyId: number) {
-  console.log(`Seeding lookup tables for companyId: ${companyId}`);
+async function seedSystemLookupTables() {
+  console.log('Seeding system-level lookup tables...');
 
   // --------------------------------------------------
-  // DifficultyLevel
+  // DifficultyLevel (System-wide default: companyId = null)
   // --------------------------------------------------
-const difficultyLevels = [
-  { name: 'Beginner', code: 'BEGINNER', displayOrder: 1 },
-  { name: 'Intermediate', code: 'INTERMEDIATE', displayOrder: 2 },
-  { name: 'Advanced', code: 'ADVANCED', displayOrder: 3 },
-  { name: 'Expert', code: 'EXPERT', displayOrder: 4 },
-];
+  const difficultyLevels = [
+    { name: 'Beginner', code: 'BEGINNER', displayOrder: 1 },
+    { name: 'Intermediate', code: 'INTERMEDIATE', displayOrder: 2 },
+    { name: 'Advanced', code: 'ADVANCED', displayOrder: 3 },
+    { name: 'Expert', code: 'EXPERT', displayOrder: 4 },
+  ];
 
-for (const item of difficultyLevels) {
-  const existing = await prisma.difficultyLevel.findFirst({
-    where: {
-      code: item.code,
-      companyId: null, // system-level row
-    },
-  });
-
-  if (!existing) {
-    await prisma.difficultyLevel.create({
-      data: {
-        companyId: null, // system-wide default
+  for (const item of difficultyLevels) {
+    const existing = await prisma.difficultyLevel.findFirst({
+      where: {
         code: item.code,
-        name: item.name,
-        displayOrder: item.displayOrder,
-        isSystem: true,
-        isActive: true,
+        companyId: null,
       },
     });
+
+    if (!existing) {
+      await prisma.difficultyLevel.create({
+        data: {
+          companyId: null,
+          code: item.code,
+          name: item.name,
+          displayOrder: item.displayOrder,
+          isSystem: true,
+          isActive: true,
+        },
+      });
+    }
   }
 }
+
+async function seedCompanyLookupTables(companyId: number) {
+  console.log(`Seeding lookup tables for companyId: ${companyId}`);
 
   // --------------------------------------------------
   // TaskType
   // --------------------------------------------------
-const taskTypes = [
-  {
-    name: 'Course Content',
-    slug: 'course_content',
-    expectedSubmissionType: 'NONE',
-    linkedEntity: 'COURSE_CONTENT',
-  },
-  {
-    name: 'Assessment',
-    slug: 'assessment',
-    expectedSubmissionType: 'NONE',
-    linkedEntity: 'ASSESSMENT',
-  },
-  {
-    name: 'Live Session',
-    slug: 'live_session',
-    expectedSubmissionType: 'NONE',
-    linkedEntity: 'LIVE_SESSION',
-  },
-  {
-    name: 'Assignment',
-    slug: 'assignment',
-    expectedSubmissionType: 'FILE_UPLOAD',
-    linkedEntity: 'NONE',
-  },
-  {
-    name: 'Survey',
-    slug: 'survey',
-    expectedSubmissionType: 'NONE',
-    linkedEntity: 'SURVEY',
-  },
-  {
-    name: 'Manager Check-in',
-    slug: 'manager_checkin',
-    expectedSubmissionType: 'TEXT_INPUT',
-    linkedEntity: 'NONE',
-  },
-  {
-    name: 'Peer Review',
-    slug: 'peer_review',
-    expectedSubmissionType: 'TEXT_INPUT',
-    linkedEntity: 'NONE',
-  },
-  {
-    name: 'External Activity',
-    slug: 'external_activity',
-    expectedSubmissionType: 'LINK',
-    linkedEntity: 'NONE',
-  },
-  {
-    name: 'Reading',
-    slug: 'reading',
-    expectedSubmissionType: 'NONE',
-    linkedEntity: 'COURSE_CONTENT',
-  },
-  {
-    name: 'Other',
-    slug: 'other',
-    expectedSubmissionType: 'NONE',
-    linkedEntity: 'NONE',
-  },
-];
+  const taskTypes = [
+    {
+      name: 'Course Content',
+      slug: 'course_content',
+      expectedSubmissionType: 'NONE',
+      linkedEntity: 'COURSE_CONTENT',
+    },
+    {
+      name: 'Assessment',
+      slug: 'assessment',
+      expectedSubmissionType: 'NONE',
+      linkedEntity: 'ASSESSMENT',
+    },
+    {
+      name: 'Live Session',
+      slug: 'live_session',
+      expectedSubmissionType: 'NONE',
+      linkedEntity: 'LIVE_SESSION',
+    },
+    {
+      name: 'Assignment',
+      slug: 'assignment',
+      expectedSubmissionType: 'FILE_UPLOAD',
+      linkedEntity: 'NONE',
+    },
+    {
+      name: 'Survey',
+      slug: 'survey',
+      expectedSubmissionType: 'NONE',
+      linkedEntity: 'SURVEY',
+    },
+    {
+      name: 'Manager Check-in',
+      slug: 'manager_checkin',
+      expectedSubmissionType: 'TEXT_INPUT',
+      linkedEntity: 'NONE',
+    },
+    {
+      name: 'Peer Review',
+      slug: 'peer_review',
+      expectedSubmissionType: 'TEXT_INPUT',
+      linkedEntity: 'NONE',
+    },
+    {
+      name: 'External Activity',
+      slug: 'external_activity',
+      expectedSubmissionType: 'LINK',
+      linkedEntity: 'NONE',
+    },
+    {
+      name: 'Reading',
+      slug: 'reading',
+      expectedSubmissionType: 'NONE',
+      linkedEntity: 'COURSE_CONTENT',
+    },
+    {
+      name: 'Other',
+      slug: 'other',
+      expectedSubmissionType: 'NONE',
+      linkedEntity: 'NONE',
+    },
+  ];
 
-for (const item of taskTypes) {
-  const existing = await prisma.taskType.findFirst({
-    where: { companyId, slug: item.slug },
-  });
+  await Promise.all(
+    taskTypes.map(async (item) => {
+      const existing = await prisma.taskType.findFirst({
+        where: { companyId, slug: item.slug },
+      });
 
-  if (!existing) {
-    await prisma.taskType.create({
-      data: {
-        companyId,
-        name: item.name,
-        slug: item.slug,
-        expectedSubmissionType: item.expectedSubmissionType as any,
-        linkedEntity: item.linkedEntity as any,
-        isSystem: true,
-        isActive: true,
-      },
-    });
-  }
-}
+      if (!existing) {
+        await prisma.taskType.create({
+          data: {
+            companyId,
+            name: item.name,
+            slug: item.slug,
+            expectedSubmissionType: item.expectedSubmissionType as any,
+            linkedEntity: item.linkedEntity as any,
+            isSystem: true,
+            isActive: true,
+          },
+        });
+      }
+    })
+  );
 
   // --------------------------------------------------
   // AttendanceMethod
@@ -135,13 +139,15 @@ for (const item of taskTypes) {
     { name: 'Biometric', slug: 'biometric' },
   ];
 
-  for (const item of attendanceMethods) {
-    await prisma.attendanceMethod.upsert({
-      where: { companyId_slug: { companyId, slug: item.slug } },
-      update: {},
-      create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
+  await Promise.all(
+    attendanceMethods.map((item) =>
+      prisma.attendanceMethod.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // --------------------------------------------------
   // AssessmentType
@@ -154,23 +160,25 @@ for (const item of taskTypes) {
     { name: 'Practice', slug: 'practice', code: 'PRACTICE' },
   ];
 
-  for (const item of assessmentTypes) {
-    await prisma.assessmentType.upsert({
-      where: { companyId_code: { companyId, code: item.code } },
-      update: {},
-      create: {
-        companyId,
-        name: item.name,
-        code: item.code,
-        isSystem: true,
-        isActive: true,
-        isScored: true,
-        isGraded: true,
-      },
-    });
-  }
+  await Promise.all(
+    assessmentTypes.map((item) =>
+      prisma.assessmentType.upsert({
+        where: { companyId_code: { companyId, code: item.code } },
+        update: {},
+        create: {
+          companyId,
+          name: item.name,
+          code: item.code,
+          isSystem: true,
+          isActive: true,
+          isScored: true,
+          isGraded: true,
+        },
+      })
+    )
+  );
 
-  // --------------------------------------------------
+ // --------------------------------------------------
   // QuestionType
   // --------------------------------------------------
   const questionTypes = [
@@ -185,21 +193,22 @@ for (const item of taskTypes) {
     { name: 'Drag and Drop', slug: 'drag_drop', answerStructure: 'MATCHING_PAIR_BASED' },
   ];
 
-  for (const item of questionTypes) {
-    await prisma.questionType.upsert({
-      where: { companyId_slug: { companyId, slug: item.slug } },
-      update: {},
-      create: {
-        companyId,
-        name: item.name,
-        slug: item.slug,
-        answerStructure: item.answerStructure as any,
-        isSystem: true,
-        isActive: true,
-      },
-    });
-  }
-
+  await Promise.all(
+    questionTypes.map((item) =>
+      prisma.questionType.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: {
+          companyId,
+          name: item.name,
+          slug: item.slug,
+          answerStructure: item.answerStructure as any,
+          isSystem: true,
+          isActive: true,
+        },
+      })
+    )
+  );
   // --------------------------------------------------
   // GradingMethod
   // --------------------------------------------------
@@ -210,13 +219,15 @@ for (const item of taskTypes) {
     { name: 'First Attempt', slug: 'first_attempt' },
   ];
 
-  for (const item of gradingMethods) {
-    await prisma.gradingMethod.upsert({
-      where: { companyId_slug: { companyId, slug: item.slug } },
-      update: {},
-      create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
+  await Promise.all(
+    gradingMethods.map((item) =>
+      prisma.gradingMethod.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // --------------------------------------------------
   // CertificateType
@@ -230,13 +241,15 @@ for (const item of taskTypes) {
     { name: 'External', slug: 'external' },
   ];
 
-  for (const item of certificateTypes) {
-    await prisma.certificateType.upsert({
-      where: { companyId_slug: { companyId, slug: item.slug } },
-      update: {},
-      create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
+  await Promise.all(
+    certificateTypes.map((item) =>
+      prisma.certificateType.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // --------------------------------------------------
   // CredentialSource
@@ -249,13 +262,15 @@ for (const item of taskTypes) {
     { name: 'Other', slug: 'other' },
   ];
 
-  for (const item of credentialSources) {
-    await prisma.credentialSource.upsert({
-      where: { companyId_slug: { companyId, slug: item.slug } },
-      update: {},
-      create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
+  await Promise.all(
+    credentialSources.map((item) =>
+      prisma.credentialSource.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // --------------------------------------------------
   // ProviderType
@@ -269,13 +284,15 @@ for (const item of taskTypes) {
     { name: 'Other', slug: 'other' },
   ];
 
-  for (const item of providerTypes) {
-    await prisma.providerType.upsert({
-      where: { companyId_slug: { companyId, slug: item.slug } },
-      update: {},
-      create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
+  await Promise.all(
+    providerTypes.map((item) =>
+      prisma.providerType.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // --------------------------------------------------
   // SurveyQuestionType
@@ -289,13 +306,15 @@ for (const item of taskTypes) {
     { name: 'Scale', slug: 'scale' },
   ];
 
-  for (const item of surveyQuestionTypes) {
-    await prisma.surveyQuestionType.upsert({
-      where: { companyId_slug: { companyId, slug: item.slug } },
-      update: {},
-      create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
+  await Promise.all(
+    surveyQuestionTypes.map((item) =>
+      prisma.surveyQuestionType.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // --------------------------------------------------
   // MeetingProvider
@@ -309,13 +328,15 @@ for (const item of taskTypes) {
     { name: 'Other', slug: 'other' },
   ];
 
-  for (const item of meetingProviders) {
-    await prisma.meetingProvider.upsert({
-      where: { companyId_slug: { companyId, slug: item.slug } },
-      update: {},
-      create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
+  await Promise.all(
+    meetingProviders.map((item) =>
+      prisma.meetingProvider.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // --------------------------------------------------
   // FundingType
@@ -326,13 +347,15 @@ for (const item of taskTypes) {
     { name: 'Shared', slug: 'shared' },
   ];
 
-  for (const item of fundingTypes) {
-    await prisma.fundingType.upsert({
-      where: { companyId_slug: { companyId, slug: item.slug } },
-      update: {},
-      create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
+  await Promise.all(
+    fundingTypes.map((item) =>
+      prisma.fundingType.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // --------------------------------------------------
   // XpRuleCategory
@@ -345,13 +368,15 @@ for (const item of taskTypes) {
     { name: 'Manual', slug: 'manual' },
   ];
 
-  for (const item of xpRuleCategories) {
-    await prisma.xpRuleCategory.upsert({
-      where: { companyId_slug: { companyId, slug: item.slug } },
-      update: {},
-      create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
+  await Promise.all(
+    xpRuleCategories.map((item) =>
+      prisma.xpRuleCategory.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // --------------------------------------------------
   // XpTriggerEvent
@@ -366,13 +391,15 @@ for (const item of taskTypes) {
     { name: 'Manual Adjustment', slug: 'manual_adjustment' },
   ];
 
-  for (const item of xpTriggerEvents) {
-    await prisma.xpTriggerEvent.upsert({
-      where: { companyId_slug: { companyId, slug: item.slug } },
-      update: {},
-      create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
+  await Promise.all(
+    xpTriggerEvents.map((item) =>
+      prisma.xpTriggerEvent.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // --------------------------------------------------
   // BadgeCategory
@@ -385,13 +412,15 @@ for (const item of taskTypes) {
     { name: 'Participation', slug: 'participation' },
   ];
 
-  for (const item of badgeCategories) {
-    await prisma.badgeCategory.upsert({
-      where: { companyId_slug: { companyId, slug: item.slug } },
-      update: {},
-      create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
+  await Promise.all(
+    badgeCategories.map((item) =>
+      prisma.badgeCategory.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // --------------------------------------------------
   // TrainingFormat
@@ -405,13 +434,15 @@ for (const item of taskTypes) {
     { name: 'On the Job', slug: 'on_the_job' },
   ];
 
-  for (const item of trainingFormats) {
-    await prisma.trainingFormat.upsert({
-      where: { companyId_slug: { companyId, slug: item.slug } },
-      update: {},
-      create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
+  await Promise.all(
+    trainingFormats.map((item) =>
+      prisma.trainingFormat.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // --------------------------------------------------
   // NotificationModule
@@ -429,13 +460,15 @@ for (const item of taskTypes) {
     { name: 'System', slug: 'system' },
   ];
 
-  for (const item of notificationModules) {
-    await prisma.notificationModule.upsert({
-      where: { companyId_slug: { companyId, slug: item.slug } },
-      update: {},
-      create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
+  await Promise.all(
+    notificationModules.map((item) =>
+      prisma.notificationModule.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // --------------------------------------------------
   // EnrollmentRuleType
@@ -448,35 +481,37 @@ for (const item of taskTypes) {
     { name: 'Custom', slug: 'custom' },
   ];
 
-  for (const item of enrollmentRuleTypes) {
-    await prisma.enrollmentRuleType.upsert({
-      where: { companyId_slug: { companyId, slug: item.slug } },
-      update: {},
-      create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
+  await Promise.all(
+    enrollmentRuleTypes.map((item) =>
+      prisma.enrollmentRuleType.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
-  console.log('Lookup tables seeded successfully');
+  console.log(`Lookup tables for companyId: ${companyId} seeded successfully.`);
 }
 
 async function main() {
-  // Seed for each company (example: companyId = 1)
-  // In real usage, loop through all companies
+  await seedSystemLookupTables();
+
   const companies = await prisma.company.findMany({ select: { id: true } });
 
   if (companies.length === 0) {
-    console.log('No companies found. Please create a company first.');
+    console.log('No companies found. Please populate Company entity before running seed.');
     return;
   }
 
   for (const company of companies) {
-    await seedLookupTables(company.id);
+    await seedCompanyLookupTables(company.id);
   }
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error('Seeding error encountered:', e);
     process.exit(1);
   })
   .finally(async () => {

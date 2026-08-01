@@ -170,6 +170,8 @@ CREATE TABLE "employee" (
     "last_synced_at" TIMESTAMP(3),
     "department_id" INTEGER,
     "job_title_id" INTEGER,
+    "job_level_id" INTEGER,
+    "employmentTypeId" INTEGER,
 
     CONSTRAINT "employee_pkey" PRIMARY KEY ("id")
 );
@@ -177,48 +179,48 @@ CREATE TABLE "employee" (
 -- CreateTable
 CREATE TABLE "app_user" (
     "id" INTEGER NOT NULL,
-    "companyId" INTEGER NOT NULL,
-    "employeeId" VARCHAR(20),
+    "company_id" INTEGER NOT NULL,
+    "employee_id" VARCHAR(20),
     "email" VARCHAR(150) NOT NULL,
-    "roleId" INTEGER,
-    "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "lastLoginAt" TIMESTAMP(3),
-    "lastSyncedAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "role_id" INTEGER,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "last_login_at" TIMESTAMP(3),
+    "last_synced_at" TIMESTAMP(3),
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "app_user_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "departments" (
-    "id" SERIAL NOT NULL,
-    "companyId" INTEGER NOT NULL,
+CREATE TABLE "department" (
+    "id" INTEGER NOT NULL,
+    "company_id" INTEGER NOT NULL,
     "name" VARCHAR(150) NOT NULL,
-    "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "lastSyncedAt" TIMESTAMP(3),
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "last_synced_at" TIMESTAMP(3),
 
-    CONSTRAINT "departments_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "department_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "job_titles" (
-    "id" SERIAL NOT NULL,
-    "companyId" INTEGER NOT NULL,
+CREATE TABLE "job_title" (
+    "id" INTEGER NOT NULL,
+    "company_id" INTEGER NOT NULL,
     "name" VARCHAR(150) NOT NULL,
-    "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "lastSyncedAt" TIMESTAMP(3),
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "last_synced_at" TIMESTAMP(3),
 
-    CONSTRAINT "job_titles_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "job_title_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "job_level" (
-    "id" SERIAL NOT NULL,
-    "companyId" INTEGER NOT NULL,
+    "id" INTEGER NOT NULL,
+    "company_id" INTEGER NOT NULL,
     "name" VARCHAR(150) NOT NULL,
-    "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "lastSyncedAt" TIMESTAMP(3),
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "last_synced_at" TIMESTAMP(3),
 
     CONSTRAINT "job_level_pkey" PRIMARY KEY ("id")
 );
@@ -226,11 +228,11 @@ CREATE TABLE "job_level" (
 -- CreateTable
 CREATE TABLE "app_role" (
     "id" INTEGER NOT NULL,
-    "companyId" INTEGER NOT NULL,
+    "company_id" INTEGER NOT NULL,
     "name" VARCHAR(100) NOT NULL,
     "description" TEXT,
-    "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "lastSyncedAt" TIMESTAMP(3),
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "last_synced_at" TIMESTAMP(3),
 
     CONSTRAINT "app_role_pkey" PRIMARY KEY ("id")
 );
@@ -327,20 +329,31 @@ CREATE TABLE "submission_peer_reviews" (
 );
 
 -- CreateTable
+CREATE TABLE "employment_types" (
+    "id" SERIAL NOT NULL,
+    "company_id" INTEGER NOT NULL,
+    "code" VARCHAR(50) NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+
+    CONSTRAINT "employment_types_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "audience_group_rules" (
     "id" SERIAL NOT NULL,
+    "companyId" INTEGER NOT NULL,
     "audienceGroupId" INTEGER NOT NULL,
     "departmentId" INTEGER,
     "appRoleId" INTEGER,
     "jobTitleId" INTEGER,
     "jobLevelId" INTEGER,
-    "employmentType" VARCHAR(20),
+    "employmentTypeId" INTEGER,
     "hireWithinDays" INTEGER,
     "operator" "RuleOperator" NOT NULL DEFAULT 'OR',
     "isExclusion" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "companyId" INTEGER,
 
     CONSTRAINT "audience_group_rules_pkey" PRIMARY KEY ("id")
 );
@@ -1619,7 +1632,8 @@ CREATE TABLE "live_session_instructors" (
     "id" SERIAL NOT NULL,
     "companyId" INTEGER NOT NULL,
     "sessionId" INTEGER NOT NULL,
-    "employeeId" VARCHAR(20) NOT NULL,
+    "employeeId" VARCHAR(20),
+    "appUserId" INTEGER,
     "isPrimary" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -1852,7 +1866,7 @@ CREATE TABLE "training_need_requests" (
     "departmentId" INTEGER,
     "jobTitleId" INTEGER,
     "jobLevelId" INTEGER,
-    "employmentType" VARCHAR(50),
+    "employmentTypeId" INTEGER,
     "trainingTitle" VARCHAR(255) NOT NULL,
     "providerName" VARCHAR(255),
     "objective" TEXT,
@@ -2411,34 +2425,46 @@ CREATE TABLE "approval_decisions" (
 CREATE UNIQUE INDEX "company_company_code_key" ON "company"("company_code");
 
 -- CreateIndex
-CREATE INDEX "app_user_companyId_idx" ON "app_user"("companyId");
+CREATE INDEX "employee_company_id_idx" ON "employee"("company_id");
 
 -- CreateIndex
-CREATE INDEX "app_user_roleId_idx" ON "app_user"("roleId");
+CREATE INDEX "employee_department_id_idx" ON "employee"("department_id");
 
 -- CreateIndex
-CREATE INDEX "departments_companyId_idx" ON "departments"("companyId");
+CREATE INDEX "employee_job_title_id_idx" ON "employee"("job_title_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "departments_companyId_name_key" ON "departments"("companyId", "name");
+CREATE INDEX "employee_job_level_id_idx" ON "employee"("job_level_id");
 
 -- CreateIndex
-CREATE INDEX "job_titles_companyId_idx" ON "job_titles"("companyId");
+CREATE INDEX "app_user_company_id_idx" ON "app_user"("company_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "job_titles_companyId_name_key" ON "job_titles"("companyId", "name");
+CREATE INDEX "app_user_role_id_idx" ON "app_user"("role_id");
 
 -- CreateIndex
-CREATE INDEX "job_level_companyId_idx" ON "job_level"("companyId");
+CREATE INDEX "department_company_id_idx" ON "department"("company_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "job_level_companyId_name_key" ON "job_level"("companyId", "name");
+CREATE UNIQUE INDEX "department_company_id_name_key" ON "department"("company_id", "name");
 
 -- CreateIndex
-CREATE INDEX "app_role_companyId_idx" ON "app_role"("companyId");
+CREATE INDEX "job_title_company_id_idx" ON "job_title"("company_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "app_role_companyId_name_key" ON "app_role"("companyId", "name");
+CREATE UNIQUE INDEX "job_title_company_id_name_key" ON "job_title"("company_id", "name");
+
+-- CreateIndex
+CREATE INDEX "job_level_company_id_idx" ON "job_level"("company_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "job_level_company_id_name_key" ON "job_level"("company_id", "name");
+
+-- CreateIndex
+CREATE INDEX "app_role_company_id_idx" ON "app_role"("company_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "app_role_company_id_name_key" ON "app_role"("company_id", "name");
 
 -- CreateIndex
 CREATE INDEX "lms_permissions_companyId_idx" ON "lms_permissions"("companyId");
@@ -2487,6 +2513,12 @@ CREATE INDEX "submission_peer_reviews_companyId_idx" ON "submission_peer_reviews
 
 -- CreateIndex
 CREATE UNIQUE INDEX "submission_peer_reviews_submissionId_reviewerEmployeeId_key" ON "submission_peer_reviews"("submissionId", "reviewerEmployeeId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "employment_types_company_id_code_key" ON "employment_types"("company_id", "code");
+
+-- CreateIndex
+CREATE INDEX "audience_group_rules_companyId_idx" ON "audience_group_rules"("companyId");
 
 -- CreateIndex
 CREATE INDEX "audience_group_rules_audienceGroupId_idx" ON "audience_group_rules"("audienceGroupId");
@@ -3101,7 +3133,13 @@ CREATE INDEX "live_sessions_startTime_idx" ON "live_sessions"("startTime");
 CREATE INDEX "live_session_instructors_companyId_idx" ON "live_session_instructors"("companyId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "live_session_instructors_sessionId_employeeId_key" ON "live_session_instructors"("sessionId", "employeeId");
+CREATE INDEX "live_session_instructors_sessionId_idx" ON "live_session_instructors"("sessionId");
+
+-- CreateIndex
+CREATE INDEX "live_session_instructors_employeeId_idx" ON "live_session_instructors"("employeeId");
+
+-- CreateIndex
+CREATE INDEX "live_session_instructors_appUserId_idx" ON "live_session_instructors"("appUserId");
 
 -- CreateIndex
 CREATE INDEX "attendance_methods_companyId_idx" ON "attendance_methods"("companyId");
@@ -3479,31 +3517,37 @@ CREATE UNIQUE INDEX "approval_decisions_instanceId_workflowStepId_key" ON "appro
 ALTER TABLE "employee" ADD CONSTRAINT "employee_company_id_fkey" FOREIGN KEY ("company_id") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "employee" ADD CONSTRAINT "employee_department_id_fkey" FOREIGN KEY ("department_id") REFERENCES "departments"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "employee" ADD CONSTRAINT "employee_department_id_fkey" FOREIGN KEY ("department_id") REFERENCES "department"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "employee" ADD CONSTRAINT "employee_job_title_id_fkey" FOREIGN KEY ("job_title_id") REFERENCES "job_titles"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "employee" ADD CONSTRAINT "employee_job_title_id_fkey" FOREIGN KEY ("job_title_id") REFERENCES "job_title"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "app_user" ADD CONSTRAINT "app_user_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "employee" ADD CONSTRAINT "employee_job_level_id_fkey" FOREIGN KEY ("job_level_id") REFERENCES "job_level"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "app_user" ADD CONSTRAINT "app_user_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "employee"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "employee" ADD CONSTRAINT "employee_employmentTypeId_fkey" FOREIGN KEY ("employmentTypeId") REFERENCES "employment_types"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "app_user" ADD CONSTRAINT "app_user_roleId_fkey" FOREIGN KEY ("roleId") REFERENCES "app_role"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "app_user" ADD CONSTRAINT "app_user_company_id_fkey" FOREIGN KEY ("company_id") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "departments" ADD CONSTRAINT "departments_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "app_user" ADD CONSTRAINT "app_user_employee_id_fkey" FOREIGN KEY ("employee_id") REFERENCES "employee"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "job_titles" ADD CONSTRAINT "job_titles_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "app_user" ADD CONSTRAINT "app_user_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "app_role"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "job_level" ADD CONSTRAINT "job_level_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "department" ADD CONSTRAINT "department_company_id_fkey" FOREIGN KEY ("company_id") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "app_role" ADD CONSTRAINT "app_role_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "job_title" ADD CONSTRAINT "job_title_company_id_fkey" FOREIGN KEY ("company_id") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "job_level" ADD CONSTRAINT "job_level_company_id_fkey" FOREIGN KEY ("company_id") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "app_role" ADD CONSTRAINT "app_role_company_id_fkey" FOREIGN KEY ("company_id") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "lms_permissions" ADD CONSTRAINT "lms_permissions_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -3560,22 +3604,25 @@ ALTER TABLE "submission_peer_reviews" ADD CONSTRAINT "submission_peer_reviews_su
 ALTER TABLE "submission_peer_reviews" ADD CONSTRAINT "submission_peer_reviews_reviewerEmployeeId_fkey" FOREIGN KEY ("reviewerEmployeeId") REFERENCES "employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "audience_group_rules" ADD CONSTRAINT "audience_group_rules_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "audience_group_rules" ADD CONSTRAINT "audience_group_rules_audienceGroupId_fkey" FOREIGN KEY ("audienceGroupId") REFERENCES "audience_groups"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "audience_group_rules" ADD CONSTRAINT "audience_group_rules_departmentId_fkey" FOREIGN KEY ("departmentId") REFERENCES "departments"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "audience_group_rules" ADD CONSTRAINT "audience_group_rules_departmentId_fkey" FOREIGN KEY ("departmentId") REFERENCES "department"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "audience_group_rules" ADD CONSTRAINT "audience_group_rules_appRoleId_fkey" FOREIGN KEY ("appRoleId") REFERENCES "app_role"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "audience_group_rules" ADD CONSTRAINT "audience_group_rules_jobTitleId_fkey" FOREIGN KEY ("jobTitleId") REFERENCES "job_titles"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "audience_group_rules" ADD CONSTRAINT "audience_group_rules_jobTitleId_fkey" FOREIGN KEY ("jobTitleId") REFERENCES "job_title"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "audience_group_rules" ADD CONSTRAINT "audience_group_rules_jobLevelId_fkey" FOREIGN KEY ("jobLevelId") REFERENCES "job_level"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "audience_group_rules" ADD CONSTRAINT "audience_group_rules_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "audience_group_rules" ADD CONSTRAINT "audience_group_rules_employmentTypeId_fkey" FOREIGN KEY ("employmentTypeId") REFERENCES "employment_types"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "audience_groups" ADD CONSTRAINT "audience_groups_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -3593,7 +3640,7 @@ ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_companyId_fkey" 
 ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_audienceGroupId_fkey" FOREIGN KEY ("audienceGroupId") REFERENCES "audience_groups"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_departmentId_fkey" FOREIGN KEY ("departmentId") REFERENCES "departments"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_departmentId_fkey" FOREIGN KEY ("departmentId") REFERENCES "department"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "target_audiences" ADD CONSTRAINT "target_audiences_appRoleId_fkey" FOREIGN KEY ("appRoleId") REFERENCES "app_role"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -4277,7 +4324,10 @@ ALTER TABLE "live_session_instructors" ADD CONSTRAINT "live_session_instructors_
 ALTER TABLE "live_session_instructors" ADD CONSTRAINT "live_session_instructors_sessionId_fkey" FOREIGN KEY ("sessionId") REFERENCES "live_sessions"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "live_session_instructors" ADD CONSTRAINT "live_session_instructors_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "live_session_instructors" ADD CONSTRAINT "live_session_instructors_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "employee"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "live_session_instructors" ADD CONSTRAINT "live_session_instructors_appUserId_fkey" FOREIGN KEY ("appUserId") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "attendance_methods" ADD CONSTRAINT "attendance_methods_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -4388,10 +4438,13 @@ ALTER TABLE "training_need_requests" ADD CONSTRAINT "training_need_requests_pref
 ALTER TABLE "training_need_requests" ADD CONSTRAINT "training_need_requests_targetAudienceId_fkey" FOREIGN KEY ("targetAudienceId") REFERENCES "target_audiences"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "training_need_requests" ADD CONSTRAINT "training_need_requests_departmentId_fkey" FOREIGN KEY ("departmentId") REFERENCES "departments"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "training_need_requests" ADD CONSTRAINT "training_need_requests_departmentId_fkey" FOREIGN KEY ("departmentId") REFERENCES "department"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "training_need_requests" ADD CONSTRAINT "training_need_requests_jobTitleId_fkey" FOREIGN KEY ("jobTitleId") REFERENCES "job_titles"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "training_need_requests" ADD CONSTRAINT "training_need_requests_jobTitleId_fkey" FOREIGN KEY ("jobTitleId") REFERENCES "job_title"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "training_need_requests" ADD CONSTRAINT "training_need_requests_employmentTypeId_fkey" FOREIGN KEY ("employmentTypeId") REFERENCES "employment_types"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "training_need_request_employees" ADD CONSTRAINT "training_need_request_employees_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

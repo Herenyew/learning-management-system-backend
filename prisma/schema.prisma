@@ -411,7 +411,15 @@ model Company {
   isActive     Boolean   @default(true) @map("is_active")
   lastSyncedAt DateTime? @map("last_synced_at")
 
-  //Internal LMS Relations
+  // Shared EMS Entity LMS Projections
+  employees   Employee[]
+  appUsers    AppUser[]
+  departments Department[]
+  jobTitles   JobTitle[]
+  jobLevels   JobLevel[]
+  appRoles    AppRole[]
+
+  // Internal LMS Relations
   courses                    Course[]
   courseVersions             CourseVersion[]
   courseTags                 CourseTag[]
@@ -498,12 +506,6 @@ model Company {
   relatedCourses             RelatedCourse[]
   courseFAQs                 CourseFAQ[]
   topics                     Topic[]
-  employees                  Employee[]
-  appUsers                   AppUser[]
-  departments                Department[]
-  jobTitles                  JobTitle[]
-  jobLevels                  JobLevel[]
-  appRoles                   AppRole[]
   lmsPermissions             LmsPermission[]
   lmsRolePermissions         LmsRolePermission[]
   submissionPeerReviews      SubmissionPeerReview[]
@@ -547,24 +549,26 @@ model Employee {
   id           String    @id @db.VarChar(20)
   companyId    Int       @map("company_id")
   fullName     String    @map("full_name") @db.VarChar(150)
-  startDate    DateTime? @map("start_date") @db.Date // ADDED — required for "New Hire" audience targeting (hireWithinDays), sourced from EMS Employment.start_date
+  startDate    DateTime? @map("start_date") @db.Date // EMS employment start date for rule targeting (e.g., New Hires)
   isActive     Boolean   @default(true) @map("is_active")
   lastSyncedAt DateTime? @map("last_synced_at")
 
-  // To handle TargetAudience matching rules locally
+  // Foreign keys for TargetAudience matching rules locally
   departmentId Int? @map("department_id")
   jobTitleId   Int? @map("job_title_id")
+  jobLevelId   Int? @map("job_level_id")
 
   // Internal LMS Relations
   company    Company     @relation(fields: [companyId], references: [id])
   department Department? @relation(fields: [departmentId], references: [id])
   jobTitle   JobTitle?   @relation(fields: [jobTitleId], references: [id])
+  jobLevel   JobLevel?   @relation(fields: [jobLevelId], references: [id])
 
-  enrollments               Enrollment[]
-  courses                   Course[]
-  ownedCourses              Course[]      @relation("CourseOwner")
-  manualCertificateReceived Certificate[] @relation("CertificateManualRecipient")
-
+  appUsers                   AppUser[]
+  enrollments                Enrollment[]
+  courses                    Course[]
+  ownedCourses               Course[]                    @relation("CourseOwner")
+  manualCertificateReceived  Certificate[]               @relation("CertificateManualRecipient")
   courseInstructors          CourseInstructor[]
   employeeSkillAssessments   EmployeeSkillAssessment[]
   bookmarks                  Bookmark[]
@@ -580,27 +584,31 @@ model Employee {
   xpTransactions             XpTransaction[]
   employeeBadges             EmployeeBadge[]
   approvalWorkflowSteps      ApprovalWorkflowStep[]
-  appUsers                   AppUser[]
   submissionPeerReviews      SubmissionPeerReview[]
   tnaEmployees               TnaEmployee[]
   leaderboardEntries         LeaderboardEntry[]
+  employmentType             EmploymentType?             @relation(fields: [employmentTypeId], references: [id])
+  employmentTypeId           Int?
 
+  @@index([companyId])
+  @@index([departmentId])
+  @@index([jobTitleId])
+  @@index([jobLevelId])
   @@map("employee")
 }
 
 model AppUser {
-  id         Int     @id
-  companyId  Int
-  employeeId String? @db.VarChar(20)
-
+  id           Int       @id
+  companyId    Int       @map("company_id")
+  employeeId   String?   @map("employee_id") @db.VarChar(20)
   email        String    @db.VarChar(150)
-  roleId       Int? // FK to AppRole (synced from EMS) — LMS-specific permissions resolved via LmsRolePermission, not stored here
-  isActive     Boolean   @default(true)
-  lastLoginAt  DateTime?
-  lastSyncedAt DateTime?
+  roleId       Int?      @map("role_id") // FK to AppRole synced from EMS
+  isActive     Boolean   @default(true) @map("is_active")
+  lastLoginAt  DateTime? @map("last_login_at")
+  lastSyncedAt DateTime? @map("last_synced_at")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
   company  Company   @relation(fields: [companyId], references: [id])
@@ -677,6 +685,7 @@ model AppUser {
   submissions                 Submission[]
   effectivenessWeightConfigs  EffectivenessWeightConfig[]
   systemSettings              SystemSetting[]
+  liveSessionInstructors      LiveSessionInstructor[]
 
   @@index([companyId])
   @@index([roleId])
@@ -684,11 +693,11 @@ model AppUser {
 }
 
 model Department {
-  id           Int       @id @default(autoincrement())
-  companyId    Int
+  id           Int       @id // Received directly from EMS
+  companyId    Int       @map("company_id")
   name         String    @db.VarChar(150)
-  isActive     Boolean   @default(true)
-  lastSyncedAt DateTime?
+  isActive     Boolean   @default(true) @map("is_active")
+  lastSyncedAt DateTime? @map("last_synced_at")
 
   company              Company               @relation(fields: [companyId], references: [id])
   employees            Employee[]
@@ -698,35 +707,35 @@ model Department {
 
   @@unique([companyId, name])
   @@index([companyId])
-  @@map("departments")
+  @@map("department")
 }
 
 model JobTitle {
-  id           Int       @id @default(autoincrement())
-  companyId    Int
+  id           Int       @id // Received directly from EMS
+  companyId    Int       @map("company_id")
   name         String    @db.VarChar(150)
-  isActive     Boolean   @default(true)
-  lastSyncedAt DateTime?
+  isActive     Boolean   @default(true) @map("is_active")
+  lastSyncedAt DateTime? @map("last_synced_at")
 
-  company   Company    @relation(fields: [companyId], references: [id])
-  employees Employee[]
-
+  company              Company               @relation(fields: [companyId], references: [id])
+  employees            Employee[]
   trainingNeedRequests TrainingNeedRequest[]
   audienceGroupRules   AudienceGroupRule[]
 
   @@unique([companyId, name])
   @@index([companyId])
-  @@map("job_titles")
+  @@map("job_title")
 }
 
 model JobLevel {
-  id           Int       @id @default(autoincrement())
-  companyId    Int
+  id           Int       @id // Received directly from EMS
+  companyId    Int       @map("company_id")
   name         String    @db.VarChar(150)
-  isActive     Boolean   @default(true)
-  lastSyncedAt DateTime?
+  isActive     Boolean   @default(true) @map("is_active")
+  lastSyncedAt DateTime? @map("last_synced_at")
 
   company            Company             @relation(fields: [companyId], references: [id])
+  employees          Employee[]
   audienceGroupRules AudienceGroupRule[]
 
   @@unique([companyId, name])
@@ -735,12 +744,12 @@ model JobLevel {
 }
 
 model AppRole {
-  id           Int       @id
-  companyId    Int
+  id           Int       @id // Received directly from EMS
+  companyId    Int       @map("company_id")
   name         String    @db.VarChar(100)
   description  String?
-  isActive     Boolean   @default(true)
-  lastSyncedAt DateTime?
+  isActive     Boolean   @default(true) @map("is_active")
+  lastSyncedAt DateTime? @map("last_synced_at")
 
   company               Company                @relation(fields: [companyId], references: [id])
   appUsers              AppUser[]
@@ -900,13 +909,29 @@ model SubmissionPeerReview {
   @@map("submission_peer_reviews")
 }
 
+model EmploymentType {
+  id        Int     @id @default(autoincrement())
+  companyId Int     @map("company_id")
+  code      String  @db.VarChar(50) // Unique canonical key (e.g. "FULL_TIME", "CONTRACT")
+  name      String  @db.VarChar(100) // Display label (e.g. "Full-Time Employee")
+  isActive  Boolean @default(true) @map("is_active")
+
+  // Relations
+  employees            Employee[]
+  rules                AudienceGroupRule[]
+  trainingNeedRequests TrainingNeedRequest[]
+
+  @@unique([companyId, code])
+  @@map("employment_types")
+}
+
 // One or more rules per audience.
 // Rules are simple conditions (e.g., Department = Finance).
 // External logic can handle dynamic criteria (e.g., hire date).
 // Extensible without modifying the core model.
 model AudienceGroupRule {
-  id Int @id @default(autoincrement())
-
+  id              Int @id @default(autoincrement())
+  companyId       Int
   audienceGroupId Int
 
   departmentId Int?
@@ -914,8 +939,8 @@ model AudienceGroupRule {
   jobTitleId   Int?
   jobLevelId   Int?
 
-  employmentType String? @db.VarChar(20)
-  hireWithinDays Int?
+  employmentTypeId Int?
+  hireWithinDays   Int?
 
   // Defines whether this rule row is an addition (AND/OR) or an exclusion
   operator    RuleOperator @default(OR)
@@ -925,14 +950,15 @@ model AudienceGroupRule {
   updatedAt DateTime @updatedAt
 
   // Relations
-  audienceGroup AudienceGroup @relation(fields: [audienceGroupId], references: [id], onDelete: Cascade)
-  department    Department?   @relation(fields: [departmentId], references: [id], onDelete: SetNull)
-  appRole       AppRole?      @relation(fields: [appRoleId], references: [id], onDelete: SetNull)
-  jobTitle      JobTitle?     @relation(fields: [jobTitleId], references: [id], onDelete: SetNull)
-  jobLevel      JobLevel?     @relation(fields: [jobLevelId], references: [id], onDelete: SetNull)
-  company       Company?      @relation(fields: [companyId], references: [id])
-  companyId     Int?
+  company        Company         @relation(fields: [companyId], references: [id])
+  audienceGroup  AudienceGroup   @relation(fields: [audienceGroupId], references: [id], onDelete: Cascade)
+  department     Department?     @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  appRole        AppRole?        @relation(fields: [appRoleId], references: [id], onDelete: SetNull)
+  jobTitle       JobTitle?       @relation(fields: [jobTitleId], references: [id], onDelete: SetNull)
+  jobLevel       JobLevel?       @relation(fields: [jobLevelId], references: [id], onDelete: SetNull)
+  employmentType EmploymentType? @relation(fields: [employmentTypeId], references: [id])
 
+  @@index([companyId])
   @@index([audienceGroupId])
   @@index([departmentId])
   @@index([jobTitleId])
@@ -2984,21 +3010,24 @@ model LiveSession {
 }
 
 model LiveSessionInstructor {
-  id        Int @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   companyId Int
   sessionId Int
 
-  // TODO: confirm whether external (AppUser) instructors are ever needed here,
-  // mirroring CourseInstructor's dual-identity design. Currently Employee-only.
-  employeeId String      @db.VarChar(20)
-  isPrimary  Boolean     @default(false)
-  createdAt  DateTime    @default(now())
-  company    Company     @relation(fields: [companyId], references: [id])
-  session    LiveSession @relation(fields: [sessionId], references: [id])
-  employee   Employee    @relation(fields: [employeeId], references: [id])
+  employeeId String?  @db.VarChar(20)
+  appUserId  Int?     // For external instructors / platform admins
+  isPrimary  Boolean  @default(false)
+  createdAt  DateTime @default(now())
 
-  @@unique([sessionId, employeeId])
+  company  Company     @relation(fields: [companyId], references: [id])
+  session  LiveSession @relation(fields: [sessionId], references: [id])
+  employee Employee?   @relation(fields: [employeeId], references: [id])
+  appUser  AppUser?    @relation(fields: [appUserId], references: [id])
+
   @@index([companyId])
+  @@index([sessionId])
+  @@index([employeeId])
+  @@index([appUserId])
   @@map("live_session_instructors")
 }
 
@@ -3318,7 +3347,7 @@ model TrainingNeedRequest {
   departmentId     Int?
   jobTitleId       Int?
   jobLevelId       Int?
-  employmentType   String? @db.VarChar(50)
+  employmentTypeId Int?
 
   trainingTitle         String  @db.VarChar(255)
   providerName          String? @db.VarChar(255)
@@ -3345,6 +3374,7 @@ model TrainingNeedRequest {
   targetAudience  TargetAudience?      @relation(fields: [targetAudienceId], references: [id])
   department      Department?          @relation(fields: [departmentId], references: [id])
   jobTitle        JobTitle?            @relation(fields: [jobTitleId], references: [id])
+  employmentType  EmploymentType?      @relation(fields: [employmentTypeId], references: [id])
 
   skills          TrainingNeedSkill[]
   recommendations TnaRecommendation[]
