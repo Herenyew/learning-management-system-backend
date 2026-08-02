@@ -19,7 +19,7 @@ async function bootstrap(): Promise<void> {
 
     // TODO
     // await connectRabbitMQ();
-    //await rabbitMQ.connect(env.rabbitmq.url);
+    // await rabbitMQ.connect(env.rabbitmq.url);
 
     server.listen(env.app.port, () => {
       logger.info(

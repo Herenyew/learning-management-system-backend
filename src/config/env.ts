@@ -4,6 +4,11 @@ import { z } from "zod";
 dotenv.config();
 
 const envSchema = z.object({
+        // inside envSchema
+    PAGINATION_DEFAULT_PAGE: z.coerce.number().positive().default(1),
+    PAGINATION_DEFAULT_PAGE_SIZE: z.coerce.number().positive().default(20),
+    PAGINATION_MAX_PAGE_SIZE: z.coerce.number().positive().default(100),
+
     ///////////////////////////////////////////////////////////
     // APPLICATION
     ///////////////////////////////////////////////////////////
@@ -137,5 +142,11 @@ export const env = {
 
     cors: {
         clientUrl: config.CLIENT_URL,
+    },
+// inside exported env object
+    pagination: {
+    defaultPage: config.PAGINATION_DEFAULT_PAGE,
+    defaultPageSize: config.PAGINATION_DEFAULT_PAGE_SIZE,
+    maxPageSize: config.PAGINATION_MAX_PAGE_SIZE,
     },
 } as const;
