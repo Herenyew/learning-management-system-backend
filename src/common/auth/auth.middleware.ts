@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-
 import authService from "./auth.service.js";
+import { AppError, ErrorCode } from "../errors/index.js";
 
 export async function authenticate(
   req: Request,
@@ -9,12 +9,24 @@ export async function authenticate(
 ) {
   try {
     const authorization = req.headers.authorization;
-    // Extract the token from the authorization header
-    if (!authorization?.startsWith("Bearer ")) {
-      throw new Error("Missing authorization header.");
+
+    if (!authorization || !authorization.startsWith("Bearer ")) {
+      throw new AppError(
+        "Missing or malformed Authorization header.",
+        401,
+        ErrorCode.UNAUTHORIZED
+      );
     }
 
-    const token = authorization.replace("Bearer ", "");
+    const token = authorization.substring(7).trim();
+
+    if (!token) {
+      throw new AppError(
+        "Authentication token missing.",
+        401,
+        ErrorCode.UNAUTHORIZED
+      );
+    }
 
     req.user = await authService.authenticate(token);
 

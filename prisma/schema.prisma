@@ -3010,12 +3010,12 @@ model LiveSession {
 }
 
 model LiveSessionInstructor {
-  id        Int      @id @default(autoincrement())
+  id        Int @id @default(autoincrement())
   companyId Int
   sessionId Int
 
   employeeId String?  @db.VarChar(20)
-  appUserId  Int?     // For external instructors / platform admins
+  appUserId  Int? // For external instructors / platform admins
   isPrimary  Boolean  @default(false)
   createdAt  DateTime @default(now())
 
