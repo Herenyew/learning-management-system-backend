@@ -22,7 +22,7 @@ export function audienceRoutes(controller: AudienceController): Router {
 
   /**
    * @openapi
-   * //configuration/audience:
+   * /audience-configuration:
    *   post:
    *     summary: Create a new audience group
    *     tags: [Audience Configuration]
@@ -57,7 +57,7 @@ export function audienceRoutes(controller: AudienceController): Router {
 
   /**
    * @openapi
-   * //configuration/audience:
+   * /audience-configuration:
    *   get:
    *     summary: Get list of audience groups
    *     tags: [Audience Configuration]
@@ -81,7 +81,7 @@ export function audienceRoutes(controller: AudienceController): Router {
 
   /**
    * @openapi
-   * //configuration/audience/{id}:
+   * /audience-configuration/{id}:
    *   get:
    *     summary: Get an audience group by ID
    *     tags: [Audience Configuration]
@@ -112,7 +112,7 @@ export function audienceRoutes(controller: AudienceController): Router {
 
   /**
    * @openapi
-   * //configuration/audience/{id}:
+   * /audience-configuration/{id}:
    *   put:
    *     summary: Update an audience group
    *     tags: [Audience Configuration]
@@ -147,7 +147,7 @@ export function audienceRoutes(controller: AudienceController): Router {
 
   /**
    * @openapi
-   * //configuration/audience/{id}:
+   * /audience-configuration/{id}:
    *   delete:
    *     summary: Delete an audience group
    *     tags: [Audience Configuration]
@@ -175,7 +175,7 @@ export function audienceRoutes(controller: AudienceController): Router {
 
   /**
    * @openapi
-   * //configuration/audience/{id}/members:
+   * /audience-configuration/{id}/members:
    *   get:
    *     summary: Get all matched employees for an audience group
    *     tags: [Audience Configuration]
@@ -205,7 +205,7 @@ export function audienceRoutes(controller: AudienceController): Router {
 
   /**
    * @openapi
-   * //configuration/audience/{id}/members/{employeeId}/check:
+   * /audience-configuration/{id}/members/{employeeId}/check:
    *   get:
    *     summary: Check if a specific employee matches this audience group
    *     tags: [Audience Configuration]
@@ -243,7 +243,7 @@ export function audienceRoutes(controller: AudienceController): Router {
 
   /**
    * @openapi
-   * //configuration/audience/{id}/rules:
+   * /audience-configuration/{id}/rules:
    *   get:
    *     summary: Get rules for an audience group
    *     tags: [Audience Configuration]
@@ -273,7 +273,7 @@ export function audienceRoutes(controller: AudienceController): Router {
 
   /**
    * @openapi
-   * //configuration/audience/{id}/rules:
+   * /audience-configuration/{id}/rules:
    *   post:
    *     summary: Add a new rule to an audience group
    *     tags: [Audience Configuration]
@@ -308,7 +308,7 @@ export function audienceRoutes(controller: AudienceController): Router {
 
   /**
    * @openapi
-   * //configuration/audience/{id}/rules/{ruleId}:
+   * /audience-configuration/{id}/rules/{ruleId}:
    *   put:
    *     summary: Update an audience rule
    *     tags: [Audience Configuration]
@@ -344,7 +344,7 @@ export function audienceRoutes(controller: AudienceController): Router {
 
   /**
    * @openapi
-   * //configuration/audience/{id}/rules/{ruleId}:
+   * /audience-configuration/{id}/rules/{ruleId}:
    *   delete:
    *     summary: Remove a rule from an audience group
    *     tags: [Audience Configuration]
