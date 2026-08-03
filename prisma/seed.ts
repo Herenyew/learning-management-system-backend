@@ -355,6 +355,8 @@ async function seedEmsTables() {
         lastSyncedAt: new Date(),
       },
     });
+
+
   }
   console.log(`  ${users.length} App Users sync'd`);
 
