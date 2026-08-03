@@ -3014,18 +3014,11 @@ model LiveSessionInstructor {
   companyId Int
   sessionId Int
 
-  employeeId String?  @db.VarChar(20)
-<<<<<<< HEAD
+  employeeId String? @db.VarChar(20)
   appUserId  Int? // For external instructors / platform admins
-=======
-<<<<<<< HEAD
-  appUserId  Int? // For external instructors / platform admins
-=======
-  appUserId  Int?     // For external instructors / platform admins
->>>>>>> origin/main
->>>>>>> d27a090 (merge: resolve conflicts with main)
-  isPrimary  Boolean  @default(false)
-  createdAt  DateTime @default(now())
+
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
 
   company  Company     @relation(fields: [companyId], references: [id])
   session  LiveSession @relation(fields: [sessionId], references: [id])
