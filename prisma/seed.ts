@@ -36,7 +36,10 @@ async function seedSystemLookupTables() {
       });
     }
   }
-}
+  console.log(`  ${users.length} App Users created`);
+
+  // 2.8 Company-Specific Lookup Tables
+  console.log('  Seeding company-specific lookup tables...');
 
 async function seedCompanyLookupTables(companyId: number) {
   console.log(`Seeding lookup tables for companyId: ${companyId}`);
@@ -129,9 +132,23 @@ async function seedCompanyLookupTables(companyId: number) {
     })
   );
 
-  // --------------------------------------------------
+    if (!existing) {
+      await prisma.taskType.create({
+        data: {
+          companyId: company.id,
+          name: item.name,
+          slug: item.slug,
+          expectedSubmissionType: item.expectedSubmissionType as any,
+          linkedEntity: item.linkedEntity as any,
+          isSystem: true,
+          isActive: true,
+        },
+      });
+    }
+  }
+  console.log(`  ${taskTypes.length} Task Types created`);
+
   // AttendanceMethod
-  // --------------------------------------------------
   const attendanceMethods = [
     { name: 'QR Code', slug: 'qr_code' },
     { name: 'Manual', slug: 'manual' },
@@ -149,9 +166,7 @@ async function seedCompanyLookupTables(companyId: number) {
     )
   );
 
-  // --------------------------------------------------
   // AssessmentType
-  // --------------------------------------------------
   const assessmentTypes = [
     { name: 'Pre Assessment', slug: 'pre_assessment', code: 'PRE_ASSESSMENT' },
     { name: 'Post Assessment', slug: 'post_assessment', code: 'POST_ASSESSMENT' },
@@ -180,7 +195,6 @@ async function seedCompanyLookupTables(companyId: number) {
 
  // --------------------------------------------------
   // QuestionType
-  // --------------------------------------------------
   const questionTypes = [
     { name: 'Multiple Choice', slug: 'multiple_choice', answerStructure: 'OPTION_BASED' },
     { name: 'True/False', slug: 'true_false', answerStructure: 'OPTION_BASED' },
@@ -211,7 +225,6 @@ async function seedCompanyLookupTables(companyId: number) {
   );
   // --------------------------------------------------
   // GradingMethod
-  // --------------------------------------------------
   const gradingMethods = [
     { name: 'Highest Score', slug: 'highest_score' },
     { name: 'Latest Attempt', slug: 'latest_attempt' },
@@ -229,9 +242,7 @@ async function seedCompanyLookupTables(companyId: number) {
     )
   );
 
-  // --------------------------------------------------
   // CertificateType
-  // --------------------------------------------------
   const certificateTypes = [
     { name: 'Course Completion', slug: 'course_completion' },
     { name: 'Program Completion', slug: 'program_completion' },
@@ -251,9 +262,7 @@ async function seedCompanyLookupTables(companyId: number) {
     )
   );
 
-  // --------------------------------------------------
   // CredentialSource
-  // --------------------------------------------------
   const credentialSources = [
     { name: 'Manual Upload', slug: 'manual_upload' },
     { name: 'API Integration', slug: 'api_integration' },
@@ -272,9 +281,7 @@ async function seedCompanyLookupTables(companyId: number) {
     )
   );
 
-  // --------------------------------------------------
   // ProviderType
-  // --------------------------------------------------
   const providerTypes = [
     { name: 'Certification Body', slug: 'certification_body' },
     { name: 'University', slug: 'university' },
@@ -294,9 +301,7 @@ async function seedCompanyLookupTables(companyId: number) {
     )
   );
 
-  // --------------------------------------------------
   // SurveyQuestionType
-  // --------------------------------------------------
   const surveyQuestionTypes = [
     { name: 'Rating', slug: 'rating' },
     { name: 'Multiple Choice', slug: 'multiple_choice' },
@@ -316,9 +321,7 @@ async function seedCompanyLookupTables(companyId: number) {
     )
   );
 
-  // --------------------------------------------------
   // MeetingProvider
-  // --------------------------------------------------
   const meetingProviders = [
     { name: 'Zoom', slug: 'zoom' },
     { name: 'Microsoft Teams', slug: 'microsoft_teams' },
@@ -338,9 +341,7 @@ async function seedCompanyLookupTables(companyId: number) {
     )
   );
 
-  // --------------------------------------------------
   // FundingType
-  // --------------------------------------------------
   const fundingTypes = [
     { name: 'Company Funded', slug: 'company_funded' },
     { name: 'Self Funded', slug: 'self_funded' },
@@ -357,9 +358,7 @@ async function seedCompanyLookupTables(companyId: number) {
     )
   );
 
-  // --------------------------------------------------
   // XpRuleCategory
-  // --------------------------------------------------
   const xpRuleCategories = [
     { name: 'Enrollment', slug: 'enrollment' },
     { name: 'Completion', slug: 'completion' },
@@ -378,9 +377,7 @@ async function seedCompanyLookupTables(companyId: number) {
     )
   );
 
-  // --------------------------------------------------
   // XpTriggerEvent
-  // --------------------------------------------------
   const xpTriggerEvents = [
     { name: 'Course Completed', slug: 'course_completed' },
     { name: 'Assessment Passed', slug: 'assessment_passed' },
@@ -401,9 +398,7 @@ async function seedCompanyLookupTables(companyId: number) {
     )
   );
 
-  // --------------------------------------------------
   // BadgeCategory
-  // --------------------------------------------------
   const badgeCategories = [
     { name: 'Achievement', slug: 'achievement' },
     { name: 'Milestone', slug: 'milestone' },
@@ -422,9 +417,7 @@ async function seedCompanyLookupTables(companyId: number) {
     )
   );
 
-  // --------------------------------------------------
   // TrainingFormat
-  // --------------------------------------------------
   const trainingFormats = [
     { name: 'Online', slug: 'online' },
     { name: 'Instructor Led', slug: 'instructor_led' },
@@ -444,9 +437,7 @@ async function seedCompanyLookupTables(companyId: number) {
     )
   );
 
-  // --------------------------------------------------
   // NotificationModule
-  // --------------------------------------------------
   const notificationModules = [
     { name: 'Course', slug: 'course' },
     { name: 'Program', slug: 'program' },
@@ -470,9 +461,7 @@ async function seedCompanyLookupTables(companyId: number) {
     )
   );
 
-  // --------------------------------------------------
   // EnrollmentRuleType
-  // --------------------------------------------------
   const enrollmentRuleTypes = [
     { name: 'Auto Enroll', slug: 'auto_enroll' },
     { name: 'Restrict Access', slug: 'restrict_access' },
@@ -513,7 +502,4 @@ main()
   .catch((e) => {
     console.error('Seeding error encountered:', e);
     process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
   });
