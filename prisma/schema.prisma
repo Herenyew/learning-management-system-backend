@@ -3014,11 +3014,10 @@ model LiveSessionInstructor {
   companyId Int
   sessionId Int
 
-  employeeId String? @db.VarChar(20)
-  appUserId  Int? // For external instructors / platform admins
-
-  isPrimary Boolean  @default(false)
-  createdAt DateTime @default(now())
+  employeeId String?  @db.VarChar(20)
+  appUserId  Int?     // For external instructors / platform admins
+  isPrimary  Boolean  @default(false)
+  createdAt  DateTime @default(now())
 
   company  Company     @relation(fields: [companyId], references: [id])
   session  LiveSession @relation(fields: [sessionId], references: [id])
