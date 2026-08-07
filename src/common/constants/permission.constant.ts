@@ -9,7 +9,7 @@ export const Permissions = {
   // Audience Management
   AUDIENCE_CREATE: "audience.create",
   AUDIENCE_VIEW: "audience.view",
-  AUDIENCE_UPDATE: "audience.update",
+  AUDIENCE_UPDATE: "audience.edit",
   AUDIENCE_DELETE: "audience.delete",
 
   // Assessments

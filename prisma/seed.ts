@@ -156,51 +156,58 @@ async function seedEmsTables() {
   }
   console.log(`  ${jobLevels.length} Job Levels created`);
 
-  // 2.5 App Roles
-  const roles = [
-    { id: 300, name: 'SUPER_ADMIN', description: 'Full system access' },
-    { id: 301, name: 'ADMIN', description: 'Company administrator' },
-    { id: 302, name: 'INSTRUCTOR', description: 'Can create and manage courses' },
-    { id: 303, name: 'MANAGER', description: 'Can approve TNA and view reports' },
-    { id: 304, name: 'LEARNER', description: 'Can take courses' },
-  ];
+// ─── 2.5 App Roles ─────────────────────────────────────────────────────
+const roles = [
+  // EMS roles (must have same IDs as EMS company 1)
+  { id: 1, name: 'EMPLOYEE', description: 'Default Employee role' },
+  { id: 6, name: 'SUPER_ADMIN', description: 'Full system access' },
+  { id: 7, name: 'ADMIN', description: 'Company administrator' },
+  { id: 8, name: 'HR', description: 'HR role' },
 
-  const roleMap = new Map();
-  for (const role of roles) {
-    const created = await prisma.appRole.upsert({
-      where: { id: role.id },
-      update: {},
-      create: {
-        id: role.id,
-        companyId: company.id,
-        name: role.name,
-        description: role.description,
-        isActive: true,
-        lastSyncedAt: new Date(),
-      },
-    });
-    roleMap.set(role.name, created);
-  }
-  console.log(`  ${roles.length} App Roles created`);
+  // LMS-specific roles (new IDs not used by EMS)
+  { id: 9, name: 'INSTRUCTOR', description: 'Can create and manage courses' },
+  { id: 10, name: 'MANAGER', description: 'Can approve TNA and view reports' },
+  { id: 11, name: 'LEARNER', description: 'Can take courses' },
+];
 
-  // 2.6 Employees
-  const employees = [
-    // Engineering
-    { id: 'EMP001', fullName: 'John Doe', department: 'Engineering', jobTitle: 'Tech Lead', jobLevel: 'Lead', startDate: '2023-01-15' },
-    { id: 'EMP002', fullName: 'Jane Smith', department: 'Engineering', jobTitle: 'Senior Software Engineer', jobLevel: 'Senior', startDate: '2023-03-10' },
-    { id: 'EMP007', fullName: 'Eve Adams', department: 'Engineering', jobTitle: 'Software Engineer', jobLevel: 'Junior', startDate: '2024-06-15' },
-    { id: 'EMP009', fullName: 'Grace Hopper', department: 'Engineering', jobTitle: 'Software Engineer', jobLevel: 'Senior', startDate: '2022-05-10' },
-    // Sales
-    { id: 'EMP003', fullName: 'Bob Johnson', department: 'Sales', jobTitle: 'Sales Manager', jobLevel: 'Manager', startDate: '2022-06-01' },
-    { id: 'EMP008', fullName: 'Frank Castle', department: 'Sales', jobTitle: 'Sales Representative', jobLevel: 'Senior', startDate: '2023-09-01' },
-    // Marketing
-    { id: 'EMP004', fullName: 'Alice Williams', department: 'Marketing', jobTitle: 'Marketing Manager', jobLevel: 'Manager', startDate: '2022-08-15' },
-    // Finance
-    { id: 'EMP005', fullName: 'Charlie Brown', department: 'Finance', jobTitle: 'Accountant', jobLevel: 'Senior', startDate: '2021-11-01' },
-    { id: 'EMP010', fullName: 'Henry Ford', department: 'Finance', jobTitle: 'Accountant', jobLevel: 'Junior', startDate: '2024-01-01' },
-    // HR
-    { id: 'EMP006', fullName: 'Diana Prince', department: 'Human Resources', jobTitle: 'HR Business Partner', jobLevel: 'Manager', startDate: '2022-01-20' },
-  ];
+const roleMap = new Map();
+for (const role of roles) {
+  const created = await prisma.appRole.upsert({
+    where: { id: role.id },
+    update: {},
+    create: {
+      id: role.id,
+      companyId: company.id,
+      name: role.name,
+      description: role.description,
+      isActive: true,
+      lastSyncedAt: new Date(),
+    },
+  });
+  roleMap.set(role.name, created);
+}
+console.log(`  ${roles.length} App Roles created`);
+
+// 2.6 Employees
+const employees = [
+  // ─── Existing employees (keep these) ──────────────────────────────
+  { id: 'EMP001', fullName: 'John Doe', department: 'Engineering', jobTitle: 'Tech Lead', jobLevel: 'Lead', startDate: '2023-01-15' },
+  { id: 'EMP002', fullName: 'Jane Smith', department: 'Engineering', jobTitle: 'Senior Software Engineer', jobLevel: 'Senior', startDate: '2023-03-10' },
+  { id: 'EMP007', fullName: 'Eve Adams', department: 'Engineering', jobTitle: 'Software Engineer', jobLevel: 'Junior', startDate: '2024-06-15' },
+  { id: 'EMP009', fullName: 'Grace Hopper', department: 'Engineering', jobTitle: 'Software Engineer', jobLevel: 'Senior', startDate: '2022-05-10' },
+  { id: 'EMP003', fullName: 'Bob Johnson', department: 'Sales', jobTitle: 'Sales Manager', jobLevel: 'Manager', startDate: '2022-06-01' },
+  { id: 'EMP008', fullName: 'Frank Castle', department: 'Sales', jobTitle: 'Sales Representative', jobLevel: 'Senior', startDate: '2023-09-01' },
+  { id: 'EMP004', fullName: 'Alice Williams', department: 'Marketing', jobTitle: 'Marketing Manager', jobLevel: 'Manager', startDate: '2022-08-15' },
+  { id: 'EMP005', fullName: 'Charlie Brown', department: 'Finance', jobTitle: 'Accountant', jobLevel: 'Senior', startDate: '2021-11-01' },
+  { id: 'EMP010', fullName: 'Henry Ford', department: 'Finance', jobTitle: 'Accountant', jobLevel: 'Junior', startDate: '2024-01-01' },
+  { id: 'EMP006', fullName: 'Diana Prince', department: 'Human Resources', jobTitle: 'HR Business Partner', jobLevel: 'Manager', startDate: '2022-01-20' },
+
+  // ─── NEW: EMS Employee IDs ────────────────────────────
+  { id: 'EMP-ADMIN', fullName: 'Kacha Admin', department: 'Human Resource', jobTitle: 'Admin', jobLevel: 'Manager', startDate: '2020-01-01' },
+  { id: 'EMP-MGR-001', fullName: 'Manager User', department: 'Technology', jobTitle: 'Software Engineer', jobLevel: 'Manager', startDate: '2020-01-01' },
+  { id: 'EMP-DEV-001', fullName: 'Developer User', department: 'Technology', jobTitle: 'Software Engineer', jobLevel: 'Senior', startDate: '2020-01-01' },
+  // Add any other employee IDs from your EMS that need LMS access
+];
 
   const employeeMap = new Map();
   for (const emp of employees) {
@@ -227,40 +234,40 @@ async function seedEmsTables() {
   }
   console.log(`  ${employees.length} Employees created`);
 
-  // 2.7 App Users
-  const users = [
-    { id: 1001, email: 'superadmin@acme.com', employeeId: 'EMP001', role: 'SUPER_ADMIN' },
-    { id: 1002, email: 'admin@acme.com', employeeId: 'EMP002', role: 'ADMIN' },
-    { id: 1003, email: 'instructor@acme.com', employeeId: 'EMP003', role: 'INSTRUCTOR' },
-    { id: 1004, email: 'manager@acme.com', employeeId: 'EMP004', role: 'MANAGER' },
-    { id: 1005, email: 'learner@acme.com', employeeId: 'EMP005', role: 'LEARNER' },
-  ];
+// ─── 2.7 App Users ─────────────────────────────────────────────────────
+const users = [
+  { id: 1001, email: 'superadmin@acme.com', employeeId: 'EMP001', role: 'SUPER_ADMIN' },
+  { id: 1002, email: 'admin@acme.com', employeeId: 'EMP002', role: 'ADMIN' },
+  { id: 1003, email: 'instructor@acme.com', employeeId: 'EMP003', role: 'INSTRUCTOR' },
+  { id: 1004, email: 'manager@acme.com', employeeId: 'EMP004', role: 'MANAGER' },
+  { id: 1005, email: 'learner@acme.com', employeeId: 'EMP005', role: 'LEARNER' },
+];
 
-  for (const user of users) {
-    const employee = employeeMap.get(user.employeeId);
-    const role = roleMap.get(user.role);
+for (const user of users) {
+  const employee = employeeMap.get(user.employeeId);
+  const role = roleMap.get(user.role);
 
-    await prisma.appUser.upsert({
-      where: { id: user.id },
-      update: {
-        email: user.email,
-        employeeId: employee?.id || null,
-        roleId: role?.id || null,
-        isActive: true,
-        lastSyncedAt: new Date(),
-      },
-      create: {
-        id: user.id,
-        companyId: company.id,
-        email: user.email,
-        employeeId: employee?.id || null,
-        roleId: role?.id || null,
-        isActive: true,
-        lastSyncedAt: new Date(),
-      },
-    });
-  }
-  console.log(`  ${users.length} App Users created`);
+  await prisma.appUser.upsert({
+    where: { id: user.id },
+    update: {
+      email: user.email,
+      employeeId: employee?.id || null,
+      roleId: role?.id || null,
+      isActive: true,
+      lastSyncedAt: new Date(),
+    },
+    create: {
+      id: user.id,
+      companyId: company.id,
+      email: user.email,
+      employeeId: employee?.id || null,
+      roleId: role?.id || null,
+      isActive: true,
+      lastSyncedAt: new Date(),
+    },
+  });
+}
+console.log(`  ${users.length} App Users created`);
 
   // 2.8 Company-Specific Lookup Tables
   console.log('  Seeding company-specific lookup tables...');
@@ -688,28 +695,44 @@ async function seedLmsPermissions(companyId: number, roleMap: Map<string, any>) 
   console.log(`  ${permissionDefinitions.length} LMS Permissions created`);
 
   // 3.2 Role-Permission Mappings
-  const rolePermissionMapping = {
-    SUPER_ADMIN: Array.from(permissionMap.keys()),
-    ADMIN: Array.from(permissionMap.keys()),
-    INSTRUCTOR: [
-      'course.view', 'course.create', 'course.edit', 'course.enroll',
-      'audience.view',
-      'assessment.view', 'assessment.create', 'assessment.edit', 'assessment.grade',
-      'tna.view',
-      'reports.view',
-    ],
-    MANAGER: [
-      'course.view',
-      'audience.view',
-      'assessment.view',
-      'tna.view', 'tna.create', 'tna.approve',
-      'reports.view', 'reports.export',
-    ],
-    LEARNER: [
-      'course.view',
-      'assessment.view',
-    ],
-  };
+// 3.2 Role-Permission Mappings
+const rolePermissionMapping = {
+  // ─── EMS Roles (must match exact names) ────────────────────────
+  SUPER_ADMIN: Array.from(permissionMap.keys()), // All permissions
+  ADMIN: Array.from(permissionMap.keys()),       // All permissions
+  HR: [
+    'course.view',
+    'audience.view',
+    'user.view',
+    'reports.view',
+    'certificate.view',
+  ],
+  EMPLOYEE: [                    
+    'course.view',               // Basic view permissions
+    'assessment.view',
+    'certificate.view',
+  ],
+
+  // ─── LMS-Only Roles ─────────────────────────────────────────────
+  INSTRUCTOR: [
+    'course.view', 'course.create', 'course.edit', 'course.enroll',
+    'audience.view',
+    'assessment.view', 'assessment.create', 'assessment.edit', 'assessment.grade',
+    'tna.view',
+    'reports.view',
+  ],
+  MANAGER: [
+    'course.view',
+    'audience.view',
+    'assessment.view',
+    'tna.view', 'tna.create', 'tna.approve',
+    'reports.view', 'reports.export',
+  ],
+  LEARNER: [
+    'course.view',
+    'assessment.view',
+  ],
+};
 
   for (const [roleName, permissionCodes] of Object.entries(rolePermissionMapping)) {
     const role = roleMap.get(roleName);

@@ -1,11 +1,20 @@
 import { Router } from "express";
 import { AudienceController } from "./audience.controller.js";
-import { validate } from "../../../common/middlewares/validation.middleware.js";
 import {
-  createAudienceGroupSchema,
-  updateAudienceGroupSchema,
-  createAudienceGroupRuleSchema,
-  updateAudienceGroupRuleSchema,
+  validateBody,
+  validateParams,
+  validateQuery,
+} from "../../../common/middlewares/validation.middleware.js";
+import {
+  createAudienceGroupBodySchema,
+  updateAudienceGroupBodySchema,
+  createAudienceGroupRuleBodySchema,
+  updateAudienceGroupRuleBodySchema,
+  audienceGroupParamsSchema,
+  audienceGroupRuleParamsSchema,
+  listAudienceGroupsQuerySchema,
+  resolveMembersQuerySchema,
+  matchesEmployeeParamsSchema, // now imported from DTO
 } from "./audience.dto.js";
 import { authenticate, requirePermission } from "../../../common/auth/index.js";
 import { Permissions } from "../../../common/constants/permission.constant.js";
@@ -13,362 +22,93 @@ import { Permissions } from "../../../common/constants/permission.constant.js";
 export function audienceRoutes(controller: AudienceController): Router {
   const router = Router();
 
-  // Protect all routes with authentication middleware
   router.use(authenticate);
 
-  // ==========================================
-  // Audience Groups
-  // ==========================================
+  // ─── Audience Groups ──────────────────────────────────────────────
 
-  /**
-   * @openapi
-   * /audience-configuration:
-   *   post:
-   *     summary: Create a new audience group
-   *     tags: [Audience Configuration]
-   *     security:
-   *       - bearerAuth: []
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/CreateAudienceGroupInput'
-   *     responses:
-   *       201:
-   *         description: Audience group successfully created
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/AudienceGroup'
-   *       400:
-   *         description: Validation error
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/ApiError'
-   */
   router.post(
     "/",
     requirePermission(Permissions.AUDIENCE_CREATE),
-    validate(createAudienceGroupSchema),
-    controller.create,
+    validateBody(createAudienceGroupBodySchema),
+    controller.create.bind(controller)
   );
 
-  /**
-   * @openapi
-   * /audience-configuration:
-   *   get:
-   *     summary: Get list of audience groups
-   *     tags: [Audience Configuration]
-   *     security:
-   *       - bearerAuth: []
-   *     responses:
-   *       200:
-   *         description: List of audience groups retrieved
-   *         content:
-   *           application/json:
-   *             schema:
-   *               type: array
-   *               items:
-   *                 $ref: '#/components/schemas/AudienceGroup'
-   */
   router.get(
     "/",
     requirePermission(Permissions.AUDIENCE_VIEW),
-    controller.findMany,
+    validateQuery(listAudienceGroupsQuerySchema),
+    controller.findMany.bind(controller)
   );
 
-  /**
-   * @openapi
-   * /audience-configuration/{id}:
-   *   get:
-   *     summary: Get an audience group by ID
-   *     tags: [Audience Configuration]
-   *     security:
-   *       - bearerAuth: []
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         required: true
-   *         schema:
-   *           type: integer
-   *         description: Audience Group ID
-   *     responses:
-   *       200:
-   *         description: Audience group details
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/AudienceGroup'
-   *       404:
-   *         description: Audience group not found
-   */
   router.get(
     "/:id",
     requirePermission(Permissions.AUDIENCE_VIEW),
-    controller.findById,
+    validateParams(audienceGroupParamsSchema),
+    controller.findById.bind(controller)
   );
 
-  /**
-   * @openapi
-   * /audience-configuration/{id}:
-   *   put:
-   *     summary: Update an audience group
-   *     tags: [Audience Configuration]
-   *     security:
-   *       - bearerAuth: []
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         required: true
-   *         schema:
-   *           type: integer
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/UpdateAudienceGroupInput'
-   *     responses:
-   *       200:
-   *         description: Audience group updated
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/AudienceGroup'
-   */
   router.put(
     "/:id",
     requirePermission(Permissions.AUDIENCE_UPDATE),
-    validate(updateAudienceGroupSchema),
-    controller.update,
+    validateParams(audienceGroupParamsSchema),
+    validateBody(updateAudienceGroupBodySchema),
+    controller.update.bind(controller)
   );
 
-  /**
-   * @openapi
-   * /audience-configuration/{id}:
-   *   delete:
-   *     summary: Delete an audience group
-   *     tags: [Audience Configuration]
-   *     security:
-   *       - bearerAuth: []
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         required: true
-   *         schema:
-   *           type: integer
-   *     responses:
-   *       204:
-   *         description: Audience group deleted successfully
-   */
   router.delete(
     "/:id",
     requirePermission(Permissions.AUDIENCE_DELETE),
-    controller.delete,
+    validateParams(audienceGroupParamsSchema),
+    controller.delete.bind(controller)
   );
 
-  // ==========================================
-  // Audience Member Resolution & Preview
-  // ==========================================
+  // ─── Member Resolution ────────────────────────────────────────────
 
-  /**
-   * @openapi
-   * /audience-configuration/{id}/members:
-   *   get:
-   *     summary: Get all matched employees for an audience group
-   *     tags: [Audience Configuration]
-   *     security:
-   *       - bearerAuth: []
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         required: true
-   *         schema:
-   *           type: integer
-   *     responses:
-   *       200:
-   *         description: List of matched audience members
-   *         content:
-   *           application/json:
-   *             schema:
-   *               type: array
-   *               items:
-   *                 $ref: '#/components/schemas/AudienceMember'
-   */
   router.get(
     "/:id/members",
     requirePermission(Permissions.AUDIENCE_VIEW),
-    controller.resolveMembers,
+    validateParams(audienceGroupParamsSchema),
+    validateQuery(resolveMembersQuerySchema),
+    controller.resolveMembers.bind(controller)
   );
 
-  /**
-   * @openapi
-   * /audience-configuration/{id}/members/{employeeId}/check:
-   *   get:
-   *     summary: Check if a specific employee matches this audience group
-   *     tags: [Audience Configuration]
-   *     security:
-   *       - bearerAuth: []
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         required: true
-   *         schema:
-   *           type: integer
-   *       - in: path
-   *         name: employeeId
-   *         required: true
-   *         schema:
-   *           type: string
-   *         description: EMS Employee ID (e.g. EMP001)
-   *     responses:
-   *       200:
-   *         description: Evaluation check completed
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/AudienceMemberCheckResponse'
-   */
   router.get(
     "/:id/members/:employeeId/check",
     requirePermission(Permissions.AUDIENCE_VIEW),
-    controller.matchesEmployee,
+    validateParams(matchesEmployeeParamsSchema),
+    controller.matchesEmployee.bind(controller)
   );
 
-  // ==========================================
-  // Audience Group Rules
-  // ==========================================
+  // ─── Rules ─────────────────────────────────────────────────────────
 
-  /**
-   * @openapi
-   * /audience-configuration/{id}/rules:
-   *   get:
-   *     summary: Get rules for an audience group
-   *     tags: [Audience Configuration]
-   *     security:
-   *       - bearerAuth: []
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         required: true
-   *         schema:
-   *           type: integer
-   *     responses:
-   *       200:
-   *         description: List of rules for this group
-   *         content:
-   *           application/json:
-   *             schema:
-   *               type: array
-   *               items:
-   *                 $ref: '#/components/schemas/AudienceGroupRule'
-   */
   router.get(
     "/:id/rules",
     requirePermission(Permissions.AUDIENCE_VIEW),
-    controller.findRules,
+    validateParams(audienceGroupParamsSchema),
+    controller.findRules.bind(controller)
   );
 
-  /**
-   * @openapi
-   * /audience-configuration/{id}/rules:
-   *   post:
-   *     summary: Add a new rule to an audience group
-   *     tags: [Audience Configuration]
-   *     security:
-   *       - bearerAuth: []
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         required: true
-   *         schema:
-   *           type: integer
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/CreateAudienceGroupRuleInput'
-   *     responses:
-   *       201:
-   *         description: Rule created successfully
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/AudienceGroupRule'
-   */
   router.post(
     "/:id/rules",
     requirePermission(Permissions.AUDIENCE_UPDATE),
-    validate(createAudienceGroupRuleSchema),
-    controller.createRule,
+    validateParams(audienceGroupParamsSchema),
+    validateBody(createAudienceGroupRuleBodySchema),
+    controller.createRule.bind(controller)
   );
 
-  /**
-   * @openapi
-   * /audience-configuration/{id}/rules/{ruleId}:
-   *   put:
-   *     summary: Update an audience rule
-   *     tags: [Audience Configuration]
-   *     security:
-   *       - bearerAuth: []
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         required: true
-   *         schema:
-   *           type: integer
-   *       - in: path
-   *         name: ruleId
-   *         required: true
-   *         schema:
-   *           type: integer
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/UpdateAudienceGroupRuleInput'
-   *     responses:
-   *       200:
-   *         description: Rule updated successfully
-   */
   router.put(
     "/:id/rules/:ruleId",
     requirePermission(Permissions.AUDIENCE_UPDATE),
-    validate(updateAudienceGroupRuleSchema),
-    controller.updateRule,
+    validateParams(audienceGroupRuleParamsSchema),
+    validateBody(updateAudienceGroupRuleBodySchema),
+    controller.updateRule.bind(controller)
   );
 
-  /**
-   * @openapi
-   * /audience-configuration/{id}/rules/{ruleId}:
-   *   delete:
-   *     summary: Remove a rule from an audience group
-   *     tags: [Audience Configuration]
-   *     security:
-   *       - bearerAuth: []
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         required: true
-   *         schema:
-   *           type: integer
-   *       - in: path
-   *         name: ruleId
-   *         required: true
-   *         schema:
-   *           type: integer
-   *     responses:
-   *       204:
-   *         description: Rule deleted successfully
-   */
   router.delete(
     "/:id/rules/:ruleId",
     requirePermission(Permissions.AUDIENCE_DELETE),
-    controller.deleteRule,
+    validateParams(audienceGroupRuleParamsSchema),
+    controller.deleteRule.bind(controller)
   );
 
   return router;
