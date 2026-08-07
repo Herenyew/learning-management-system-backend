@@ -3010,7 +3010,7 @@ model LiveSession {
 }
 
 model LiveSessionInstructor {
-  id        Int      @id @default(autoincrement())
+  id        Int @id @default(autoincrement())
   companyId Int
   sessionId Int
 
