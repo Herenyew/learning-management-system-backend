@@ -1,19 +1,13 @@
-// prisma/seed.ts
-// Complete LMS Database Seeding - All in One File
-
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// ============================================================================
-// SECTION 1: SYSTEM LOOKUP TABLES
-// ============================================================================
-// Tables with companyId = null, shared across all tenants
-
 async function seedSystemLookupTables() {
-  console.log('\n  [1/3] Seeding System Lookup Tables...');
+  console.log('Seeding system-level lookup tables...');
 
-  // DifficultyLevel - System-wide defaults
+  // --------------------------------------------------
+  // DifficultyLevel (System-wide default: companyId = null)
+  // --------------------------------------------------
   const difficultyLevels = [
     { name: 'Beginner', code: 'BEGINNER', displayOrder: 1 },
     { name: 'Intermediate', code: 'INTERMEDIATE', displayOrder: 2 },
@@ -271,40 +265,103 @@ console.log(`  ${users.length} App Users created`);
 
   // 2.8 Company-Specific Lookup Tables
   console.log('  Seeding company-specific lookup tables...');
+  await seedCompanyLookupTables(company.id);
 
+  console.log('  EMS Tables completed');
+  return { company, roleMap };
+}
+
+async function seedCompanyLookupTables(companyId: number) {
+  console.log(`Seeding lookup tables for companyId: ${companyId}`);
+
+  // --------------------------------------------------
   // TaskType
+  // --------------------------------------------------
   const taskTypes = [
-    { name: 'Course Content', slug: 'course_content', expectedSubmissionType: 'NONE', linkedEntity: 'COURSE_CONTENT' },
-    { name: 'Assessment', slug: 'assessment', expectedSubmissionType: 'NONE', linkedEntity: 'ASSESSMENT' },
-    { name: 'Live Session', slug: 'live_session', expectedSubmissionType: 'NONE', linkedEntity: 'LIVE_SESSION' },
-    { name: 'Assignment', slug: 'assignment', expectedSubmissionType: 'FILE_UPLOAD', linkedEntity: 'NONE' },
-    { name: 'Survey', slug: 'survey', expectedSubmissionType: 'NONE', linkedEntity: 'SURVEY' },
-    { name: 'Manager Check-in', slug: 'manager_checkin', expectedSubmissionType: 'TEXT_INPUT', linkedEntity: 'NONE' },
-    { name: 'Peer Review', slug: 'peer_review', expectedSubmissionType: 'TEXT_INPUT', linkedEntity: 'NONE' },
-    { name: 'External Activity', slug: 'external_activity', expectedSubmissionType: 'LINK', linkedEntity: 'NONE' },
-    { name: 'Reading', slug: 'reading', expectedSubmissionType: 'NONE', linkedEntity: 'COURSE_CONTENT' },
-    { name: 'Other', slug: 'other', expectedSubmissionType: 'NONE', linkedEntity: 'NONE' },
+    {
+      name: 'Course Content',
+      slug: 'course_content',
+      expectedSubmissionType: 'NONE',
+      linkedEntity: 'COURSE_CONTENT',
+    },
+    {
+      name: 'Assessment',
+      slug: 'assessment',
+      expectedSubmissionType: 'NONE',
+      linkedEntity: 'ASSESSMENT',
+    },
+    {
+      name: 'Live Session',
+      slug: 'live_session',
+      expectedSubmissionType: 'NONE',
+      linkedEntity: 'LIVE_SESSION',
+    },
+    {
+      name: 'Assignment',
+      slug: 'assignment',
+      expectedSubmissionType: 'FILE_UPLOAD',
+      linkedEntity: 'NONE',
+    },
+    {
+      name: 'Survey',
+      slug: 'survey',
+      expectedSubmissionType: 'NONE',
+      linkedEntity: 'SURVEY',
+    },
+    {
+      name: 'Manager Check-in',
+      slug: 'manager_checkin',
+      expectedSubmissionType: 'TEXT_INPUT',
+      linkedEntity: 'NONE',
+    },
+    {
+      name: 'Peer Review',
+      slug: 'peer_review',
+      expectedSubmissionType: 'TEXT_INPUT',
+      linkedEntity: 'NONE',
+    },
+    {
+      name: 'External Activity',
+      slug: 'external_activity',
+      expectedSubmissionType: 'LINK',
+      linkedEntity: 'NONE',
+    },
+    {
+      name: 'Reading',
+      slug: 'reading',
+      expectedSubmissionType: 'NONE',
+      linkedEntity: 'COURSE_CONTENT',
+    },
+    {
+      name: 'Other',
+      slug: 'other',
+      expectedSubmissionType: 'NONE',
+      linkedEntity: 'NONE',
+    },
   ];
 
-  for (const item of taskTypes) {
-    const existing = await prisma.taskType.findFirst({
-      where: { companyId: company.id, slug: item.slug },
-    });
-
-    if (!existing) {
-      await prisma.taskType.create({
-        data: {
-          companyId: company.id,
-          name: item.name,
-          slug: item.slug,
-          expectedSubmissionType: item.expectedSubmissionType as any,
-          linkedEntity: item.linkedEntity as any,
-          isSystem: true,
-          isActive: true,
-        },
+  await Promise.all(
+    taskTypes.map(async (item) => {
+      const existing = await prisma.taskType.findFirst({
+        where: { companyId, slug: item.slug },
       });
-    }
-  }
+
+      if (!existing) {
+        await prisma.taskType.create({
+          data: {
+            companyId,
+            name: item.name,
+            slug: item.slug,
+            expectedSubmissionType: item.expectedSubmissionType as any,
+            linkedEntity: item.linkedEntity as any,
+            isSystem: true,
+            isActive: true,
+          },
+        });
+      }
+    })
+  );
+
   console.log(`  ${taskTypes.length} Task Types created`);
 
   // AttendanceMethod
@@ -315,14 +372,15 @@ console.log(`  ${users.length} App Users created`);
     { name: 'Biometric', slug: 'biometric' },
   ];
 
-  for (const item of attendanceMethods) {
-    await prisma.attendanceMethod.upsert({
-      where: { companyId_slug: { companyId: company.id, slug: item.slug } },
-      update: {},
-      create: { companyId: company.id, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
-  console.log(`  ${attendanceMethods.length} Attendance Methods created`);
+  await Promise.all(
+    attendanceMethods.map((item) =>
+      prisma.attendanceMethod.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // AssessmentType
   const assessmentTypes = [
@@ -333,23 +391,25 @@ console.log(`  ${users.length} App Users created`);
     { name: 'Practice', slug: 'practice', code: 'PRACTICE' },
   ];
 
-  for (const item of assessmentTypes) {
-    await prisma.assessmentType.upsert({
-      where: { companyId_code: { companyId: company.id, code: item.code } },
-      update: {},
-      create: {
-        companyId: company.id,
-        name: item.name,
-        code: item.code,
-        isSystem: true,
-        isActive: true,
-        isScored: true,
-        isGraded: true,
-      },
-    });
-  }
-  console.log(`  ${assessmentTypes.length} Assessment Types created`);
+  await Promise.all(
+    assessmentTypes.map((item) =>
+      prisma.assessmentType.upsert({
+        where: { companyId_code: { companyId, code: item.code } },
+        update: {},
+        create: {
+          companyId,
+          name: item.name,
+          code: item.code,
+          isSystem: true,
+          isActive: true,
+          isScored: true,
+          isGraded: true,
+        },
+      })
+    )
+  );
 
+  // --------------------------------------------------
   // QuestionType
   const questionTypes = [
     { name: 'Multiple Choice', slug: 'multiple_choice', answerStructure: 'OPTION_BASED' },
@@ -363,22 +423,24 @@ console.log(`  ${users.length} App Users created`);
     { name: 'Drag and Drop', slug: 'drag_drop', answerStructure: 'MATCHING_PAIR_BASED' },
   ];
 
-  for (const item of questionTypes) {
-    await prisma.questionType.upsert({
-      where: { companyId_slug: { companyId: company.id, slug: item.slug } },
-      update: {},
-      create: {
-        companyId: company.id,
-        name: item.name,
-        slug: item.slug,
-        answerStructure: item.answerStructure as any,
-        isSystem: true,
-        isActive: true,
-      },
-    });
-  }
-  console.log(`  ${questionTypes.length} Question Types created`);
+  await Promise.all(
+    questionTypes.map((item) =>
+      prisma.questionType.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: {
+          companyId,
+          name: item.name,
+          slug: item.slug,
+          answerStructure: item.answerStructure as any,
+          isSystem: true,
+          isActive: true,
+        },
+      })
+    )
+  );
 
+  // --------------------------------------------------
   // GradingMethod
   const gradingMethods = [
     { name: 'Highest Score', slug: 'highest_score' },
@@ -387,14 +449,15 @@ console.log(`  ${users.length} App Users created`);
     { name: 'First Attempt', slug: 'first_attempt' },
   ];
 
-  for (const item of gradingMethods) {
-    await prisma.gradingMethod.upsert({
-      where: { companyId_slug: { companyId: company.id, slug: item.slug } },
-      update: {},
-      create: { companyId: company.id, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
-  console.log(`  ${gradingMethods.length} Grading Methods created`);
+  await Promise.all(
+    gradingMethods.map((item) =>
+      prisma.gradingMethod.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // CertificateType
   const certificateTypes = [
@@ -406,14 +469,15 @@ console.log(`  ${users.length} App Users created`);
     { name: 'External', slug: 'external' },
   ];
 
-  for (const item of certificateTypes) {
-    await prisma.certificateType.upsert({
-      where: { companyId_slug: { companyId: company.id, slug: item.slug } },
-      update: {},
-      create: { companyId: company.id, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
-  console.log(`  ${certificateTypes.length} Certificate Types created`);
+  await Promise.all(
+    certificateTypes.map((item) =>
+      prisma.certificateType.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // CredentialSource
   const credentialSources = [
@@ -424,14 +488,15 @@ console.log(`  ${users.length} App Users created`);
     { name: 'Other', slug: 'other' },
   ];
 
-  for (const item of credentialSources) {
-    await prisma.credentialSource.upsert({
-      where: { companyId_slug: { companyId: company.id, slug: item.slug } },
-      update: {},
-      create: { companyId: company.id, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
-  console.log(`  ${credentialSources.length} Credential Sources created`);
+  await Promise.all(
+    credentialSources.map((item) =>
+      prisma.credentialSource.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // ProviderType
   const providerTypes = [
@@ -443,14 +508,15 @@ console.log(`  ${users.length} App Users created`);
     { name: 'Other', slug: 'other' },
   ];
 
-  for (const item of providerTypes) {
-    await prisma.providerType.upsert({
-      where: { companyId_slug: { companyId: company.id, slug: item.slug } },
-      update: {},
-      create: { companyId: company.id, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
-  console.log(`  ${providerTypes.length} Provider Types created`);
+  await Promise.all(
+    providerTypes.map((item) =>
+      prisma.providerType.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // SurveyQuestionType
   const surveyQuestionTypes = [
@@ -462,14 +528,15 @@ console.log(`  ${users.length} App Users created`);
     { name: 'Scale', slug: 'scale' },
   ];
 
-  for (const item of surveyQuestionTypes) {
-    await prisma.surveyQuestionType.upsert({
-      where: { companyId_slug: { companyId: company.id, slug: item.slug } },
-      update: {},
-      create: { companyId: company.id, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
-  console.log(`  ${surveyQuestionTypes.length} Survey Question Types created`);
+  await Promise.all(
+    surveyQuestionTypes.map((item) =>
+      prisma.surveyQuestionType.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // MeetingProvider
   const meetingProviders = [
@@ -481,14 +548,15 @@ console.log(`  ${users.length} App Users created`);
     { name: 'Other', slug: 'other' },
   ];
 
-  for (const item of meetingProviders) {
-    await prisma.meetingProvider.upsert({
-      where: { companyId_slug: { companyId: company.id, slug: item.slug } },
-      update: {},
-      create: { companyId: company.id, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
-  console.log(`  ${meetingProviders.length} Meeting Providers created`);
+  await Promise.all(
+    meetingProviders.map((item) =>
+      prisma.meetingProvider.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // FundingType
   const fundingTypes = [
@@ -497,14 +565,15 @@ console.log(`  ${users.length} App Users created`);
     { name: 'Shared', slug: 'shared' },
   ];
 
-  for (const item of fundingTypes) {
-    await prisma.fundingType.upsert({
-      where: { companyId_slug: { companyId: company.id, slug: item.slug } },
-      update: {},
-      create: { companyId: company.id, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
-  console.log(`  ${fundingTypes.length} Funding Types created`);
+  await Promise.all(
+    fundingTypes.map((item) =>
+      prisma.fundingType.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // XpRuleCategory
   const xpRuleCategories = [
@@ -515,14 +584,15 @@ console.log(`  ${users.length} App Users created`);
     { name: 'Manual', slug: 'manual' },
   ];
 
-  for (const item of xpRuleCategories) {
-    await prisma.xpRuleCategory.upsert({
-      where: { companyId_slug: { companyId: company.id, slug: item.slug } },
-      update: {},
-      create: { companyId: company.id, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
-  console.log(`  ${xpRuleCategories.length} XP Rule Categories created`);
+  await Promise.all(
+    xpRuleCategories.map((item) =>
+      prisma.xpRuleCategory.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // XpTriggerEvent
   const xpTriggerEvents = [
@@ -535,14 +605,15 @@ console.log(`  ${users.length} App Users created`);
     { name: 'Manual Adjustment', slug: 'manual_adjustment' },
   ];
 
-  for (const item of xpTriggerEvents) {
-    await prisma.xpTriggerEvent.upsert({
-      where: { companyId_slug: { companyId: company.id, slug: item.slug } },
-      update: {},
-      create: { companyId: company.id, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
-  console.log(`  ${xpTriggerEvents.length} XP Trigger Events created`);
+  await Promise.all(
+    xpTriggerEvents.map((item) =>
+      prisma.xpTriggerEvent.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // BadgeCategory
   const badgeCategories = [
@@ -553,14 +624,15 @@ console.log(`  ${users.length} App Users created`);
     { name: 'Participation', slug: 'participation' },
   ];
 
-  for (const item of badgeCategories) {
-    await prisma.badgeCategory.upsert({
-      where: { companyId_slug: { companyId: company.id, slug: item.slug } },
-      update: {},
-      create: { companyId: company.id, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
-  console.log(`  ${badgeCategories.length} Badge Categories created`);
+  await Promise.all(
+    badgeCategories.map((item) =>
+      prisma.badgeCategory.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // TrainingFormat
   const trainingFormats = [
@@ -572,14 +644,15 @@ console.log(`  ${users.length} App Users created`);
     { name: 'On the Job', slug: 'on_the_job' },
   ];
 
-  for (const item of trainingFormats) {
-    await prisma.trainingFormat.upsert({
-      where: { companyId_slug: { companyId: company.id, slug: item.slug } },
-      update: {},
-      create: { companyId: company.id, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
-  console.log(`  ${trainingFormats.length} Training Formats created`);
+  await Promise.all(
+    trainingFormats.map((item) =>
+      prisma.trainingFormat.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // NotificationModule
   const notificationModules = [
@@ -595,14 +668,15 @@ console.log(`  ${users.length} App Users created`);
     { name: 'System', slug: 'system' },
   ];
 
-  for (const item of notificationModules) {
-    await prisma.notificationModule.upsert({
-      where: { companyId_slug: { companyId: company.id, slug: item.slug } },
-      update: {},
-      create: { companyId: company.id, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-    });
-  }
-  console.log(`  ${notificationModules.length} Notification Modules created`);
+  await Promise.all(
+    notificationModules.map((item) =>
+      prisma.notificationModule.upsert({
+        where: { companyId_slug: { companyId, slug: item.slug } },
+        update: {},
+        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      })
+    )
+  );
 
   // EnrollmentRuleType
   const enrollmentRuleTypes = [
@@ -615,15 +689,13 @@ console.log(`  ${users.length} App Users created`);
 
   for (const item of enrollmentRuleTypes) {
     await prisma.enrollmentRuleType.upsert({
-      where: { companyId_slug: { companyId: company.id, slug: item.slug } },
+      where: { companyId_slug: { companyId, slug: item.slug } },
       update: {},
-      create: { companyId: company.id, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
     });
   }
-  console.log(`  ${enrollmentRuleTypes.length} Enrollment Rule Types created`);
 
-  console.log('  EMS Tables completed');
-  return { company, roleMap };
+  console.log(`  ${enrollmentRuleTypes.length} Enrollment Rule Types created`);
 }
 
 // ============================================================================
@@ -633,47 +705,38 @@ console.log(`  ${users.length} App Users created`);
 async function seedLmsPermissions(companyId: number, roleMap: Map<string, any>) {
   console.log('\n  [3/3] Seeding LMS Permissions...');
 
-  // 3.1 LMS Permissions
   const permissionDefinitions = [
-    // Course Management
     { code: 'course.view', description: 'View courses', module: 'course' },
     { code: 'course.create', description: 'Create courses', module: 'course' },
     { code: 'course.edit', description: 'Edit courses', module: 'course' },
     { code: 'course.delete', description: 'Delete courses', module: 'course' },
     { code: 'course.publish', description: 'Publish courses', module: 'course' },
     { code: 'course.enroll', description: 'Enroll students', module: 'course' },
-    // Audience Management
     { code: 'audience.view', description: 'View audience groups', module: 'audience' },
     { code: 'audience.create', description: 'Create audience groups', module: 'audience' },
     { code: 'audience.edit', description: 'Edit audience groups', module: 'audience' },
     { code: 'audience.delete', description: 'Delete audience groups', module: 'audience' },
     { code: 'audience.assign', description: 'Assign audience groups', module: 'audience' },
-    // Assessment Management
     { code: 'assessment.view', description: 'View assessments', module: 'assessment' },
     { code: 'assessment.create', description: 'Create assessments', module: 'assessment' },
     { code: 'assessment.edit', description: 'Edit assessments', module: 'assessment' },
     { code: 'assessment.delete', description: 'Delete assessments', module: 'assessment' },
     { code: 'assessment.grade', description: 'Grade assessments', module: 'assessment' },
-    // TNA
     { code: 'tna.view', description: 'View TNA requests', module: 'tna' },
     { code: 'tna.create', description: 'Create TNA requests', module: 'tna' },
     { code: 'tna.approve', description: 'Approve TNA requests', module: 'tna' },
     { code: 'tna.reject', description: 'Reject TNA requests', module: 'tna' },
-    // Certification
     { code: 'certificate.view', description: 'View certificates', module: 'certificate' },
     { code: 'certificate.create', description: 'Create certificates', module: 'certificate' },
     { code: 'certificate.issue', description: 'Issue certificates', module: 'certificate' },
     { code: 'certificate.revoke', description: 'Revoke certificates', module: 'certificate' },
-    // User Management
     { code: 'user.view', description: 'View users', module: 'user' },
     { code: 'user.create', description: 'Create users', module: 'user' },
     { code: 'user.edit', description: 'Edit users', module: 'user' },
     { code: 'user.delete', description: 'Delete users', module: 'user' },
     { code: 'user.manage_roles', description: 'Manage user roles', module: 'user' },
-    // System
     { code: 'system.settings', description: 'View system settings', module: 'system' },
     { code: 'system.configure', description: 'Configure system', module: 'system' },
-    // Reports
     { code: 'reports.view', description: 'View reports', module: 'reports' },
     { code: 'reports.export', description: 'Export reports', module: 'reports' },
   ];
@@ -694,45 +757,27 @@ async function seedLmsPermissions(companyId: number, roleMap: Map<string, any>) 
   }
   console.log(`  ${permissionDefinitions.length} LMS Permissions created`);
 
-  // 3.2 Role-Permission Mappings
-// 3.2 Role-Permission Mappings
-const rolePermissionMapping = {
-  // ─── EMS Roles (must match exact names) ────────────────────────
-  SUPER_ADMIN: Array.from(permissionMap.keys()), // All permissions
-  ADMIN: Array.from(permissionMap.keys()),       // All permissions
-  HR: [
-    'course.view',
-    'audience.view',
-    'user.view',
-    'reports.view',
-    'certificate.view',
-  ],
-  EMPLOYEE: [                    
-    'course.view',               // Basic view permissions
-    'assessment.view',
-    'certificate.view',
-  ],
-
-  // ─── LMS-Only Roles ─────────────────────────────────────────────
-  INSTRUCTOR: [
-    'course.view', 'course.create', 'course.edit', 'course.enroll',
-    'audience.view',
-    'assessment.view', 'assessment.create', 'assessment.edit', 'assessment.grade',
-    'tna.view',
-    'reports.view',
-  ],
-  MANAGER: [
-    'course.view',
-    'audience.view',
-    'assessment.view',
-    'tna.view', 'tna.create', 'tna.approve',
-    'reports.view', 'reports.export',
-  ],
-  LEARNER: [
-    'course.view',
-    'assessment.view',
-  ],
-};
+  const rolePermissionMapping = {
+    SUPER_ADMIN: Array.from(permissionMap.keys()),
+    ADMIN: Array.from(permissionMap.keys()),
+    HR: ['course.view', 'audience.view', 'user.view', 'reports.view', 'certificate.view'],
+    EMPLOYEE: ['course.view', 'assessment.view', 'certificate.view'],
+    INSTRUCTOR: [
+      'course.view', 'course.create', 'course.edit', 'course.enroll',
+      'audience.view',
+      'assessment.view', 'assessment.create', 'assessment.edit', 'assessment.grade',
+      'tna.view',
+      'reports.view',
+    ],
+    MANAGER: [
+      'course.view',
+      'audience.view',
+      'assessment.view',
+      'tna.view', 'tna.create', 'tna.approve',
+      'reports.view', 'reports.export',
+    ],
+    LEARNER: ['course.view', 'assessment.view'],
+  };
 
   for (const [roleName, permissionCodes] of Object.entries(rolePermissionMapping)) {
     const role = roleMap.get(roleName);
@@ -763,47 +808,20 @@ const rolePermissionMapping = {
         },
       });
     }
-    console.log(`  ${permissionCodes.length} permissions linked to ${roleName}`);
   }
 
-  console.log('  LMS Permissions completed');
+  console.log(`LMS permissions for companyId: ${companyId} seeded successfully.`);
 }
 
-// ============================================================================
-// MAIN
-// ============================================================================
-
 async function main() {
-  console.log('\n==================================================');
-  console.log('LMS Database Seeding');
-  console.log('==================================================');
+  await seedSystemLookupTables();
 
-  try {
-    await seedSystemLookupTables();
-    const { company, roleMap } = await seedEmsTables();
-    await seedLmsPermissions(company.id, roleMap);
-
-    console.log('\n==================================================');
-    console.log('LMS Database Seeding Completed Successfully');
-    console.log('==================================================');
-
-    console.log('\nLogin Credentials:');
-    console.log('superadmin@acme.com - SUPER_ADMIN');
-    console.log('admin@acme.com - ADMIN');
-    console.log('instructor@acme.com - INSTRUCTOR');
-    console.log('manager@acme.com - MANAGER');
-    console.log('learner@acme.com - LEARNER');
-
-  } catch (error) {
-    console.error('\nSeeding failed:', error);
-    throw error;
-  } finally {
-    await prisma.$disconnect();
-  }
+  const { company, roleMap } = await seedEmsTables();
+  await seedLmsPermissions(company.id, roleMap);
 }
 
 main()
   .catch((e) => {
-    console.error('Fatal error during seeding:', e);
+    console.error('Seeding error encountered:', e);
     process.exit(1);
   });
