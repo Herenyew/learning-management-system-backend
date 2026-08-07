@@ -1,73 +1,114 @@
 import { Router } from "express";
 import { AudienceController } from "./audience.controller.js";
-import { validate } from "../../../common/middlewares/validation.middleware.js";
 import {
-  createAudienceGroupSchema,
-  updateAudienceGroupSchema,
-  createAudienceGroupRuleSchema,
-  updateAudienceGroupRuleSchema,
+  validateBody,
+  validateParams,
+  validateQuery,
+} from "../../../common/middlewares/validation.middleware.js";
+import {
+  createAudienceGroupBodySchema,
+  updateAudienceGroupBodySchema,
+  createAudienceGroupRuleBodySchema,
+  updateAudienceGroupRuleBodySchema,
+  audienceGroupParamsSchema,
+  audienceGroupRuleParamsSchema,
+  listAudienceGroupsQuerySchema,
+  resolveMembersQuerySchema,
+  matchesEmployeeParamsSchema, // now imported from DTO
 } from "./audience.dto.js";
 import { authenticate, requirePermission } from "../../../common/auth/index.js";
+import { Permissions } from "../../../common/constants/permission.constant.js";
 
 export function audienceRoutes(controller: AudienceController): Router {
   const router = Router();
 
-  // Protect all routes with authentication middleware
   router.use(authenticate);
 
-  // ==========================================
-  // Audience Groups
-  // ==========================================
+  // ─── Audience Groups ──────────────────────────────────────────────
+
   router.post(
     "/",
-    requirePermission("audience.create"),
-    validate(createAudienceGroupSchema),
-    controller.create,
+    requirePermission(Permissions.AUDIENCE_CREATE),
+    validateBody(createAudienceGroupBodySchema),
+    controller.create.bind(controller)
   );
 
-  router.get("/", requirePermission("audience.view"), controller.findMany);
-  router.get("/:id", requirePermission("audience.view"), controller.findById);
+  router.get(
+    "/",
+    requirePermission(Permissions.AUDIENCE_VIEW),
+    validateQuery(listAudienceGroupsQuerySchema),
+    controller.findMany.bind(controller)
+  );
+
+  router.get(
+    "/:id",
+    requirePermission(Permissions.AUDIENCE_VIEW),
+    validateParams(audienceGroupParamsSchema),
+    controller.findById.bind(controller)
+  );
 
   router.put(
     "/:id",
-    requirePermission("audience.update"),
-    validate(updateAudienceGroupSchema),
-    controller.update,
+    requirePermission(Permissions.AUDIENCE_UPDATE),
+    validateParams(audienceGroupParamsSchema),
+    validateBody(updateAudienceGroupBodySchema),
+    controller.update.bind(controller)
   );
 
-  router.delete("/:id", requirePermission("audience.delete"), controller.delete);
+  router.delete(
+    "/:id",
+    requirePermission(Permissions.AUDIENCE_DELETE),
+    validateParams(audienceGroupParamsSchema),
+    controller.delete.bind(controller)
+  );
 
-  // ==========================================
-  // Audience Member Resolution & Preview
-  // (:id = audienceGroupId)
-  // ==========================================
-  router.get("/:id/members", requirePermission("audience.view"), controller.resolveMembers);
-  router.get("/:id/members/:employeeId/check", requirePermission("audience.view"), controller.matchesEmployee);
+  // ─── Member Resolution ────────────────────────────────────────────
 
-  // ==========================================
-  // Audience Group Rules
-  // (:id = audienceGroupId)
-  // ==========================================
-  router.get("/:id/rules", requirePermission("audience.view"), controller.findRules);
+  router.get(
+    "/:id/members",
+    requirePermission(Permissions.AUDIENCE_VIEW),
+    validateParams(audienceGroupParamsSchema),
+    validateQuery(resolveMembersQuerySchema),
+    controller.resolveMembers.bind(controller)
+  );
+
+  router.get(
+    "/:id/members/:employeeId/check",
+    requirePermission(Permissions.AUDIENCE_VIEW),
+    validateParams(matchesEmployeeParamsSchema),
+    controller.matchesEmployee.bind(controller)
+  );
+
+  // ─── Rules ─────────────────────────────────────────────────────────
+
+  router.get(
+    "/:id/rules",
+    requirePermission(Permissions.AUDIENCE_VIEW),
+    validateParams(audienceGroupParamsSchema),
+    controller.findRules.bind(controller)
+  );
 
   router.post(
     "/:id/rules",
-    requirePermission("audience.update"),
-    validate(createAudienceGroupRuleSchema),
-    controller.createRule,
+    requirePermission(Permissions.AUDIENCE_UPDATE),
+    validateParams(audienceGroupParamsSchema),
+    validateBody(createAudienceGroupRuleBodySchema),
+    controller.createRule.bind(controller)
   );
 
   router.put(
     "/:id/rules/:ruleId",
-    requirePermission("audience.update"),
-    validate(updateAudienceGroupRuleSchema),
-    controller.updateRule,
+    requirePermission(Permissions.AUDIENCE_UPDATE),
+    validateParams(audienceGroupRuleParamsSchema),
+    validateBody(updateAudienceGroupRuleBodySchema),
+    controller.updateRule.bind(controller)
   );
 
   router.delete(
     "/:id/rules/:ruleId",
-    requirePermission("audience.delete"),
-    controller.deleteRule,
+    requirePermission(Permissions.AUDIENCE_DELETE),
+    validateParams(audienceGroupRuleParamsSchema),
+    controller.deleteRule.bind(controller)
   );
 
   return router;

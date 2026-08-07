@@ -10,9 +10,6 @@ export class AudienceController {
     private readonly audienceMatchingService: AudienceMatchingService,
   ) {}
 
-  /**
-   * Helper to safely extract and validate positive integer IDs from route params
-   */
   private parseParamId(paramValue: string, paramName: string): number {
     const id = Number(paramValue);
     if (isNaN(id) || id <= 0) {
@@ -127,7 +124,7 @@ export class AudienceController {
   };
 
   // ==========================================
-  // Audience Member Matching & Preview
+  // Member Matching & Preview
   // ==========================================
 
   resolveMembers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -153,7 +150,7 @@ export class AudienceController {
           page,
           pageSize,
           totalRecords: result.totalRecords,
-          totalPages: Math.ceil(result.totalRecords / pageSize),
+          totalPages: pageSize > 0 ? Math.ceil(result.totalRecords / pageSize) : 0,
         },
       });
     } catch (error) {
@@ -166,11 +163,11 @@ export class AudienceController {
       const audienceGroupId = this.parseParamId(req.params.id, "audience group ID");
       const employeeId = req.params.employeeId;
 
-      if (!employeeId) {
+      if (!employeeId?.trim()) {
         throw new ValidationError("Employee ID is required.");
       }
 
-      const isMatch = await this.audienceMatchingService.matchesEmployee(
+      const matches = await this.audienceMatchingService.matchesEmployee(
         employeeId,
         audienceGroupId,
         req.user.companyId,
@@ -179,7 +176,7 @@ export class AudienceController {
       res.json({
         success: true,
         message: "Employee eligibility evaluated successfully.",
-        data: { matches: isMatch },
+        data: { matches },
       });
     } catch (error) {
       next(error);

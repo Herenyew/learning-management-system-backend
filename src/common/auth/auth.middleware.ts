@@ -9,7 +9,7 @@ export async function authenticate(
 ) {
   try {
     const authorization = req.headers.authorization;
-
+    console.log("Authorization header:", authorization);
     if (!authorization || !authorization.startsWith("Bearer ")) {
       throw new AppError(
         "Missing or malformed Authorization header.",
