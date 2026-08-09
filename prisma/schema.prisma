@@ -1118,7 +1118,7 @@ model DifficultyLevel {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
+  deletedAt DateTime? 
   company Company? @relation(fields: [companyId], references: [id])
 
   courseVersions       CourseVersion[]
@@ -1570,11 +1570,12 @@ model ContentType {
   category    ContentCategory
   description String?
   icon        String?
-
   isActive Boolean @default(true)
-
+  deletedAt DateTime?
   sortOrder Int             @default(0)
   contents  CourseContent[]
+
+  @@map("content_type")
 }
 
 model ContentFileType {
@@ -1585,8 +1586,10 @@ model ContentFileType {
   icon        String?
   isActive    Boolean @default(true)
   sortOrder   Int     @default(0)
-
+  deletedAt   DateTime?
   files StoredFile[]
+
+  @@map("content_file_type")
 }
 
 model Bookmark {
@@ -2463,6 +2466,7 @@ model AssessmentBlueprint {
   questionCount     Int
   difficultyLevelId Int?
 
+  deletedAt       DateTime?
   difficultyLevel DifficultyLevel? @relation(fields: [difficultyLevelId], references: [id])
   company         Company          @relation(fields: [companyId], references: [id])
   assessment      Assessment       @relation(fields: [assessmentId], references: [id])
@@ -2472,7 +2476,7 @@ model AssessmentBlueprint {
   @@index([companyId])
   @@index([assessmentId])
   @@index([questionTypeId])
-  @@index([difficultyLevelId]) // FIXED — moved before @@map, was after it (invalid placement)
+  @@index([difficultyLevelId]) 
   @@map("assessment_blueprints")
 }
 
@@ -3015,7 +3019,7 @@ model LiveSessionInstructor {
   sessionId Int
 
   employeeId String?  @db.VarChar(20)
-  appUserId  Int?     // For external instructors / platform admins
+  appUserId  Int? // For external instructors / platform admins
   isPrimary  Boolean  @default(false)
   createdAt  DateTime @default(now())
 
@@ -3784,7 +3788,6 @@ model CourseTemplate {
   language                 String? @db.VarChar(20)
   thumbnailUrl             String?
   estimatedDurationMinutes Int?
-  targetAudienceText       String? // free-text fallback
 
   visibility       VisibilityType   @default(COMPANY)
   enrollmentPolicy EnrollmentPolicy @default(OPEN) // OPEN, INVITATION, PAYMENT (or make enum)

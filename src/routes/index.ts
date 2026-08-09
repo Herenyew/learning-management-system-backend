@@ -1,8 +1,10 @@
 import { Router } from "express";
 import internalRoutes from "../modules/internal/index.js";
 import healthRoutes from "../modules/health/health.route.js";
-// Import the fully composed audience router from its module directory
+
+// Feature Modules
 import audienceRoutes from "../modules/configuration/audience-configuration/index.js";
+import courseConfigRoutes from "../modules/configuration/course-configuration/index.js";
 
 const router = Router();
 
@@ -17,11 +19,14 @@ router.use("/health", healthRoutes);
 router.use("/internal", internalRoutes); 
 
 // ==========================================
-// Feature Module Routes
+// Configuration & Setup Routes
 // ==========================================
 router.use("/configuration/audience", audienceRoutes);
+router.use("/configuration/course", courseConfigRoutes);
 
-// Future routes
+// ==========================================
+// Core Domain Routes (Future)
+// ==========================================
 // router.use("/courses", courseRoutes);
 // router.use("/programs", learningProgramRoutes);
 // router.use("/enrollments", enrollmentRoutes);

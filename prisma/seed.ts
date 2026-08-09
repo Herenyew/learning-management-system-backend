@@ -1,33 +1,305 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, ContentCategory } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-async function seedSystemLookupTables() {
-  console.log('Seeding system-level lookup tables...');
-
-  // --------------------------------------------------
-  // DifficultyLevel (System-wide default: companyId = null)
-  // --------------------------------------------------
-  const difficultyLevels = [
-    { name: 'Beginner', code: 'BEGINNER', displayOrder: 1 },
-    { name: 'Intermediate', code: 'INTERMEDIATE', displayOrder: 2 },
-    { name: 'Advanced', code: 'ADVANCED', displayOrder: 3 },
-    { name: 'Expert', code: 'EXPERT', displayOrder: 4 },
-  ];
-
-  for (const item of difficultyLevels) {
-    const existing = await prisma.difficultyLevel.findFirst({
+// ──────────────────────────────────────────────────────────────
+// Helper: Seed Difficulty Levels (works for both types)
+// ──────────────────────────────────────────────────────────────
+async function seedDifficultyLevels(
+  companyId: number | null,
+  levels: { name: string; code: string; displayOrder: number }[],
+  isSystem: boolean,
+) {
+  for (const item of levels) {
+    await prisma.difficultyLevel.upsert({
       where: {
         code: item.code,
-        companyId: null,
+        companyId: companyId,
+      },
+      update: {
+        name: item.name,
+        displayOrder: item.displayOrder,
+        isSystem: isSystem,
+        isActive: true,
+      },
+      create: {
+        companyId: companyId,
+        code: item.code,
+        name: item.name,
+        displayOrder: item.displayOrder,
+        isSystem: isSystem,
+        isActive: true,
       },
     });
-
-
   }
-  console.log(`  ${difficultyLevels.length} Difficulty Levels seeded`);
+  console.log(
+    ` ${levels.length} Difficulty Levels seeded (${companyId === null ? "system-wide" : "company-specific"})`,
+  );
+}
 
-  console.log('  System Lookup Tables completed');
+// ──────────────────────────────────────────────────────────────
+// Helper: Seed Content Types (System-wide)
+// ──────────────────────────────────────────────────────────────
+// ──────────────────────────────────────────────────────────────
+// Helper: Seed Content Types (System-wide)
+// ──────────────────────────────────────────────────────────────
+async function seedContentTypes(
+  types: {
+    slug: string;
+    name: string;
+    category: ContentCategory;
+    description?: string;
+    icon?: string;
+    sortOrder: number;
+  }[],
+) {
+  for (const item of types) {
+    await prisma.contentType.upsert({
+      where: { slug: item.slug },
+      update: {
+        name: item.name,
+        category: item.category,
+        description: item.description,
+        icon: item.icon,
+        sortOrder: item.sortOrder,
+        isActive: true,
+      },
+      create: {
+        slug: item.slug,
+        name: item.name,
+        category: item.category,
+        description: item.description,
+        icon: item.icon,
+        sortOrder: item.sortOrder,
+        isActive: true,
+      },
+    });
+  }
+  console.log(`${types.length} Content Types upserted`);
+}
+
+// ──────────────────────────────────────────────────────────────
+// Helper: Seed Content File Types (System-wide)
+// ──────────────────────────────────────────────────────────────
+async function seedContentFileTypes(
+  types: {
+    slug: string;
+    name: string;
+    description?: string;
+    icon?: string;
+    sortOrder: number;
+  }[],
+) {
+  for (const item of types) {
+    await prisma.contentFileType.upsert({
+      where: { slug: item.slug },
+      update: {
+        name: item.name,
+        description: item.description,
+        icon: item.icon,
+        sortOrder: item.sortOrder,
+        isActive: true,
+      },
+      create: {
+        slug: item.slug,
+        name: item.name,
+        description: item.description,
+        icon: item.icon,
+        sortOrder: item.sortOrder,
+        isActive: true,
+      },
+    });
+  }
+  console.log(`${types.length} Content File Types seeded`);
+}
+
+async function seedSystemLookupTables() {
+  console.log("Seeding system-level lookup tables...");
+
+  // ─── Difficulty Levels (system-wide) ──────────────────────────────
+  await seedDifficultyLevels(
+    null,
+    [
+      { name: "Beginner", code: "BEGINNER", displayOrder: 1 },
+      { name: "Intermediate", code: "INTERMEDIATE", displayOrder: 2 },
+      { name: "Advanced", code: "ADVANCED", displayOrder: 3 },
+      { name: "Expert", code: "EXPERT", displayOrder: 4 },
+    ],
+    true,
+  );
+
+  // ─── Content Types (system-wide) ──────────────────────────────────
+  // ─── Content Types (system-wide) ──────────────────────────────────────
+  await seedContentTypes([
+    // ─── RESOURCE (passive/static) ──────────────────────────────────────
+    {
+      slug: "video",
+      name: "Video",
+      category: ContentCategory.RESOURCE,
+      description: "Video content",
+      icon: "video",
+      sortOrder: 1,
+    },
+    {
+      slug: "audio",
+      name: "Audio",
+      category: ContentCategory.RESOURCE,
+      description: "Audio content",
+      icon: "audio",
+      sortOrder: 2,
+    },
+    {
+      slug: "document",
+      name: "Document",
+      category: ContentCategory.RESOURCE,
+      description: "Document content",
+      icon: "document",
+      sortOrder: 3,
+    },
+    {
+      slug: "link",
+      name: "Link",
+      category: ContentCategory.RESOURCE,
+      description: "External link",
+      icon: "link",
+      sortOrder: 4,
+    },
+    {
+      slug: "pdf",
+      name: "PDF",
+      category: ContentCategory.RESOURCE,
+      description: "PDF document",
+      icon: "pdf",
+      sortOrder: 5,
+    },
+    {
+      slug: "image",
+      name: "Image",
+      category: ContentCategory.RESOURCE,
+      description: "Image content",
+      icon: "image",
+      sortOrder: 6,
+    },
+    {
+      slug: "presentation",
+      name: "Presentation",
+      category: ContentCategory.RESOURCE,
+      description: "Slide presentation",
+      icon: "presentation",
+      sortOrder: 7,
+    },
+
+    // ─── INTERACTIVE (requires user engagement) ──────────────────────────
+    {
+      slug: "assignment",
+      name: "Assignment",
+      category: ContentCategory.INTERACTIVE,
+      description: "Assignment content",
+      icon: "assignment",
+      sortOrder: 10,
+    },
+    {
+      slug: "quiz",
+      name: "Quiz",
+      category: ContentCategory.INTERACTIVE,
+      description: "Quiz content",
+      icon: "quiz",
+      sortOrder: 11,
+    },
+    {
+      slug: "survey",
+      name: "Survey",
+      category: ContentCategory.INTERACTIVE,
+      description: "Survey content",
+      icon: "survey",
+      sortOrder: 12,
+    },
+    {
+      slug: "scorm",
+      name: "SCORM",
+      category: ContentCategory.INTERACTIVE,
+      description: "SCORM package",
+      icon: "scorm",
+      sortOrder: 13,
+    },
+    {
+      slug: "interactive_video",
+      name: "Interactive Video",
+      category: ContentCategory.INTERACTIVE,
+      description: "Video with interactive elements",
+      icon: "interactive",
+      sortOrder: 14,
+    },
+  ]);
+
+  // ─── Content File Types (system-wide) ──────────────────────────────
+  await seedContentFileTypes([
+    {
+      slug: "pdf",
+      name: "PDF",
+      description: "Portable Document Format",
+      icon: "pdf",
+      sortOrder: 1,
+    },
+    {
+      slug: "mp4",
+      name: "MP4 Video",
+      description: "MP4 video file",
+      icon: "video",
+      sortOrder: 2,
+    },
+    {
+      slug: "mp3",
+      name: "MP3 Audio",
+      description: "MP3 audio file",
+      icon: "audio",
+      sortOrder: 3,
+    },
+    {
+      slug: "docx",
+      name: "Word Document",
+      description: "Microsoft Word document",
+      icon: "document",
+      sortOrder: 4,
+    },
+    {
+      slug: "pptx",
+      name: "PowerPoint",
+      description: "PowerPoint presentation",
+      icon: "ppt",
+      sortOrder: 5,
+    },
+    {
+      slug: "xlsx",
+      name: "Excel Spreadsheet",
+      description: "Excel spreadsheet",
+      icon: "excel",
+      sortOrder: 6,
+    },
+    {
+      slug: "jpg",
+      name: "JPEG Image",
+      description: "JPEG image file",
+      icon: "image",
+      sortOrder: 7,
+    },
+    {
+      slug: "png",
+      name: "PNG Image",
+      description: "PNG image file",
+      icon: "image",
+      sortOrder: 8,
+    },
+    {
+      slug: "zip",
+      name: "ZIP Archive",
+      description: "ZIP compressed archive",
+      icon: "zip",
+      sortOrder: 9,
+    },
+  ]);
+
+  console.log("  System Lookup Tables completed");
 }
 
 // ============================================================================
@@ -36,17 +308,17 @@ async function seedSystemLookupTables() {
 // HR/EMS data projected into LMS
 
 async function seedEmsTables() {
-  console.log('\n  [2/3] Seeding EMS Tables...');
+  console.log("\n  [2/3] Seeding EMS Tables...");
 
   // 2.1 Company
   const company = await prisma.company.upsert({
-    where: { companyCode: 'ACME' },
+    where: { companyCode: "ACME" },
     update: {},
     create: {
       id: 1,
-      companyCode: 'ACME',
-      name: 'Acme Corporation',
-      logoUrl: 'https://example.com/logo.png',
+      companyCode: "ACME",
+      name: "Acme Corporation",
+      logoUrl: "https://example.com/logo.png",
       isActive: true,
       lastSyncedAt: new Date(),
     },
@@ -55,11 +327,11 @@ async function seedEmsTables() {
 
   // 2.2 Departments
   const departments = [
-    { id: 10, name: 'Engineering' },
-    { id: 11, name: 'Sales' },
-    { id: 12, name: 'Marketing' },
-    { id: 13, name: 'Finance' },
-    { id: 14, name: 'Human Resources' },
+    { id: 10, name: "Engineering" },
+    { id: 11, name: "Sales" },
+    { id: 12, name: "Marketing" },
+    { id: 13, name: "Finance" },
+    { id: 14, name: "Human Resources" },
   ];
 
   const departmentMap = new Map();
@@ -81,16 +353,16 @@ async function seedEmsTables() {
 
   // 2.3 Job Titles
   const jobTitles = [
-    { id: 100, name: 'Software Engineer' },
-    { id: 101, name: 'Senior Software Engineer' },
-    { id: 102, name: 'Tech Lead' },
-    { id: 103, name: 'Engineering Manager' },
-    { id: 104, name: 'Sales Representative' },
-    { id: 105, name: 'Sales Manager' },
-    { id: 106, name: 'Marketing Specialist' },
-    { id: 107, name: 'Marketing Manager' },
-    { id: 108, name: 'Accountant' },
-    { id: 109, name: 'HR Business Partner' },
+    { id: 100, name: "Software Engineer" },
+    { id: 101, name: "Senior Software Engineer" },
+    { id: 102, name: "Tech Lead" },
+    { id: 103, name: "Engineering Manager" },
+    { id: 104, name: "Sales Representative" },
+    { id: 105, name: "Sales Manager" },
+    { id: 106, name: "Marketing Specialist" },
+    { id: 107, name: "Marketing Manager" },
+    { id: 108, name: "Accountant" },
+    { id: 109, name: "HR Business Partner" },
   ];
 
   const jobTitleMap = new Map();
@@ -112,14 +384,14 @@ async function seedEmsTables() {
 
   // 2.4 Job Levels
   const jobLevels = [
-    { id: 200, name: 'Entry', level: 1 },
-    { id: 201, name: 'Junior', level: 2 },
-    { id: 202, name: 'Senior', level: 3 },
-    { id: 203, name: 'Lead', level: 4 },
-    { id: 204, name: 'Manager', level: 5 },
-    { id: 205, name: 'Director', level: 6 },
-    { id: 206, name: 'VP', level: 7 },
-    { id: 207, name: 'C-Level', level: 8 },
+    { id: 200, name: "Entry", level: 1 },
+    { id: 201, name: "Junior", level: 2 },
+    { id: 202, name: "Senior", level: 3 },
+    { id: 203, name: "Lead", level: 4 },
+    { id: 204, name: "Manager", level: 5 },
+    { id: 205, name: "Director", level: 6 },
+    { id: 206, name: "VP", level: 7 },
+    { id: 207, name: "C-Level", level: 8 },
   ];
 
   const jobLevelMap = new Map();
@@ -139,58 +411,153 @@ async function seedEmsTables() {
   }
   console.log(`  ${jobLevels.length} Job Levels created`);
 
-// ─── 2.5 App Roles ─────────────────────────────────────────────────────
-const roles = [
-  // EMS roles (must have same IDs as EMS company 1)
-  { id: 1, name: 'EMPLOYEE', description: 'Default Employee role' },
-  { id: 6, name: 'SUPER_ADMIN', description: 'Full system access' },
-  { id: 7, name: 'ADMIN', description: 'Company administrator' },
-  { id: 8, name: 'HR', description: 'HR role' },
+  // ─── 2.5 App Roles ─────────────────────────────────────────────────────
+  const roles = [
+    // EMS roles (must have same IDs as EMS company 1)
+    { id: 1, name: "EMPLOYEE", description: "Default Employee role" },
+    { id: 6, name: "SUPER_ADMIN", description: "Full system access" },
+    { id: 7, name: "ADMIN", description: "Company administrator" },
+    { id: 8, name: "HR", description: "HR role" },
 
-  // LMS-specific roles (new IDs not used by EMS)
-  { id: 9, name: 'INSTRUCTOR', description: 'Can create and manage courses' },
-  { id: 10, name: 'MANAGER', description: 'Can approve TNA and view reports' },
-  { id: 11, name: 'LEARNER', description: 'Can take courses' },
-];
-
-const roleMap = new Map();
-for (const role of roles) {
-  const created = await prisma.appRole.upsert({
-    where: { id: role.id },
-    update: {},
-    create: {
-      id: role.id,
-      companyId: company.id,
-      name: role.name,
-      description: role.description,
-      isActive: true,
-      lastSyncedAt: new Date(),
+    // LMS-specific roles (new IDs not used by EMS)
+    { id: 9, name: "INSTRUCTOR", description: "Can create and manage courses" },
+    {
+      id: 10,
+      name: "MANAGER",
+      description: "Can approve TNA and view reports",
     },
-  });
-  roleMap.set(role.name, created);
-}
-console.log(`  ${roles.length} App Roles created`);
+    { id: 11, name: "LEARNER", description: "Can take courses" },
+  ];
 
-// 2.6 Employees
-const employees = [
-  // ─── Existing employees (keep these) ──────────────────────────────
-  { id: 'EMP001', fullName: 'John Doe', department: 'Engineering', jobTitle: 'Tech Lead', jobLevel: 'Lead', startDate: '2023-01-15' },
-  { id: 'EMP002', fullName: 'Jane Smith', department: 'Engineering', jobTitle: 'Senior Software Engineer', jobLevel: 'Senior', startDate: '2023-03-10' },
-  { id: 'EMP007', fullName: 'Eve Adams', department: 'Engineering', jobTitle: 'Software Engineer', jobLevel: 'Junior', startDate: '2024-06-15' },
-  { id: 'EMP009', fullName: 'Grace Hopper', department: 'Engineering', jobTitle: 'Software Engineer', jobLevel: 'Senior', startDate: '2022-05-10' },
-  { id: 'EMP003', fullName: 'Bob Johnson', department: 'Sales', jobTitle: 'Sales Manager', jobLevel: 'Manager', startDate: '2022-06-01' },
-  { id: 'EMP008', fullName: 'Frank Castle', department: 'Sales', jobTitle: 'Sales Representative', jobLevel: 'Senior', startDate: '2023-09-01' },
-  { id: 'EMP004', fullName: 'Alice Williams', department: 'Marketing', jobTitle: 'Marketing Manager', jobLevel: 'Manager', startDate: '2022-08-15' },
-  { id: 'EMP005', fullName: 'Charlie Brown', department: 'Finance', jobTitle: 'Accountant', jobLevel: 'Senior', startDate: '2021-11-01' },
-  { id: 'EMP010', fullName: 'Henry Ford', department: 'Finance', jobTitle: 'Accountant', jobLevel: 'Junior', startDate: '2024-01-01' },
-  { id: 'EMP006', fullName: 'Diana Prince', department: 'Human Resources', jobTitle: 'HR Business Partner', jobLevel: 'Manager', startDate: '2022-01-20' },
+  const roleMap = new Map();
+  for (const role of roles) {
+    const created = await prisma.appRole.upsert({
+      where: { id: role.id },
+      update: {},
+      create: {
+        id: role.id,
+        companyId: company.id,
+        name: role.name,
+        description: role.description,
+        isActive: true,
+        lastSyncedAt: new Date(),
+      },
+    });
+    roleMap.set(role.name, created);
+  }
+  console.log(`  ${roles.length} App Roles created`);
 
-  // ─── NEW: EMS Employee IDs ────────────────────────────
-  { id: 'EMP-ADMIN', fullName: 'Kacha Admin', department: 'Human Resource', jobTitle: 'Admin', jobLevel: 'Manager', startDate: '2020-01-01' },
-  { id: 'EMP-MGR-001', fullName: 'Manager User', department: 'Technology', jobTitle: 'Software Engineer', jobLevel: 'Manager', startDate: '2020-01-01' },
-  { id: 'EMP-DEV-001', fullName: 'Developer User', department: 'Technology', jobTitle: 'Software Engineer', jobLevel: 'Senior', startDate: '2020-01-01' },
-  // Add any other employee IDs from your EMS that need LMS access
-];
+  // 2.6 Employees
+  const employees = [
+    // ─── Existing employees (keep these) ──────────────────────────────
+    {
+      id: "EMP001",
+      fullName: "John Doe",
+      department: "Engineering",
+      jobTitle: "Tech Lead",
+      jobLevel: "Lead",
+      startDate: "2023-01-15",
+    },
+    {
+      id: "EMP002",
+      fullName: "Jane Smith",
+      department: "Engineering",
+      jobTitle: "Senior Software Engineer",
+      jobLevel: "Senior",
+      startDate: "2023-03-10",
+    },
+    {
+      id: "EMP007",
+      fullName: "Eve Adams",
+      department: "Engineering",
+      jobTitle: "Software Engineer",
+      jobLevel: "Junior",
+      startDate: "2024-06-15",
+    },
+    {
+      id: "EMP009",
+      fullName: "Grace Hopper",
+      department: "Engineering",
+      jobTitle: "Software Engineer",
+      jobLevel: "Senior",
+      startDate: "2022-05-10",
+    },
+    {
+      id: "EMP003",
+      fullName: "Bob Johnson",
+      department: "Sales",
+      jobTitle: "Sales Manager",
+      jobLevel: "Manager",
+      startDate: "2022-06-01",
+    },
+    {
+      id: "EMP008",
+      fullName: "Frank Castle",
+      department: "Sales",
+      jobTitle: "Sales Representative",
+      jobLevel: "Senior",
+      startDate: "2023-09-01",
+    },
+    {
+      id: "EMP004",
+      fullName: "Alice Williams",
+      department: "Marketing",
+      jobTitle: "Marketing Manager",
+      jobLevel: "Manager",
+      startDate: "2022-08-15",
+    },
+    {
+      id: "EMP005",
+      fullName: "Charlie Brown",
+      department: "Finance",
+      jobTitle: "Accountant",
+      jobLevel: "Senior",
+      startDate: "2021-11-01",
+    },
+    {
+      id: "EMP010",
+      fullName: "Henry Ford",
+      department: "Finance",
+      jobTitle: "Accountant",
+      jobLevel: "Junior",
+      startDate: "2024-01-01",
+    },
+    {
+      id: "EMP006",
+      fullName: "Diana Prince",
+      department: "Human Resources",
+      jobTitle: "HR Business Partner",
+      jobLevel: "Manager",
+      startDate: "2022-01-20",
+    },
+
+    // ─── NEW: EMS Employee IDs ────────────────────────────
+    {
+      id: "EMP-ADMIN",
+      fullName: "Kacha Admin",
+      department: "Human Resource",
+      jobTitle: "Admin",
+      jobLevel: "Manager",
+      startDate: "2020-01-01",
+    },
+    {
+      id: "EMP-MGR-001",
+      fullName: "Manager User",
+      department: "Technology",
+      jobTitle: "Software Engineer",
+      jobLevel: "Manager",
+      startDate: "2020-01-01",
+    },
+    {
+      id: "EMP-DEV-001",
+      fullName: "Developer User",
+      department: "Technology",
+      jobTitle: "Software Engineer",
+      jobLevel: "Senior",
+      startDate: "2020-01-01",
+    },
+    // Add any other employee IDs from your EMS that need LMS access
+  ];
 
   const employeeMap = new Map();
   for (const emp of employees) {
@@ -217,46 +584,66 @@ const employees = [
   }
   console.log(`  ${employees.length} Employees created`);
 
-// ─── 2.7 App Users ─────────────────────────────────────────────────────
-const users = [
-  { id: 1001, email: 'superadmin@acme.com', employeeId: 'EMP001', role: 'SUPER_ADMIN' },
-  { id: 1002, email: 'admin@acme.com', employeeId: 'EMP002', role: 'ADMIN' },
-  { id: 1003, email: 'instructor@acme.com', employeeId: 'EMP003', role: 'INSTRUCTOR' },
-  { id: 1004, email: 'manager@acme.com', employeeId: 'EMP004', role: 'MANAGER' },
-  { id: 1005, email: 'learner@acme.com', employeeId: 'EMP005', role: 'LEARNER' },
-];
-
-for (const user of users) {
-  const employee = employeeMap.get(user.employeeId);
-  const role = roleMap.get(user.role);
-
-  await prisma.appUser.upsert({
-    where: { id: user.id },
-    update: {
-      email: user.email,
-      employeeId: employee?.id || null,
-      roleId: role?.id || null,
-      isActive: true,
-      lastSyncedAt: new Date(),
+  // ─── 2.7 App Users ─────────────────────────────────────────────────────
+  const users = [
+    {
+      id: 1001,
+      email: "superadmin@acme.com",
+      employeeId: "EMP001",
+      role: "SUPER_ADMIN",
     },
-    create: {
-      id: user.id,
-      companyId: company.id,
-      email: user.email,
-      employeeId: employee?.id || null,
-      roleId: role?.id || null,
-      isActive: true,
-      lastSyncedAt: new Date(),
+    { id: 1002, email: "admin@acme.com", employeeId: "EMP002", role: "ADMIN" },
+    {
+      id: 1003,
+      email: "instructor@acme.com",
+      employeeId: "EMP003",
+      role: "INSTRUCTOR",
     },
-  });
-}
-console.log(`  ${users.length} App Users created`);
+    {
+      id: 1004,
+      email: "manager@acme.com",
+      employeeId: "EMP004",
+      role: "MANAGER",
+    },
+    {
+      id: 1005,
+      email: "learner@acme.com",
+      employeeId: "EMP005",
+      role: "LEARNER",
+    },
+  ];
+
+  for (const user of users) {
+    const employee = employeeMap.get(user.employeeId);
+    const role = roleMap.get(user.role);
+
+    await prisma.appUser.upsert({
+      where: { id: user.id },
+      update: {
+        email: user.email,
+        employeeId: employee?.id || null,
+        roleId: role?.id || null,
+        isActive: true,
+        lastSyncedAt: new Date(),
+      },
+      create: {
+        id: user.id,
+        companyId: company.id,
+        email: user.email,
+        employeeId: employee?.id || null,
+        roleId: role?.id || null,
+        isActive: true,
+        lastSyncedAt: new Date(),
+      },
+    });
+  }
+  console.log(`  ${users.length} App Users created`);
 
   // 2.8 Company-Specific Lookup Tables
-  console.log('  Seeding company-specific lookup tables...');
+  console.log("  Seeding company-specific lookup tables...");
   await seedCompanyLookupTables(company.id);
 
-  console.log('  EMS Tables completed');
+  console.log("  EMS Tables completed");
   return { company, roleMap };
 }
 
@@ -348,7 +735,7 @@ async function seedCompanyLookupTables(companyId: number) {
           },
         });
       }
-    })
+    }),
   );
 
   console.log(`  ${taskTypes.length} Task Types created`);
@@ -366,9 +753,15 @@ async function seedCompanyLookupTables(companyId: number) {
       prisma.attendanceMethod.upsert({
         where: { companyId_slug: { companyId, slug: item.slug } },
         update: {},
-        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-      })
-    )
+        create: {
+          companyId,
+          name: item.name,
+          slug: item.slug,
+          isSystem: true,
+          isActive: true,
+        },
+      }),
+    ),
   );
 
   // AssessmentTypes
@@ -398,8 +791,8 @@ async function seedCompanyLookupTables(companyId: number) {
           isScored: true,
           isGraded: true,
         },
-      })
-    )
+      }),
+    ),
   );
 
   // --------------------------------------------------
@@ -453,8 +846,8 @@ async function seedCompanyLookupTables(companyId: number) {
           isSystem: true,
           isActive: true,
         },
-      })
-    )
+      }),
+    ),
   );
 
   // --------------------------------------------------
@@ -471,9 +864,15 @@ async function seedCompanyLookupTables(companyId: number) {
       prisma.gradingMethod.upsert({
         where: { companyId_slug: { companyId, slug: item.slug } },
         update: {},
-        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-      })
-    )
+        create: {
+          companyId,
+          name: item.name,
+          slug: item.slug,
+          isSystem: true,
+          isActive: true,
+        },
+      }),
+    ),
   );
 
   // CertificateTypes
@@ -491,9 +890,15 @@ async function seedCompanyLookupTables(companyId: number) {
       prisma.certificateType.upsert({
         where: { companyId_slug: { companyId, slug: item.slug } },
         update: {},
-        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-      })
-    )
+        create: {
+          companyId,
+          name: item.name,
+          slug: item.slug,
+          isSystem: true,
+          isActive: true,
+        },
+      }),
+    ),
   );
 
   // CredentialSources
@@ -510,9 +915,15 @@ async function seedCompanyLookupTables(companyId: number) {
       prisma.credentialSource.upsert({
         where: { companyId_slug: { companyId, slug: item.slug } },
         update: {},
-        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-      })
-    )
+        create: {
+          companyId,
+          name: item.name,
+          slug: item.slug,
+          isSystem: true,
+          isActive: true,
+        },
+      }),
+    ),
   );
 
   // ProviderTypes
@@ -530,9 +941,15 @@ async function seedCompanyLookupTables(companyId: number) {
       prisma.providerType.upsert({
         where: { companyId_slug: { companyId, slug: item.slug } },
         update: {},
-        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-      })
-    )
+        create: {
+          companyId,
+          name: item.name,
+          slug: item.slug,
+          isSystem: true,
+          isActive: true,
+        },
+      }),
+    ),
   );
 
   // SurveyQuestionTypes
@@ -550,9 +967,15 @@ async function seedCompanyLookupTables(companyId: number) {
       prisma.surveyQuestionType.upsert({
         where: { companyId_slug: { companyId, slug: item.slug } },
         update: {},
-        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-      })
-    )
+        create: {
+          companyId,
+          name: item.name,
+          slug: item.slug,
+          isSystem: true,
+          isActive: true,
+        },
+      }),
+    ),
   );
 
   // MeetingProviders
@@ -570,9 +993,15 @@ async function seedCompanyLookupTables(companyId: number) {
       prisma.meetingProvider.upsert({
         where: { companyId_slug: { companyId, slug: item.slug } },
         update: {},
-        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-      })
-    )
+        create: {
+          companyId,
+          name: item.name,
+          slug: item.slug,
+          isSystem: true,
+          isActive: true,
+        },
+      }),
+    ),
   );
 
   // FundingTypes
@@ -587,9 +1016,15 @@ async function seedCompanyLookupTables(companyId: number) {
       prisma.fundingType.upsert({
         where: { companyId_slug: { companyId, slug: item.slug } },
         update: {},
-        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-      })
-    )
+        create: {
+          companyId,
+          name: item.name,
+          slug: item.slug,
+          isSystem: true,
+          isActive: true,
+        },
+      }),
+    ),
   );
 
   // XpRuleCategories
@@ -606,9 +1041,15 @@ async function seedCompanyLookupTables(companyId: number) {
       prisma.xpRuleCategory.upsert({
         where: { companyId_slug: { companyId, slug: item.slug } },
         update: {},
-        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-      })
-    )
+        create: {
+          companyId,
+          name: item.name,
+          slug: item.slug,
+          isSystem: true,
+          isActive: true,
+        },
+      }),
+    ),
   );
 
   // XpTriggerEvents
@@ -627,9 +1068,15 @@ async function seedCompanyLookupTables(companyId: number) {
       prisma.xpTriggerEvent.upsert({
         where: { companyId_slug: { companyId, slug: item.slug } },
         update: {},
-        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-      })
-    )
+        create: {
+          companyId,
+          name: item.name,
+          slug: item.slug,
+          isSystem: true,
+          isActive: true,
+        },
+      }),
+    ),
   );
 
   // BadgeCategories
@@ -646,9 +1093,15 @@ async function seedCompanyLookupTables(companyId: number) {
       prisma.badgeCategory.upsert({
         where: { companyId_slug: { companyId, slug: item.slug } },
         update: {},
-        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-      })
-    )
+        create: {
+          companyId,
+          name: item.name,
+          slug: item.slug,
+          isSystem: true,
+          isActive: true,
+        },
+      }),
+    ),
   );
 
   // TrainingFormats
@@ -666,9 +1119,15 @@ async function seedCompanyLookupTables(companyId: number) {
       prisma.trainingFormat.upsert({
         where: { companyId_slug: { companyId, slug: item.slug } },
         update: {},
-        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-      })
-    )
+        create: {
+          companyId,
+          name: item.name,
+          slug: item.slug,
+          isSystem: true,
+          isActive: true,
+        },
+      }),
+    ),
   );
 
   // NotificationModules
@@ -690,9 +1149,15 @@ async function seedCompanyLookupTables(companyId: number) {
       prisma.notificationModule.upsert({
         where: { companyId_slug: { companyId, slug: item.slug } },
         update: {},
-        create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
-      })
-    )
+        create: {
+          companyId,
+          name: item.name,
+          slug: item.slug,
+          isSystem: true,
+          isActive: true,
+        },
+      }),
+    ),
   );
 
   // EnrollmentRuleTypes
@@ -708,54 +1173,207 @@ async function seedCompanyLookupTables(companyId: number) {
     await prisma.enrollmentRuleType.upsert({
       where: { companyId_slug: { companyId, slug: item.slug } },
       update: {},
-      create: { companyId, name: item.name, slug: item.slug, isSystem: true, isActive: true },
+      create: {
+        companyId,
+        name: item.name,
+        slug: item.slug,
+        isSystem: true,
+        isActive: true,
+      },
     });
   }
 
   console.log(`  ${enrollmentRuleTypes.length} Enrollment Rule Types created`);
 }
-
 // ============================================================================
 // SECTION 3: LMS PERMISSIONS
 // ============================================================================
 
-async function seedLmsPermissions(companyId: number, roleMap: Map<string, any>) {
-  console.log('\n  [3/3] Seeding LMS Permissions...');
+async function seedLmsPermissions(
+  companyId: number,
+  roleMap: Map<string, any>,
+) {
+  console.log("\n  [3/3] Seeding LMS Permissions...");
 
   const permissionDefinitions = [
-    { code: 'course.view', description: 'View courses', module: 'course' },
-    { code: 'course.create', description: 'Create courses', module: 'course' },
-    { code: 'course.edit', description: 'Edit courses', module: 'course' },
-    { code: 'course.delete', description: 'Delete courses', module: 'course' },
-    { code: 'course.publish', description: 'Publish courses', module: 'course' },
-    { code: 'course.enroll', description: 'Enroll students', module: 'course' },
-    { code: 'audience.view', description: 'View audience groups', module: 'audience' },
-    { code: 'audience.create', description: 'Create audience groups', module: 'audience' },
-    { code: 'audience.edit', description: 'Edit audience groups', module: 'audience' },
-    { code: 'audience.delete', description: 'Delete audience groups', module: 'audience' },
-    { code: 'audience.assign', description: 'Assign audience groups', module: 'audience' },
-    { code: 'assessment.view', description: 'View assessments', module: 'assessment' },
-    { code: 'assessment.create', description: 'Create assessments', module: 'assessment' },
-    { code: 'assessment.edit', description: 'Edit assessments', module: 'assessment' },
-    { code: 'assessment.delete', description: 'Delete assessments', module: 'assessment' },
-    { code: 'assessment.grade', description: 'Grade assessments', module: 'assessment' },
-    { code: 'tna.view', description: 'View TNA requests', module: 'tna' },
-    { code: 'tna.create', description: 'Create TNA requests', module: 'tna' },
-    { code: 'tna.approve', description: 'Approve TNA requests', module: 'tna' },
-    { code: 'tna.reject', description: 'Reject TNA requests', module: 'tna' },
-    { code: 'certificate.view', description: 'View certificates', module: 'certificate' },
-    { code: 'certificate.create', description: 'Create certificates', module: 'certificate' },
-    { code: 'certificate.issue', description: 'Issue certificates', module: 'certificate' },
-    { code: 'certificate.revoke', description: 'Revoke certificates', module: 'certificate' },
-    { code: 'user.view', description: 'View users', module: 'user' },
-    { code: 'user.create', description: 'Create users', module: 'user' },
-    { code: 'user.edit', description: 'Edit users', module: 'user' },
-    { code: 'user.delete', description: 'Delete users', module: 'user' },
-    { code: 'user.manage_roles', description: 'Manage user roles', module: 'user' },
-    { code: 'system.settings', description: 'View system settings', module: 'system' },
-    { code: 'system.configure', description: 'Configure system', module: 'system' },
-    { code: 'reports.view', description: 'View reports', module: 'reports' },
-    { code: 'reports.export', description: 'Export reports', module: 'reports' },
+    { code: "course.view", description: "View courses", module: "course" },
+    { code: "course.create", description: "Create courses", module: "course" },
+    { code: "course.edit", description: "Edit courses", module: "course" },
+    { code: "course.delete", description: "Delete courses", module: "course" },
+    {
+      code: "course.publish",
+      description: "Publish courses",
+      module: "course",
+    },
+    { code: "course.enroll", description: "Enroll students", module: "course" },
+    {
+      code: "audience.view",
+      description: "View audience groups",
+      module: "audience",
+    },
+    {
+      code: "audience.create",
+      description: "Create audience groups",
+      module: "audience",
+    },
+    {
+      code: "audience.edit",
+      description: "Edit audience groups",
+      module: "audience",
+    },
+    {
+      code: "audience.delete",
+      description: "Delete audience groups",
+      module: "audience",
+    },
+    {
+      code: "audience.assign",
+      description: "Assign audience groups",
+      module: "audience",
+    },
+    {
+      code: "assessment.view",
+      description: "View assessments",
+      module: "assessment",
+    },
+    {
+      code: "assessment.create",
+      description: "Create assessments",
+      module: "assessment",
+    },
+    {
+      code: "assessment.edit",
+      description: "Edit assessments",
+      module: "assessment",
+    },
+    {
+      code: "assessment.delete",
+      description: "Delete assessments",
+      module: "assessment",
+    },
+    {
+      code: "assessment.grade",
+      description: "Grade assessments",
+      module: "assessment",
+    },
+    { code: "tna.view", description: "View TNA requests", module: "tna" },
+    { code: "tna.create", description: "Create TNA requests", module: "tna" },
+    { code: "tna.approve", description: "Approve TNA requests", module: "tna" },
+    { code: "tna.reject", description: "Reject TNA requests", module: "tna" },
+    {
+      code: "certificate.view",
+      description: "View certificates",
+      module: "certificate",
+    },
+    {
+      code: "certificate.create",
+      description: "Create certificates",
+      module: "certificate",
+    },
+    {
+      code: "certificate.issue",
+      description: "Issue certificates",
+      module: "certificate",
+    },
+    {
+      code: "certificate.revoke",
+      description: "Revoke certificates",
+      module: "certificate",
+    },
+    { code: "user.view", description: "View users", module: "user" },
+    { code: "user.create", description: "Create users", module: "user" },
+    { code: "user.edit", description: "Edit users", module: "user" },
+    { code: "user.delete", description: "Delete users", module: "user" },
+    {
+      code: "user.manage_roles",
+      description: "Manage user roles",
+      module: "user",
+    },
+    {
+      code: "system.settings",
+      description: "View system settings",
+      module: "system",
+    },
+    {
+      code: "system.configure",
+      description: "Configure system",
+      module: "system",
+    },
+    { code: "reports.view", description: "View reports", module: "reports" },
+    {
+      code: "reports.export",
+      description: "Export reports",
+      module: "reports",
+    },
+
+    {
+      code: "course_category.view",
+      description: "View course categories",
+      module: "course_config",
+    },
+    {
+      code: "course_category.create",
+      description: "Create course categories",
+      module: "course_config",
+    },
+    {
+      code: "course_category.update",
+      description: "Update course categories",
+      module: "course_config",
+    },
+    {
+      code: "course_category.delete",
+      description: "Delete course categories",
+      module: "course_config",
+    },
+
+    {
+      code: "difficulty_level.view",
+      description: "View difficulty levels",
+      module: "course_config",
+    },
+    {
+      code: "difficulty_level.create",
+      description: "Create difficulty levels",
+      module: "course_config",
+    },
+    {
+      code: "difficulty_level.update",
+      description: "Update difficulty levels",
+      module: "course_config",
+    },
+    {
+      code: "difficulty_level.delete",
+      description: "Delete difficulty levels",
+      module: "course_config",
+    },
+
+    {
+      code: "system_config.manage",
+      description: "Manage system lookup tables",
+      module: "course_config",
+    },
+
+    {
+      code: "course_template.view",
+      description: "View course templates",
+      module: "course_config",
+    },
+    {
+      code: "course_template.create",
+      description: "Create course templates",
+      module: "course_config",
+    },
+    {
+      code: "course_template.update",
+      description: "Update course templates",
+      module: "course_config",
+    },
+    {
+      code: "course_template.delete",
+      description: "Delete course templates",
+      module: "course_config",
+    },
   ];
 
   const permissionMap = new Map();
@@ -777,26 +1395,44 @@ async function seedLmsPermissions(companyId: number, roleMap: Map<string, any>) 
   const rolePermissionMapping = {
     SUPER_ADMIN: Array.from(permissionMap.keys()),
     ADMIN: Array.from(permissionMap.keys()),
-    HR: ['course.view', 'audience.view', 'user.view', 'reports.view', 'certificate.view'],
-    EMPLOYEE: ['course.view', 'assessment.view', 'certificate.view'],
+    HR: [
+      "course.view",
+      "audience.view",
+      "user.view",
+      "reports.view",
+      "certificate.view",
+    ],
+    EMPLOYEE: ["course.view", "assessment.view", "certificate.view"],
     INSTRUCTOR: [
-      'course.view', 'course.create', 'course.edit', 'course.enroll',
-      'audience.view',
-      'assessment.view', 'assessment.create', 'assessment.edit', 'assessment.grade',
-      'tna.view',
-      'reports.view',
+      "course.view",
+      "course.create",
+      "course.edit",
+      "course.enroll",
+      "course_category.view",
+      "difficulty_level.view",
+      "course_template.view",
+      "course_template.create",
+      "audience.view",
+      "assessment.view",
+      "assessment.create",
+      "reports.view",
     ],
     MANAGER: [
-      'course.view',
-      'audience.view',
-      'assessment.view',
-      'tna.view', 'tna.create', 'tna.approve',
-      'reports.view', 'reports.export',
+      "course.view",
+      "audience.view",
+      "assessment.view",
+      "tna.view",
+      "tna.create",
+      "tna.approve",
+      "reports.view",
+      "reports.export",
     ],
-    LEARNER: ['course.view', 'assessment.view'],
+    LEARNER: ["course.view", "assessment.view"],
   };
 
-  for (const [roleName, permissionCodes] of Object.entries(rolePermissionMapping)) {
+  for (const [roleName, permissionCodes] of Object.entries(
+    rolePermissionMapping,
+  )) {
     const role = roleMap.get(roleName);
     if (!role) {
       console.warn(`  Role "${roleName}" not found, skipping permissions`);
@@ -827,7 +1463,9 @@ async function seedLmsPermissions(companyId: number, roleMap: Map<string, any>) 
     }
   }
 
-  console.log(`LMS permissions for companyId: ${companyId} seeded successfully.`);
+  console.log(
+    `LMS permissions for companyId: ${companyId} seeded successfully.`,
+  );
 }
 
 async function main() {
@@ -837,8 +1475,7 @@ async function main() {
   await seedLmsPermissions(company.id, roleMap);
 }
 
-main()
-  .catch((e) => {
-    console.error('Seeding error encountered:', e);
-    process.exit(1);
-  });
+main().catch((e) => {
+  console.error("Seeding error encountered:", e);
+  process.exit(1);
+});
