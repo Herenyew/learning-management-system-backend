@@ -5,6 +5,8 @@ import healthRoutes from "../modules/health/health.route.js";
 // Feature Modules
 import audienceRoutes from "../modules/configuration/audience-configuration/index.js";
 import courseConfigRoutes from "../modules/configuration/course-configuration/index.js";
+import assessmentConfigRoutes from "../modules/configuration/assessment-configuration/index.js";
+import programConfigRoutes from "../modules/configuration/program-configuration/index.js";
 
 const router = Router();
 
@@ -23,6 +25,8 @@ router.use("/internal", internalRoutes);
 // ==========================================
 router.use("/configuration/audience", audienceRoutes);
 router.use("/configuration/course", courseConfigRoutes);
+router.use("/configuration/assessment", assessmentConfigRoutes);
+router.use("/configuration/program", programConfigRoutes);
 
 // ==========================================
 // Core Domain Routes (Future)

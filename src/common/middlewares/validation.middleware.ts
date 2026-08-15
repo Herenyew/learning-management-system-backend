@@ -1,15 +1,15 @@
 // src/common/middlewares/validation.middleware.ts
 import { Request, Response, NextFunction } from "express";
 import { ZodSchema, ZodError } from "zod";
-import { AppError, ErrorCode } from "../errors/index.js";
+import { AppError, ErrorCode } from "../errors/index.js"; // Adjust import path if needed
 
 /**
- * Validates `req.body` against the given Zod schema.
+ * Validates and transforms `req.body` against the given Zod schema.
  */
 export function validateBody(schema: ZodSchema) {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
-      schema.parse(req.body);
+      req.body = schema.parse(req.body);
       next();
     } catch (error) {
       if (error instanceof ZodError) {
@@ -28,12 +28,12 @@ export function validateBody(schema: ZodSchema) {
 }
 
 /**
- * Validates `req.params` against the given Zod schema.
+ * Validates and transforms `req.params` against the given Zod schema.
  */
 export function validateParams(schema: ZodSchema) {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
-      schema.parse(req.params);
+      req.params = schema.parse(req.params) as any; 
       next();
     } catch (error) {
       if (error instanceof ZodError) {
@@ -52,12 +52,12 @@ export function validateParams(schema: ZodSchema) {
 }
 
 /**
- * Validates `req.query` against the given Zod schema.
+ * Validates and transforms `req.query` against the given Zod schema.
  */
 export function validateQuery(schema: ZodSchema) {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
-      schema.parse(req.query);
+      req.query = schema.parse(req.query) as any; 
       next();
     } catch (error) {
       if (error instanceof ZodError) {
@@ -75,5 +75,5 @@ export function validateQuery(schema: ZodSchema) {
   };
 }
 
-// Alias for backward compatibility (if any existing code uses `validate`)
+// Alias for backward compatibility
 export const validate = validateBody;

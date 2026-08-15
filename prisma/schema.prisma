@@ -1116,10 +1116,10 @@ model DifficultyLevel {
   isSystem Boolean @default(false) // ADDED — protects platform-default rows (companyId=null) from being edited/deleted by a company admin, consistent with AssessmentType/GradingMethod/QuestionType/FundingType/TrainingFormat
   isActive Boolean @default(true)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deletedAt DateTime? 
-  company Company? @relation(fields: [companyId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  company   Company?  @relation(fields: [companyId], references: [id])
 
   courseVersions       CourseVersion[]
   assessmentBlueprints AssessmentBlueprint[]
@@ -1570,24 +1570,24 @@ model ContentType {
   category    ContentCategory
   description String?
   icon        String?
-  isActive Boolean @default(true)
-  deletedAt DateTime?
-  sortOrder Int             @default(0)
-  contents  CourseContent[]
+  isActive    Boolean         @default(true)
+  deletedAt   DateTime?
+  sortOrder   Int             @default(0)
+  contents    CourseContent[]
 
   @@map("content_type")
 }
 
 model ContentFileType {
-  id          Int     @id @default(autoincrement())
-  slug        String  @unique
+  id          Int          @id @default(autoincrement())
+  slug        String       @unique
   name        String
   description String?
   icon        String?
-  isActive    Boolean @default(true)
-  sortOrder   Int     @default(0)
+  isActive    Boolean      @default(true)
+  sortOrder   Int          @default(0)
   deletedAt   DateTime?
-  files StoredFile[]
+  files       StoredFile[]
 
   @@map("content_file_type")
 }
@@ -1746,7 +1746,8 @@ model ProgramType {
   isActive    Boolean           @default(true)
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
-  company     Company           @relation(fields: [companyId], references: [id])
+  deletedAt   DateTime?
+  company     Company             @relation(fields: [companyId], references: [id])
   programs    LearningProgram[]
 
   @@unique([companyId, name])
@@ -1891,6 +1892,7 @@ model TaskType {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  deletedAt DateTime?
 
   company Company       @relation(fields: [companyId], references: [id])
   tasks   ProgramTask[]
@@ -2476,7 +2478,7 @@ model AssessmentBlueprint {
   @@index([companyId])
   @@index([assessmentId])
   @@index([questionTypeId])
-  @@index([difficultyLevelId]) 
+  @@index([difficultyLevelId])
   @@map("assessment_blueprints")
 }
 

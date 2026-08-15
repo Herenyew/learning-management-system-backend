@@ -1374,6 +1374,95 @@ async function seedLmsPermissions(
       description: "Delete course templates",
       module: "course_config",
     },
+
+    // ─── Assessment Configuration ──────────────────────────────────────────
+    // Assessment Types
+    {
+      code: "assessment_type.create",
+      description: "Create assessment types",
+      module: "assessment_config",
+    },
+    {
+      code: "assessment_type.read",
+      description: "View assessment types",
+      module: "assessment_config",
+    },
+    {
+      code: "assessment_type.update",
+      description: "Update assessment types",
+      module: "assessment_config",
+    },
+    {
+      code: "assessment_type.delete",
+      description: "Delete assessment types",
+      module: "assessment_config",
+    },
+
+    // Question Types
+    {
+      code: "question_type.create",
+      description: "Create question types",
+      module: "assessment_config",
+    },
+    {
+      code: "question_type.read",
+      description: "View question types",
+      module: "assessment_config",
+    },
+    {
+      code: "question_type.update",
+      description: "Update question types",
+      module: "assessment_config",
+    },
+    {
+      code: "question_type.delete",
+      description: "Delete question types",
+      module: "assessment_config",
+    },
+
+    // Grading Methods
+    {
+      code: "grading_method.create",
+      description: "Create grading methods",
+      module: "assessment_config",
+    },
+    {
+      code: "grading_method.read",
+      description: "View grading methods",
+      module: "assessment_config",
+    },
+    {
+      code: "grading_method.update",
+      description: "Update grading methods",
+      module: "assessment_config",
+    },
+    {
+      code: "grading_method.delete",
+      description: "Delete grading methods",
+      module: "assessment_config",
+    },
+
+    // Assessment Templates
+    {
+      code: "assessment_template.create",
+      description: "Create assessment templates",
+      module: "assessment_config",
+    },
+    {
+      code: "assessment_template.read",
+      description: "View assessment templates",
+      module: "assessment_config",
+    },
+    {
+      code: "assessment_template.update",
+      description: "Update assessment templates",
+      module: "assessment_config",
+    },
+    {
+      code: "assessment_template.delete",
+      description: "Delete assessment templates",
+      module: "assessment_config",
+    },
   ];
 
   const permissionMap = new Map();
@@ -1401,6 +1490,23 @@ async function seedLmsPermissions(
       "user.view",
       "reports.view",
       "certificate.view",
+      // Assessment Configuration (Full CRUD)
+      "assessment_type.create",
+      "assessment_type.read",
+      "assessment_type.update",
+      "assessment_type.delete",
+      "question_type.create",
+      "question_type.read",
+      "question_type.update",
+      "question_type.delete",
+      "grading_method.create",
+      "grading_method.read",
+      "grading_method.update",
+      "grading_method.delete",
+      "assessment_template.create",
+      "assessment_template.read",
+      "assessment_template.update",
+      "assessment_template.delete",
     ],
     EMPLOYEE: ["course.view", "assessment.view", "certificate.view"],
     INSTRUCTOR: [
@@ -1416,6 +1522,11 @@ async function seedLmsPermissions(
       "assessment.view",
       "assessment.create",
       "reports.view",
+      // Assessment Configuration (READ ONLY)
+      "assessment_type.read",
+      "question_type.read",
+      "grading_method.read",
+      "assessment_template.read",
     ],
     MANAGER: [
       "course.view",
@@ -1426,6 +1537,11 @@ async function seedLmsPermissions(
       "tna.approve",
       "reports.view",
       "reports.export",
+      // Assessment Configuration (READ ONLY)
+      "assessment_type.read",
+      "question_type.read",
+      "grading_method.read",
+      "assessment_template.read",
     ],
     LEARNER: ["course.view", "assessment.view"],
   };
