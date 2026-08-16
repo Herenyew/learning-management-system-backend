@@ -208,8 +208,8 @@ export class ProgramConfigurationRepository implements IProgramConfigurationRepo
         deletedAt: null,
       },
       include: {
-        creator: { select: { id: true, firstName: true, lastName: true, email: true } },
-        updater: { select: { id: true, firstName: true, lastName: true, email: true } },
+        creator: { select: { id: true, email: true } },
+        updater: { select: { id: true, email: true } },
       },
     });
   }
@@ -290,7 +290,7 @@ export class ProgramConfigurationRepository implements IProgramConfigurationRepo
   async countProgramCategoryUsages(companyId: number, id: number): Promise<number> {
     const [programCount, templateCount] = await Promise.all([
       this.prisma.learningProgram.count({
-        where: { companyId, categoryId: id, deletedAt: null },
+        where: { companyId, programCategoryId: id, deletedAt: null },
       }),
       this.prisma.programTemplate.count({
         where: { companyId, categoryId: id, deletedAt: null },
@@ -405,7 +405,7 @@ export class ProgramConfigurationRepository implements IProgramConfigurationRepo
 
   async softDeleteTaskType(companyId: number, id: number): Promise<TaskType> {
     return this.prisma.taskType.update({
-      where: { id },
+      where: { id, companyId },
       data: { deletedAt: new Date() },
     });
   }
@@ -451,8 +451,8 @@ export class ProgramConfigurationRepository implements IProgramConfigurationRepo
       },
       include: {
         category: { select: { id: true, name: true } },
-        creator: { select: { id: true, firstName: true, lastName: true, email: true } },
-        updater: { select: { id: true, firstName: true, lastName: true, email: true } },
+        creator: { select: { id: true, email: true } },
+        updater: { select: { id: true, email: true } },
       },
     });
   }
@@ -543,12 +543,8 @@ export class ProgramConfigurationRepository implements IProgramConfigurationRepo
   }
 
   async countTemplateUsages(companyId: number, id: number): Promise<number> {
-    return this.prisma.learningProgram.count({
-      where: {
-        companyId,
-        templateId: id,
-        deletedAt: null,
-      },
-    });
+    // LearningProgram does not store a `templateId` reference in the schema.
+    // There is no direct FK to ProgramTemplate, so conservatively return 0.
+    return 0;
   }
 }

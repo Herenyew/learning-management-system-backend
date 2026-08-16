@@ -46,13 +46,13 @@ export function assessmentConfigurationRoutes(
   );
   router.get(
     "/assessment-types",
-    requirePermission(Permissions.ASSESSMENT_TYPE_READ),
+    requirePermission(Permissions.ASSESSMENT_TYPE_VIEW),
     validateQuery(assessmentTypeFilterSchema),
     controller.getAssessmentTypes
   );
   router.get(
     "/assessment-types/:id",
-    requirePermission(Permissions.ASSESSMENT_TYPE_READ),
+    requirePermission(Permissions.ASSESSMENT_TYPE_VIEW),
     validateParams(idParamSchema),
     controller.getAssessmentTypeById
   );
@@ -79,13 +79,13 @@ export function assessmentConfigurationRoutes(
   );
   router.get(
     "/question-types",
-    requirePermission(Permissions.QUESTION_TYPE_READ),
+    requirePermission(Permissions.QUESTION_TYPE_VIEW),
     validateQuery(questionTypeFilterSchema),
     controller.getQuestionTypes
   );
   router.get(
     "/question-types/:id",
-    requirePermission(Permissions.QUESTION_TYPE_READ),
+    requirePermission(Permissions.QUESTION_TYPE_VIEW),
     validateParams(idParamSchema),
     controller.getQuestionTypeById
   );
@@ -112,13 +112,13 @@ export function assessmentConfigurationRoutes(
   );
   router.get(
     "/grading-methods",
-    requirePermission(Permissions.GRADING_METHOD_READ),
+    requirePermission(Permissions.GRADING_METHOD_VIEW),
     validateQuery(gradingMethodFilterSchema),
     controller.getGradingMethods
   );
   router.get(
     "/grading-methods/:id",
-    requirePermission(Permissions.GRADING_METHOD_READ),
+    requirePermission(Permissions.GRADING_METHOD_VIEW),
     validateParams(idParamSchema),
     controller.getGradingMethodById
   );
@@ -145,13 +145,13 @@ export function assessmentConfigurationRoutes(
   );
   router.get(
     "/templates",
-    requirePermission(Permissions.ASSESSMENT_TEMPLATE_READ),
+    requirePermission(Permissions.ASSESSMENT_TEMPLATE_VIEW),
     validateQuery(assessmentTemplateFilterSchema),
     controller.getTemplates
   );
   router.get(
     "/templates/:id",
-    requirePermission(Permissions.ASSESSMENT_TEMPLATE_READ),
+    requirePermission(Permissions.ASSESSMENT_TEMPLATE_VIEW),
     validateParams(idParamSchema),
     controller.getTemplateById
   );

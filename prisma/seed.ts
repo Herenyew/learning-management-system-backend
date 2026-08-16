@@ -1196,40 +1196,189 @@ async function seedLmsPermissions(
   console.log("\n  [3/3] Seeding LMS Permissions...");
 
   const permissionDefinitions = [
-    { code: "course.view", description: "View courses", module: "course" },
-    { code: "course.create", description: "Create courses", module: "course" },
-    { code: "course.edit", description: "Edit courses", module: "course" },
-    { code: "course.delete", description: "Delete courses", module: "course" },
+    // ==========================================================
+    // COURSE DOMAIN
+    // ==========================================================
+
+    {
+      code: "course.create",
+      description: "Create courses",
+      module: "course",
+    },
+    {
+      code: "course.view",
+      description: "View courses",
+      module: "course",
+    },
+    {
+      code: "course.update",
+      description: "Update courses",
+      module: "course",
+    },
+    {
+      code: "course.delete",
+      description: "Delete courses",
+      module: "course",
+    },
     {
       code: "course.publish",
       description: "Publish courses",
       module: "course",
     },
-    { code: "course.enroll", description: "Enroll students", module: "course" },
     {
-      code: "audience.view",
-      description: "View audience groups",
-      module: "audience",
+      code: "course.enroll",
+      description: "Enroll learners in courses",
+      module: "course",
     },
+
+    // ==========================================================
+    // AUDIENCE CONFIGURATION
+    // ==========================================================
+
     {
       code: "audience.create",
       description: "Create audience groups",
-      module: "audience",
+      module: "audience_config",
     },
     {
-      code: "audience.edit",
-      description: "Edit audience groups",
-      module: "audience",
+      code: "audience.view",
+      description: "View audience groups",
+      module: "audience_config",
+    },
+    {
+      code: "audience.update",
+      description: "Update audience groups",
+      module: "audience_config",
     },
     {
       code: "audience.delete",
       description: "Delete audience groups",
-      module: "audience",
+      module: "audience_config",
+    },
+
+    // ==========================================================
+    // COURSE CONFIGURATION
+    // ==========================================================
+
+    {
+      code: "course_category.create",
+      description: "Create course categories",
+      module: "course_config",
     },
     {
-      code: "audience.assign",
-      description: "Assign audience groups",
-      module: "audience",
+      code: "course_category.view",
+      description: "View course categories",
+      module: "course_config",
+    },
+    {
+      code: "course_category.update",
+      description: "Update course categories",
+      module: "course_config",
+    },
+    {
+      code: "course_category.delete",
+      description: "Delete course categories",
+      module: "course_config",
+    },
+
+    {
+      code: "difficulty_level.create",
+      description: "Create difficulty levels",
+      module: "course_config",
+    },
+    {
+      code: "difficulty_level.view",
+      description: "View difficulty levels",
+      module: "course_config",
+    },
+    {
+      code: "difficulty_level.update",
+      description: "Update difficulty levels",
+      module: "course_config",
+    },
+    {
+      code: "difficulty_level.delete",
+      description: "Delete difficulty levels",
+      module: "course_config",
+    },
+
+    {
+      code: "content_type.create",
+      description: "Create content types",
+      module: "course_config",
+    },
+    {
+      code: "content_type.view",
+      description: "View content types",
+      module: "course_config",
+    },
+    {
+      code: "content_type.update",
+      description: "Update content types",
+      module: "course_config",
+    },
+    {
+      code: "content_type.delete",
+      description: "Delete content types",
+      module: "course_config",
+    },
+
+    {
+      code: "content_file_type.create",
+      description: "Create content file types",
+      module: "course_config",
+    },
+    {
+      code: "content_file_type.view",
+      description: "View content file types",
+      module: "course_config",
+    },
+    {
+      code: "content_file_type.update",
+      description: "Update content file types",
+      module: "course_config",
+    },
+    {
+      code: "content_file_type.delete",
+      description: "Delete content file types",
+      module: "course_config",
+    },
+
+    {
+      code: "course_template.create",
+      description: "Create course templates",
+      module: "course_config",
+    },
+    {
+      code: "course_template.view",
+      description: "View course templates",
+      module: "course_config",
+    },
+    {
+      code: "course_template.update",
+      description: "Update course templates",
+      module: "course_config",
+    },
+    {
+      code: "course_template.delete",
+      description: "Delete course templates",
+      module: "course_config",
+    },
+
+    {
+      code: "system_config.manage",
+      description: "Manage protected system configuration",
+      module: "system",
+    },
+
+    // ==========================================================
+    // ASSESSMENT DOMAIN
+    // ==========================================================
+
+    {
+      code: "assessment.create",
+      description: "Create assessments",
+      module: "assessment",
     },
     {
       code: "assessment.view",
@@ -1237,13 +1386,8 @@ async function seedLmsPermissions(
       module: "assessment",
     },
     {
-      code: "assessment.create",
-      description: "Create assessments",
-      module: "assessment",
-    },
-    {
-      code: "assessment.edit",
-      description: "Edit assessments",
+      code: "assessment.update",
+      description: "Update assessments",
       module: "assessment",
     },
     {
@@ -1256,10 +1400,618 @@ async function seedLmsPermissions(
       description: "Grade assessments",
       module: "assessment",
     },
-    { code: "tna.view", description: "View TNA requests", module: "tna" },
-    { code: "tna.create", description: "Create TNA requests", module: "tna" },
-    { code: "tna.approve", description: "Approve TNA requests", module: "tna" },
-    { code: "tna.reject", description: "Reject TNA requests", module: "tna" },
+
+    // ==========================================================
+    // ASSESSMENT CONFIGURATION
+    // ==========================================================
+
+    {
+      code: "assessment_type.create",
+      description: "Create assessment types",
+      module: "assessment_config",
+    },
+    {
+      code: "assessment_type.view",
+      description: "View assessment types",
+      module: "assessment_config",
+    },
+    {
+      code: "assessment_type.update",
+      description: "Update assessment types",
+      module: "assessment_config",
+    },
+    {
+      code: "assessment_type.delete",
+      description: "Delete assessment types",
+      module: "assessment_config",
+    },
+
+    {
+      code: "question_type.create",
+      description: "Create question types",
+      module: "assessment_config",
+    },
+    {
+      code: "question_type.view",
+      description: "View question types",
+      module: "assessment_config",
+    },
+    {
+      code: "question_type.update",
+      description: "Update question types",
+      module: "assessment_config",
+    },
+    {
+      code: "question_type.delete",
+      description: "Delete question types",
+      module: "assessment_config",
+    },
+
+    {
+      code: "grading_method.create",
+      description: "Create grading methods",
+      module: "assessment_config",
+    },
+    {
+      code: "grading_method.view",
+      description: "View grading methods",
+      module: "assessment_config",
+    },
+    {
+      code: "grading_method.update",
+      description: "Update grading methods",
+      module: "assessment_config",
+    },
+    {
+      code: "grading_method.delete",
+      description: "Delete grading methods",
+      module: "assessment_config",
+    },
+
+    {
+      code: "assessment_template.create",
+      description: "Create assessment templates",
+      module: "assessment_config",
+    },
+    {
+      code: "assessment_template.view",
+      description: "View assessment templates",
+      module: "assessment_config",
+    },
+    {
+      code: "assessment_template.update",
+      description: "Update assessment templates",
+      module: "assessment_config",
+    },
+    {
+      code: "assessment_template.delete",
+      description: "Delete assessment templates",
+      module: "assessment_config",
+    },
+
+    // ==========================================================
+    // PROGRAM CONFIGURATION
+    // ==========================================================
+
+    {
+      code: "program_type.create",
+      description: "Create program types",
+      module: "program_config",
+    },
+    {
+      code: "program_type.view",
+      description: "View program types",
+      module: "program_config",
+    },
+    {
+      code: "program_type.update",
+      description: "Update program types",
+      module: "program_config",
+    },
+    {
+      code: "program_type.delete",
+      description: "Delete program types",
+      module: "program_config",
+    },
+
+    {
+      code: "program_category.create",
+      description: "Create program categories",
+      module: "program_config",
+    },
+    {
+      code: "program_category.view",
+      description: "View program categories",
+      module: "program_config",
+    },
+    {
+      code: "program_category.update",
+      description: "Update program categories",
+      module: "program_config",
+    },
+    {
+      code: "program_category.delete",
+      description: "Delete program categories",
+      module: "program_config",
+    },
+
+    {
+      code: "task_type.create",
+      description: "Create task types",
+      module: "program_config",
+    },
+    {
+      code: "task_type.view",
+      description: "View task types",
+      module: "program_config",
+    },
+    {
+      code: "task_type.update",
+      description: "Update task types",
+      module: "program_config",
+    },
+    {
+      code: "task_type.delete",
+      description: "Delete task types",
+      module: "program_config",
+    },
+
+    {
+      code: "program_template.create",
+      description: "Create program templates",
+      module: "program_config",
+    },
+    {
+      code: "program_template.view",
+      description: "View program templates",
+      module: "program_config",
+    },
+    {
+      code: "program_template.update",
+      description: "Update program templates",
+      module: "program_config",
+    },
+    {
+      code: "program_template.delete",
+      description: "Delete program templates",
+      module: "program_config",
+    },
+
+    // ==========================================================
+    // CERTIFICATE CONFIGURATION
+    // ==========================================================
+
+    {
+      code: "certificate_type.create",
+      description: "Create certificate types",
+      module: "certificate_config",
+    },
+    {
+      code: "certificate_type.view",
+      description: "View certificate types",
+      module: "certificate_config",
+    },
+    {
+      code: "certificate_type.update",
+      description: "Update certificate types",
+      module: "certificate_config",
+    },
+    {
+      code: "certificate_type.delete",
+      description: "Delete certificate types",
+      module: "certificate_config",
+    },
+
+    {
+      code: "credential_source.create",
+      description: "Create credential sources",
+      module: "certificate_config",
+    },
+    {
+      code: "credential_source.view",
+      description: "View credential sources",
+      module: "certificate_config",
+    },
+    {
+      code: "credential_source.update",
+      description: "Update credential sources",
+      module: "certificate_config",
+    },
+    {
+      code: "credential_source.delete",
+      description: "Delete credential sources",
+      module: "certificate_config",
+    },
+
+    {
+      code: "provider_type.create",
+      description: "Create provider types",
+      module: "certificate_config",
+    },
+    {
+      code: "provider_type.view",
+      description: "View provider types",
+      module: "certificate_config",
+    },
+    {
+      code: "provider_type.update",
+      description: "Update provider types",
+      module: "certificate_config",
+    },
+    {
+      code: "provider_type.delete",
+      description: "Delete provider types",
+      module: "certificate_config",
+    },
+
+    {
+      code: "certificate_template.create",
+      description: "Create certificate templates",
+      module: "certificate_config",
+    },
+    {
+      code: "certificate_template.view",
+      description: "View certificate templates",
+      module: "certificate_config",
+    },
+    {
+      code: "certificate_template.update",
+      description: "Update certificate templates",
+      module: "certificate_config",
+    },
+    {
+      code: "certificate_template.delete",
+      description: "Delete certificate templates",
+      module: "certificate_config",
+    },
+
+    {
+      code: "certificate_template_signer.create",
+      description: "Add certificate template signers",
+      module: "certificate_config",
+    },
+    {
+      code: "certificate_template_signer.view",
+      description: "View certificate template signers",
+      module: "certificate_config",
+    },
+    {
+      code: "certificate_template_signer.update",
+      description: "Update certificate template signers",
+      module: "certificate_config",
+    },
+    {
+      code: "certificate_template_signer.delete",
+      description: "Delete certificate template signers",
+      module: "certificate_config",
+    },
+
+    // ==========================================================
+    // ENROLLMENT CONFIGURATION
+    // ==========================================================
+
+    {
+      code: "enrollment_rule_type.create",
+      description: "Create enrollment rule types",
+      module: "enrollment_config",
+    },
+    {
+      code: "enrollment_rule_type.view",
+      description: "View enrollment rule types",
+      module: "enrollment_config",
+    },
+    {
+      code: "enrollment_rule_type.update",
+      description: "Update enrollment rule types",
+      module: "enrollment_config",
+    },
+    {
+      code: "enrollment_rule_type.delete",
+      description: "Delete enrollment rule types",
+      module: "enrollment_config",
+    },
+
+    {
+      code: "enrollment_rule.create",
+      description: "Create enrollment rules",
+      module: "enrollment_config",
+    },
+    {
+      code: "enrollment_rule.view",
+      description: "View enrollment rules",
+      module: "enrollment_config",
+    },
+    {
+      code: "enrollment_rule.update",
+      description: "Update enrollment rules",
+      module: "enrollment_config",
+    },
+    {
+      code: "enrollment_rule.delete",
+      description: "Delete enrollment rules",
+      module: "enrollment_config",
+    },
+
+    // ==========================================================
+    // APPROVAL WORKFLOW CONFIGURATION
+    // ==========================================================
+
+    {
+      code: "approval_workflow.create",
+      description: "Create approval workflows",
+      module: "approval_workflow",
+    },
+    {
+      code: "approval_workflow.view",
+      description: "View approval workflows",
+      module: "approval_workflow",
+    },
+    {
+      code: "approval_workflow.update",
+      description: "Update approval workflows",
+      module: "approval_workflow",
+    },
+    {
+      code: "approval_workflow.delete",
+      description: "Delete approval workflows",
+      module: "approval_workflow",
+    },
+
+    {
+      code: "approval_workflow_step.create",
+      description: "Create approval workflow steps",
+      module: "approval_workflow",
+    },
+    {
+      code: "approval_workflow_step.view",
+      description: "View approval workflow steps",
+      module: "approval_workflow",
+    },
+    {
+      code: "approval_workflow_step.update",
+      description: "Update approval workflow steps",
+      module: "approval_workflow",
+    },
+    {
+      code: "approval_workflow_step.delete",
+      description: "Delete approval workflow steps",
+      module: "approval_workflow",
+    },
+
+    // ==========================================================
+    // NOTIFICATION CONFIGURATION
+    // ==========================================================
+
+    {
+      code: "notification_module.create",
+      description: "Create notification modules",
+      module: "notification_config",
+    },
+    {
+      code: "notification_module.view",
+      description: "View notification modules",
+      module: "notification_config",
+    },
+    {
+      code: "notification_module.update",
+      description: "Update notification modules",
+      module: "notification_config",
+    },
+    {
+      code: "notification_module.delete",
+      description: "Delete notification modules",
+      module: "notification_config",
+    },
+
+    {
+      code: "notification_event.create",
+      description: "Create notification events",
+      module: "notification_config",
+    },
+    {
+      code: "notification_event.view",
+      description: "View notification events",
+      module: "notification_config",
+    },
+    {
+      code: "notification_event.update",
+      description: "Update notification events",
+      module: "notification_config",
+    },
+    {
+      code: "notification_event.delete",
+      description: "Delete notification events",
+      module: "notification_config",
+    },
+
+    {
+      code: "notification_template.create",
+      description: "Create notification templates",
+      module: "notification_config",
+    },
+    {
+      code: "notification_template.view",
+      description: "View notification templates",
+      module: "notification_config",
+    },
+    {
+      code: "notification_template.update",
+      description: "Update notification templates",
+      module: "notification_config",
+    },
+    {
+      code: "notification_template.delete",
+      description: "Delete notification templates",
+      module: "notification_config",
+    },
+
+    // ==========================================================
+    // TNA CONFIGURATION
+    // ==========================================================
+
+    {
+      code: "tna_request_type.create",
+      description: "Create TNA request types",
+      module: "tna_config",
+    },
+    {
+      code: "tna_request_type.view",
+      description: "View TNA request types",
+      module: "tna_config",
+    },
+    {
+      code: "tna_request_type.update",
+      description: "Update TNA request types",
+      module: "tna_config",
+    },
+    {
+      code: "tna_request_type.delete",
+      description: "Delete TNA request types",
+      module: "tna_config",
+    },
+
+    {
+      code: "funding_type.create",
+      description: "Create funding types",
+      module: "tna_config",
+    },
+    {
+      code: "funding_type.view",
+      description: "View funding types",
+      module: "tna_config",
+    },
+    {
+      code: "funding_type.update",
+      description: "Update funding types",
+      module: "tna_config",
+    },
+    {
+      code: "funding_type.delete",
+      description: "Delete funding types",
+      module: "tna_config",
+    },
+
+    {
+      code: "training_format.create",
+      description: "Create training formats",
+      module: "tna_config",
+    },
+    {
+      code: "training_format.view",
+      description: "View training formats",
+      module: "tna_config",
+    },
+    {
+      code: "training_format.update",
+      description: "Update training formats",
+      module: "tna_config",
+    },
+    {
+      code: "training_format.delete",
+      description: "Delete training formats",
+      module: "tna_config",
+    },
+
+    // ==========================================================
+    // TRAINING EFFECTIVENESS CONFIGURATION
+    // ==========================================================
+
+    {
+      code: "effectiveness_weight.create",
+      description: "Create effectiveness weight configurations",
+      module: "training_effectiveness",
+    },
+    {
+      code: "effectiveness_weight.view",
+      description: "View effectiveness weight configurations",
+      module: "training_effectiveness",
+    },
+    {
+      code: "effectiveness_weight.update",
+      description: "Update effectiveness weight configurations",
+      module: "training_effectiveness",
+    },
+    {
+      code: "effectiveness_weight.delete",
+      description: "Delete effectiveness weight configurations",
+      module: "training_effectiveness",
+    },
+
+    // ==========================================================
+    // SURVEY CONFIGURATION
+    // ==========================================================
+
+    {
+      code: "survey_question_type.create",
+      description: "Create survey question types",
+      module: "survey_config",
+    },
+    {
+      code: "survey_question_type.view",
+      description: "View survey question types",
+      module: "survey_config",
+    },
+    {
+      code: "survey_question_type.update",
+      description: "Update survey question types",
+      module: "survey_config",
+    },
+    {
+      code: "survey_question_type.delete",
+      description: "Delete survey question types",
+      module: "survey_config",
+    },
+
+    {
+      code: "survey_template.create",
+      description: "Create survey templates",
+      module: "survey_config",
+    },
+    {
+      code: "survey_template.view",
+      description: "View survey templates",
+      module: "survey_config",
+    },
+    {
+      code: "survey_template.update",
+      description: "Update survey templates",
+      module: "survey_config",
+    },
+    {
+      code: "survey_template.delete",
+      description: "Delete survey templates",
+      module: "survey_config",
+    },
+
+    // ==========================================================
+    // SYSTEM SETTINGS
+    // ==========================================================
+
+    {
+      code: "system_setting.create",
+      description: "Create system settings",
+      module: "system",
+    },
+    {
+      code: "system_setting.view",
+      description: "View system settings",
+      module: "system",
+    },
+    {
+      code: "system_setting.update",
+      description: "Update system settings",
+      module: "system",
+    },
+    {
+      code: "system_setting.delete",
+      description: "Delete system settings",
+      module: "system",
+    },
+
+    // ==========================================================
+    // CERTIFICATE DOMAIN
+    // ==========================================================
+
     {
       code: "certificate.view",
       description: "View certificates",
@@ -1280,285 +2032,429 @@ async function seedLmsPermissions(
       description: "Revoke certificates",
       module: "certificate",
     },
-    { code: "user.view", description: "View users", module: "user" },
-    { code: "user.create", description: "Create users", module: "user" },
-    { code: "user.edit", description: "Edit users", module: "user" },
-    { code: "user.delete", description: "Delete users", module: "user" },
+
+    // ==========================================================
+    // TNA DOMAIN
+    // ==========================================================
+
+    {
+      code: "tna.view",
+      description: "View TNA requests",
+      module: "tna",
+    },
+    {
+      code: "tna.create",
+      description: "Create TNA requests",
+      module: "tna",
+    },
+    {
+      code: "tna.approve",
+      description: "Approve TNA requests",
+      module: "tna",
+    },
+    {
+      code: "tna.reject",
+      description: "Reject TNA requests",
+      module: "tna",
+    },
+
+    // ==========================================================
+    // USER / SYSTEM / REPORTS
+    // ==========================================================
+
+    {
+      code: "user.view",
+      description: "View users",
+      module: "user",
+    },
+    {
+      code: "user.create",
+      description: "Create users",
+      module: "user",
+    },
+    {
+      code: "user.edit",
+      description: "Edit users",
+      module: "user",
+    },
+    {
+      code: "user.delete",
+      description: "Delete users",
+      module: "user",
+    },
     {
       code: "user.manage_roles",
       description: "Manage user roles",
       module: "user",
     },
+
     {
-      code: "system.settings",
-      description: "View system settings",
-      module: "system",
+      code: "reports.view",
+      description: "View reports",
+      module: "reports",
     },
-    {
-      code: "system.configure",
-      description: "Configure system",
-      module: "system",
-    },
-    { code: "reports.view", description: "View reports", module: "reports" },
     {
       code: "reports.export",
       description: "Export reports",
       module: "reports",
     },
-
-    {
-      code: "course_category.view",
-      description: "View course categories",
-      module: "course_config",
-    },
-    {
-      code: "course_category.create",
-      description: "Create course categories",
-      module: "course_config",
-    },
-    {
-      code: "course_category.update",
-      description: "Update course categories",
-      module: "course_config",
-    },
-    {
-      code: "course_category.delete",
-      description: "Delete course categories",
-      module: "course_config",
-    },
-
-    {
-      code: "difficulty_level.view",
-      description: "View difficulty levels",
-      module: "course_config",
-    },
-    {
-      code: "difficulty_level.create",
-      description: "Create difficulty levels",
-      module: "course_config",
-    },
-    {
-      code: "difficulty_level.update",
-      description: "Update difficulty levels",
-      module: "course_config",
-    },
-    {
-      code: "difficulty_level.delete",
-      description: "Delete difficulty levels",
-      module: "course_config",
-    },
-
-    {
-      code: "system_config.manage",
-      description: "Manage system lookup tables",
-      module: "course_config",
-    },
-
-    {
-      code: "course_template.view",
-      description: "View course templates",
-      module: "course_config",
-    },
-    {
-      code: "course_template.create",
-      description: "Create course templates",
-      module: "course_config",
-    },
-    {
-      code: "course_template.update",
-      description: "Update course templates",
-      module: "course_config",
-    },
-    {
-      code: "course_template.delete",
-      description: "Delete course templates",
-      module: "course_config",
-    },
-
-    // ─── Assessment Configuration ──────────────────────────────────────────
-    // Assessment Types
-    {
-      code: "assessment_type.create",
-      description: "Create assessment types",
-      module: "assessment_config",
-    },
-    {
-      code: "assessment_type.read",
-      description: "View assessment types",
-      module: "assessment_config",
-    },
-    {
-      code: "assessment_type.update",
-      description: "Update assessment types",
-      module: "assessment_config",
-    },
-    {
-      code: "assessment_type.delete",
-      description: "Delete assessment types",
-      module: "assessment_config",
-    },
-
-    // Question Types
-    {
-      code: "question_type.create",
-      description: "Create question types",
-      module: "assessment_config",
-    },
-    {
-      code: "question_type.read",
-      description: "View question types",
-      module: "assessment_config",
-    },
-    {
-      code: "question_type.update",
-      description: "Update question types",
-      module: "assessment_config",
-    },
-    {
-      code: "question_type.delete",
-      description: "Delete question types",
-      module: "assessment_config",
-    },
-
-    // Grading Methods
-    {
-      code: "grading_method.create",
-      description: "Create grading methods",
-      module: "assessment_config",
-    },
-    {
-      code: "grading_method.read",
-      description: "View grading methods",
-      module: "assessment_config",
-    },
-    {
-      code: "grading_method.update",
-      description: "Update grading methods",
-      module: "assessment_config",
-    },
-    {
-      code: "grading_method.delete",
-      description: "Delete grading methods",
-      module: "assessment_config",
-    },
-
-    // Assessment Templates
-    {
-      code: "assessment_template.create",
-      description: "Create assessment templates",
-      module: "assessment_config",
-    },
-    {
-      code: "assessment_template.read",
-      description: "View assessment templates",
-      module: "assessment_config",
-    },
-    {
-      code: "assessment_template.update",
-      description: "Update assessment templates",
-      module: "assessment_config",
-    },
-    {
-      code: "assessment_template.delete",
-      description: "Delete assessment templates",
-      module: "assessment_config",
-    },
   ];
 
-  const permissionMap = new Map();
-  for (const perm of permissionDefinitions) {
+  const permissionMap = new Map<string, any>();
+
+  for (const permission of permissionDefinitions) {
     const created = await prisma.lmsPermission.upsert({
-      where: { companyId_code: { companyId, code: perm.code } },
-      update: {},
+      where: {
+        companyId_code: {
+          companyId,
+          code: permission.code,
+        },
+      },
+      update: {
+        description: permission.description,
+        module: permission.module,
+      },
       create: {
         companyId,
-        code: perm.code,
-        description: perm.description,
-        module: perm.module,
+        code: permission.code,
+        description: permission.description,
+        module: permission.module,
       },
     });
-    permissionMap.set(perm.code, created);
-  }
-  console.log(`  ${permissionDefinitions.length} LMS Permissions created`);
 
-  const rolePermissionMapping = {
+    permissionMap.set(permission.code, created);
+  }
+
+  console.log(
+    `  ${permissionDefinitions.length} LMS Permissions created/updated`,
+  );
+
+  // ==========================================================
+  // ROLE -> PERMISSION MAPPING
+  // ==========================================================
+
+  const rolePermissionMapping: Record<string, string[]> = {
+    // ----------------------------------------------------------
+    // SUPER ADMIN
+    // ----------------------------------------------------------
     SUPER_ADMIN: Array.from(permissionMap.keys()),
+
+    // ----------------------------------------------------------
+    // ADMIN
+    // ----------------------------------------------------------
     ADMIN: Array.from(permissionMap.keys()),
+
+    // ----------------------------------------------------------
+    // HR
+    // Configuration management + relevant business operations
+    // ----------------------------------------------------------
     HR: [
+      // Course
+      "course.create",
       "course.view",
+      "course.update",
+      "course.delete",
+      "course.publish",
+
+      // Audience
+      "audience.create",
       "audience.view",
-      "user.view",
-      "reports.view",
-      "certificate.view",
-      // Assessment Configuration (Full CRUD)
+      "audience.update",
+      "audience.delete",
+
+      // Course Configuration
+      "course_category.create",
+      "course_category.view",
+      "course_category.update",
+      "course_category.delete",
+
+      "difficulty_level.create",
+      "difficulty_level.view",
+      "difficulty_level.update",
+      "difficulty_level.delete",
+
+      "content_type.create",
+      "content_type.view",
+      "content_type.update",
+      "content_type.delete",
+
+      "content_file_type.create",
+      "content_file_type.view",
+      "content_file_type.update",
+      "content_file_type.delete",
+
+      "course_template.create",
+      "course_template.view",
+      "course_template.update",
+      "course_template.delete",
+
+      // Assessment Configuration
       "assessment_type.create",
-      "assessment_type.read",
+      "assessment_type.view",
       "assessment_type.update",
       "assessment_type.delete",
+
       "question_type.create",
-      "question_type.read",
+      "question_type.view",
       "question_type.update",
       "question_type.delete",
+
       "grading_method.create",
-      "grading_method.read",
+      "grading_method.view",
       "grading_method.update",
       "grading_method.delete",
+
       "assessment_template.create",
-      "assessment_template.read",
+      "assessment_template.view",
       "assessment_template.update",
       "assessment_template.delete",
-    ],
-    EMPLOYEE: ["course.view", "assessment.view", "certificate.view"],
-    INSTRUCTOR: [
-      "course.view",
-      "course.create",
-      "course.edit",
-      "course.enroll",
-      "course_category.view",
-      "difficulty_level.view",
-      "course_template.view",
-      "course_template.create",
-      "audience.view",
-      "assessment.view",
+
+      // Program Configuration
+      "program_type.create",
+      "program_type.view",
+      "program_type.update",
+      "program_type.delete",
+
+      "program_category.create",
+      "program_category.view",
+      "program_category.update",
+      "program_category.delete",
+
+      "task_type.create",
+      "task_type.view",
+      "task_type.update",
+      "task_type.delete",
+
+      "program_template.create",
+      "program_template.view",
+      "program_template.update",
+      "program_template.delete",
+
+      // Certificate Configuration
+      "certificate_type.create",
+      "certificate_type.view",
+      "certificate_type.update",
+      "certificate_type.delete",
+
+      "credential_source.create",
+      "credential_source.view",
+      "credential_source.update",
+      "credential_source.delete",
+
+      "provider_type.create",
+      "provider_type.view",
+      "provider_type.update",
+      "provider_type.delete",
+
+      "certificate_template.create",
+      "certificate_template.view",
+      "certificate_template.update",
+      "certificate_template.delete",
+
+      "certificate_template_signer.create",
+      "certificate_template_signer.view",
+      "certificate_template_signer.update",
+      "certificate_template_signer.delete",
+
+      // Enrollment Configuration
+      "enrollment_rule_type.create",
+      "enrollment_rule_type.view",
+      "enrollment_rule_type.update",
+      "enrollment_rule_type.delete",
+
+      "enrollment_rule.create",
+      "enrollment_rule.view",
+      "enrollment_rule.update",
+      "enrollment_rule.delete",
+
+      // Approval Workflow Configuration
+      "approval_workflow.create",
+      "approval_workflow.view",
+      "approval_workflow.update",
+      "approval_workflow.delete",
+
+      "approval_workflow_step.create",
+      "approval_workflow_step.view",
+      "approval_workflow_step.update",
+      "approval_workflow_step.delete",
+
+      // Notification Configuration
+      "notification_module.create",
+      "notification_module.view",
+      "notification_module.update",
+      "notification_module.delete",
+
+      "notification_event.create",
+      "notification_event.view",
+      "notification_event.update",
+      "notification_event.delete",
+
+      "notification_template.create",
+      "notification_template.view",
+      "notification_template.update",
+      "notification_template.delete",
+
+      // TNA Configuration
+      "tna_request_type.create",
+      "tna_request_type.view",
+      "tna_request_type.update",
+      "tna_request_type.delete",
+
+      "funding_type.create",
+      "funding_type.view",
+      "funding_type.update",
+      "funding_type.delete",
+
+      "training_format.create",
+      "training_format.view",
+      "training_format.update",
+      "training_format.delete",
+
+      // Training Effectiveness
+      "effectiveness_weight.create",
+      "effectiveness_weight.view",
+      "effectiveness_weight.update",
+      "effectiveness_weight.delete",
+
+      // Survey Configuration
+      "survey_question_type.create",
+      "survey_question_type.view",
+      "survey_question_type.update",
+      "survey_question_type.delete",
+
+      "survey_template.create",
+      "survey_template.view",
+      "survey_template.update",
+      "survey_template.delete",
+
+      // System settings
+      "system_setting.view",
+      "system_setting.update",
+
+      // Runtime
       "assessment.create",
-      "reports.view",
-      // Assessment Configuration (READ ONLY)
-      "assessment_type.read",
-      "question_type.read",
-      "grading_method.read",
-      "assessment_template.read",
-    ],
-    MANAGER: [
-      "course.view",
-      "audience.view",
       "assessment.view",
+      "assessment.grade",
+
+      "certificate.view",
+      "certificate.create",
+      "certificate.issue",
+      "certificate.revoke",
+
       "tna.view",
       "tna.create",
       "tna.approve",
+      "tna.reject",
+
       "reports.view",
       "reports.export",
-      // Assessment Configuration (READ ONLY)
-      "assessment_type.read",
-      "question_type.read",
-      "grading_method.read",
-      "assessment_template.read",
     ],
-    LEARNER: ["course.view", "assessment.view"],
+
+    // ----------------------------------------------------------
+    // INSTRUCTOR
+    // ----------------------------------------------------------
+    INSTRUCTOR: [
+      "course.create",
+      "course.view",
+      "course.update",
+
+      "course_category.view",
+      "difficulty_level.view",
+      "content_type.view",
+      "content_file_type.view",
+      "course_template.view",
+
+      "audience.view",
+
+      "assessment.create",
+      "assessment.view",
+      "assessment.grade",
+
+      "assessment_type.view",
+      "question_type.view",
+      "grading_method.view",
+      "assessment_template.view",
+
+      "program_type.view",
+      "program_category.view",
+      "task_type.view",
+      "program_template.view",
+
+      // Survey (view only)
+      "survey_question_type.view",
+      "survey_template.view",
+
+      "reports.view",
+    ],
+
+    // ----------------------------------------------------------
+    // MANAGER
+    // ----------------------------------------------------------
+    MANAGER: [
+      "course.view",
+      "audience.view",
+
+      "assessment.view",
+
+      "assessment_type.view",
+      "question_type.view",
+      "grading_method.view",
+      "assessment_template.view",
+
+      "program_type.view",
+      "program_category.view",
+      "task_type.view",
+      "program_template.view",
+
+      "tna.view",
+      "tna.create",
+      "tna.approve",
+
+      "reports.view",
+      "reports.export",
+    ],
+
+    // ----------------------------------------------------------
+    // EMPLOYEE
+    // ----------------------------------------------------------
+    EMPLOYEE: [
+      "course.view",
+      "assessment.view",
+      "certificate.view",
+    ],
+
+    // ----------------------------------------------------------
+    // LEARNER
+    // ----------------------------------------------------------
+    LEARNER: [
+      "course.view",
+      "assessment.view",
+    ],
   };
+
+  // ==========================================================
+  // SEED ROLE PERMISSIONS
+  // ==========================================================
 
   for (const [roleName, permissionCodes] of Object.entries(
     rolePermissionMapping,
   )) {
     const role = roleMap.get(roleName);
+
     if (!role) {
-      console.warn(`  Role "${roleName}" not found, skipping permissions`);
+      console.warn(
+        `  Role "${roleName}" not found, skipping permissions`,
+      );
       continue;
     }
 
     for (const code of permissionCodes) {
       const permission = permissionMap.get(code);
+
       if (!permission) {
-        console.warn(`  Permission "${code}" not found for role "${roleName}"`);
+        console.warn(
+          `  Permission "${code}" not found for role "${roleName}"`,
+        );
         continue;
       }
 

@@ -1747,7 +1747,7 @@ model ProgramType {
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
   deletedAt   DateTime?
-  company     Company             @relation(fields: [companyId], references: [id])
+  company     Company           @relation(fields: [companyId], references: [id])
   programs    LearningProgram[]
 
   @@unique([companyId, name])
@@ -1888,10 +1888,10 @@ model TaskType {
   expectedSubmissionType TaskSubmissionType // reuses your existing enum
   linkedEntity           TaskLinkedEntity // ADDED — tells app code which single polymorphic FK on ProgramTask should be populated for tasks of this type
 
-  isSystem  Boolean  @default(false)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  isSystem  Boolean   @default(false)
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
   company Company       @relation(fields: [companyId], references: [id])
@@ -2054,15 +2054,16 @@ model Enrollment {
 }
 
 model EnrollmentRuleType {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   companyId   Int
-  name        String   @db.VarChar(100) // e.g. "Auto Enroll"
-  slug        String   @db.VarChar(80) // e.g. "auto_enroll"
+  name        String    @db.VarChar(100) // e.g. "Auto Enroll"
+  slug        String    @db.VarChar(80) // e.g. "auto_enroll"
   description String?
-  isSystem    Boolean  @default(false) // Protect defaults
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isSystem    Boolean   @default(false) // Protect defaults
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
 
   company Company          @relation(fields: [companyId], references: [id])
   rules   EnrollmentRule[]
