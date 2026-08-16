@@ -13,9 +13,6 @@ import certificationConfigRoutes from "../modules/configuration/certificate-conf
 import tnaConfigRoutes from "../modules/configuration/tna-configuration/index.js";
 import trainingEffectivenessConfigRoutes from "../modules/configuration/training-effectiveness/index.js";
 import approvalWorkflowsConfigRoutes from "../modules/configuration/approval-workflows/index.js";
-import surveyConfigRoutes from "../modules/configuration/survey-configuration/index.js";
-import systemSettingsRoutes from "../modules/configuration/system-settings/index.js";
-
 const router = Router();
 
 // ==========================================
@@ -41,8 +38,6 @@ router.use("/configuration/certification", certificationConfigRoutes);
 router.use("/configuration/tna", tnaConfigRoutes);
 router.use("/configuration/training-effectiveness", trainingEffectivenessConfigRoutes);
 router.use("/configuration/approval-workflows", approvalWorkflowsConfigRoutes);
-router.use("/configuration/survey", surveyConfigRoutes);
-router.use("/configuration/system-settings", systemSettingsRoutes);
 
 // ==========================================
 // Core Domain Routes (Future)
