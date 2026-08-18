@@ -1,49 +1,17 @@
-import { PrismaClient, Prisma, TnaRequestTypeConfig, FundingType, TrainingFormat } from "@prisma/client";
-import {
-  CreateTnaRequestTypeDto,
-  UpdateTnaRequestTypeDto,
-  TnaRequestTypeFilterDto,
-  CreateFundingTypeDto,
-  UpdateFundingTypeDto,
-  FundingTypeFilterDto,
-  CreateTrainingFormatDto,
-  UpdateTrainingFormatDto,
-  TrainingFormatFilterDto,
-} from "./tna-configuration.dto.js";
+import type { PrismaClient, Prisma, TnaRequestTypeConfig, FundingType, TrainingFormat } from "@prisma/client";
+import type {
+  CreateTnaRequestTypeInput,
+  UpdateTnaRequestTypeInput,
+  TnaRequestTypeFilterParams,
+  CreateFundingTypeInput,
+  UpdateFundingTypeInput,
+  FundingTypeFilterParams,
+  CreateTrainingFormatInput,
+  UpdateTrainingFormatInput,
+  TrainingFormatFilterParams,
+} from "./tna-configuration.types.js";
 
-export interface ITnaConfigurationRepository {
-  // TnaRequestTypeConfig
-  createRequestType(companyId: number, dto: CreateTnaRequestTypeDto): Promise<TnaRequestTypeConfig>;
-  findRequestTypeById(companyId: number, id: number): Promise<TnaRequestTypeConfig | null>;
-  findRequestTypeByName(companyId: number, name: string): Promise<TnaRequestTypeConfig | null>;
-  findRequestTypes(companyId: number, filter: TnaRequestTypeFilterDto): Promise<TnaRequestTypeConfig[]>;
-  countRequestTypes(companyId: number, filter: TnaRequestTypeFilterDto): Promise<number>;
-  updateRequestType(companyId: number, id: number, dto: UpdateTnaRequestTypeDto): Promise<TnaRequestTypeConfig>;
-  softDeleteRequestType(companyId: number, id: number): Promise<TnaRequestTypeConfig>;
-  countRequestTypeUsages(companyId: number, id: number): Promise<number>;
-
-  // FundingType
-  createFundingType(companyId: number, dto: CreateFundingTypeDto & { slug: string }): Promise<FundingType>;
-  findFundingTypeById(companyId: number, id: number): Promise<FundingType | null>;
-  findFundingTypeByName(companyId: number, name: string): Promise<FundingType | null>;
-  findFundingTypeBySlug(companyId: number, slug: string): Promise<FundingType | null>;
-  findFundingTypes(companyId: number, filter: FundingTypeFilterDto): Promise<FundingType[]>;
-  countFundingTypes(companyId: number, filter: FundingTypeFilterDto): Promise<number>;
-  updateFundingType(companyId: number, id: number, dto: UpdateFundingTypeDto & { slug?: string }): Promise<FundingType>;
-  softDeleteFundingType(companyId: number, id: number): Promise<FundingType>;
-  countFundingTypeUsages(companyId: number, id: number): Promise<number>;
-
-  // TrainingFormat
-  createTrainingFormat(companyId: number, dto: CreateTrainingFormatDto & { slug: string }): Promise<TrainingFormat>;
-  findTrainingFormatById(companyId: number, id: number): Promise<TrainingFormat | null>;
-  findTrainingFormatByName(companyId: number, name: string): Promise<TrainingFormat | null>;
-  findTrainingFormatBySlug(companyId: number, slug: string): Promise<TrainingFormat | null>;
-  findTrainingFormats(companyId: number, filter: TrainingFormatFilterDto): Promise<TrainingFormat[]>;
-  countTrainingFormats(companyId: number, filter: TrainingFormatFilterDto): Promise<number>;
-  updateTrainingFormat(companyId: number, id: number, dto: UpdateTrainingFormatDto & { slug?: string }): Promise<TrainingFormat>;
-  softDeleteTrainingFormat(companyId: number, id: number): Promise<TrainingFormat>;
-  countTrainingFormatUsages(companyId: number, id: number): Promise<number>;
-}
+import type { ITnaConfigurationRepository } from "./tna-configuration.types.js";
 
 export class TnaConfigurationRepository implements ITnaConfigurationRepository {
   constructor(private prisma: PrismaClient) {}
@@ -52,7 +20,7 @@ export class TnaConfigurationRepository implements ITnaConfigurationRepository {
   // 1. TnaRequestTypeConfig Methods
   // ==========================================
 
-  async createRequestType(companyId: number, dto: CreateTnaRequestTypeDto): Promise<TnaRequestTypeConfig> {
+  async createRequestType(companyId: number, dto: CreateTnaRequestTypeInput): Promise<TnaRequestTypeConfig> {
     return this.prisma.tnaRequestTypeConfig.create({
       data: {
         companyId,
@@ -78,7 +46,7 @@ export class TnaConfigurationRepository implements ITnaConfigurationRepository {
     });
   }
 
-  async findRequestTypes(companyId: number, filter: TnaRequestTypeFilterDto): Promise<TnaRequestTypeConfig[]> {
+  async findRequestTypes(companyId: number, filter: TnaRequestTypeFilterParams): Promise<TnaRequestTypeConfig[]> {
     const { search, isActive, page = 1, limit = 10 } = filter;
     const skip = (page - 1) * limit;
 
@@ -101,7 +69,7 @@ export class TnaConfigurationRepository implements ITnaConfigurationRepository {
     });
   }
 
-  async countRequestTypes(companyId: number, filter: TnaRequestTypeFilterDto): Promise<number> {
+  async countRequestTypes(companyId: number, filter: TnaRequestTypeFilterParams): Promise<number> {
     const { search, isActive } = filter;
 
     const where: Prisma.TnaRequestTypeConfigWhereInput = {
@@ -121,7 +89,7 @@ export class TnaConfigurationRepository implements ITnaConfigurationRepository {
   async updateRequestType(
     companyId: number,
     id: number,
-    dto: UpdateTnaRequestTypeDto
+    dto: UpdateTnaRequestTypeInput
   ): Promise<TnaRequestTypeConfig> {
     return this.prisma.tnaRequestTypeConfig.update({
       where: { id },
@@ -152,7 +120,7 @@ export class TnaConfigurationRepository implements ITnaConfigurationRepository {
 
   async createFundingType(
     companyId: number,
-    dto: CreateFundingTypeDto & { slug: string }
+    dto: CreateFundingTypeInput & { slug: string }
   ): Promise<FundingType> {
     return this.prisma.fundingType.create({
       data: {
@@ -186,7 +154,7 @@ export class TnaConfigurationRepository implements ITnaConfigurationRepository {
     });
   }
 
-  async findFundingTypes(companyId: number, filter: FundingTypeFilterDto): Promise<FundingType[]> {
+  async findFundingTypes(companyId: number, filter: FundingTypeFilterParams): Promise<FundingType[]> {
     const { search, isActive, isSystem, page = 1, limit = 10 } = filter;
     const skip = (page - 1) * limit;
 
@@ -211,7 +179,7 @@ export class TnaConfigurationRepository implements ITnaConfigurationRepository {
     });
   }
 
-  async countFundingTypes(companyId: number, filter: FundingTypeFilterDto): Promise<number> {
+  async countFundingTypes(companyId: number, filter: FundingTypeFilterParams): Promise<number> {
     const { search, isActive, isSystem } = filter;
 
     const where: Prisma.FundingTypeWhereInput = {
@@ -233,7 +201,7 @@ export class TnaConfigurationRepository implements ITnaConfigurationRepository {
   async updateFundingType(
     companyId: number,
     id: number,
-    dto: UpdateFundingTypeDto & { slug?: string }
+    dto: UpdateFundingTypeInput & { slug?: string }
   ): Promise<FundingType> {
     return this.prisma.fundingType.update({
       where: { id },
@@ -265,7 +233,7 @@ export class TnaConfigurationRepository implements ITnaConfigurationRepository {
 
   async createTrainingFormat(
     companyId: number,
-    dto: CreateTrainingFormatDto & { slug: string }
+    dto: CreateTrainingFormatInput & { slug: string }
   ): Promise<TrainingFormat> {
     return this.prisma.trainingFormat.create({
       data: {
@@ -301,7 +269,7 @@ export class TnaConfigurationRepository implements ITnaConfigurationRepository {
 
   async findTrainingFormats(
     companyId: number,
-    filter: TrainingFormatFilterDto
+    filter: TrainingFormatFilterParams
   ): Promise<TrainingFormat[]> {
     const { search, isActive, isSystem, page = 1, limit = 10 } = filter;
     const skip = (page - 1) * limit;
@@ -329,7 +297,7 @@ export class TnaConfigurationRepository implements ITnaConfigurationRepository {
 
   async countTrainingFormats(
     companyId: number,
-    filter: TrainingFormatFilterDto
+    filter: TrainingFormatFilterParams
   ): Promise<number> {
     const { search, isActive, isSystem } = filter;
 
@@ -352,7 +320,7 @@ export class TnaConfigurationRepository implements ITnaConfigurationRepository {
   async updateTrainingFormat(
     companyId: number,
     id: number,
-    dto: UpdateTrainingFormatDto & { slug?: string }
+    dto: UpdateTrainingFormatInput & { slug?: string }
   ): Promise<TrainingFormat> {
     return this.prisma.trainingFormat.update({
       where: { id },

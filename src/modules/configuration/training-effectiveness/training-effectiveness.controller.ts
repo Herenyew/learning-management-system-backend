@@ -1,23 +1,24 @@
-import { Request, Response, NextFunction } from "express";
-import { TrainingEffectivenessService } from "./training-effectiveness.service.js";
-import {
-  CreateEffectivenessWeightConfigDto,
-  UpdateEffectivenessWeightConfigDto,
-  EffectivenessWeightConfigFilterDto,
-} from "./training-effectiveness.dto.js";
+import type { NextFunction, Response } from "express";
+import type { AuthRequest } from "../auth-request.js";
+import type { TrainingEffectivenessService } from "./training-effectiveness.service.js";
+import type {
+  CreateEffectivenessWeightConfigInput,
+  UpdateEffectivenessWeightConfigInput,
+  EffectivenessWeightConfigFilterInput,
+} from "./training-effectiveness.types.js";
 
 export class TrainingEffectivenessController {
   constructor(private service: TrainingEffectivenessService) {}
 
   createWeightConfig = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const userId = req.user.id;
-      const dto = req.body as CreateEffectivenessWeightConfigDto;
+      const userId = req.user.appUserId;
+      const dto = req.body as CreateEffectivenessWeightConfigInput;
 
       const result = await this.service.createWeightConfig(
         companyId,
@@ -35,7 +36,7 @@ export class TrainingEffectivenessController {
   };
 
   getActiveWeightConfig = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -53,7 +54,7 @@ export class TrainingEffectivenessController {
   };
 
   getWeightConfigById = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -73,13 +74,13 @@ export class TrainingEffectivenessController {
   };
 
   getWeightConfigs = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const filter = req.query as unknown as EffectivenessWeightConfigFilterDto;
+      const filter = req.query;
 
       const result = await this.service.getWeightConfigs(companyId, filter);
 
@@ -93,14 +94,14 @@ export class TrainingEffectivenessController {
   };
 
   updateWeightConfig = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
       const id = parseInt(req.params.id, 10);
-      const dto = req.body as UpdateEffectivenessWeightConfigDto;
+      const dto = req.body as UpdateEffectivenessWeightConfigInput;
 
       const result = await this.service.updateWeightConfig(
         companyId,
@@ -118,7 +119,7 @@ export class TrainingEffectivenessController {
   };
 
   deactivateWeightConfig = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {

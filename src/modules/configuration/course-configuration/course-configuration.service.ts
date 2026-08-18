@@ -1,23 +1,23 @@
-import {
+import type {
   ICourseConfigurationRepository,
   CourseCategoryFilter,
   DifficultyLevelFilter,
   ContentTypeFilter,
   ContentFileTypeFilter,
   CourseTemplateFilter,
-} from "./course-configuration.repository.js";
-import {
-  CreateCourseCategoryDto,
-  UpdateCourseCategoryDto,
-  CreateDifficultyLevelDto,
-  UpdateDifficultyLevelDto,
-  CreateContentTypeDto,
-  UpdateContentTypeDto,
-  CreateContentFileTypeDto,
-  UpdateContentFileTypeDto,
-  CreateCourseTemplateDto,
-  UpdateCourseTemplateDto,
-} from "./course-configuration.dto.js";
+} from "./course-configuration.types.js";
+import type {
+  CreateCourseCategoryInput,
+  UpdateCourseCategoryInput,
+  CreateDifficultyLevelInput,
+  UpdateDifficultyLevelInput,
+  CreateContentTypeInput,
+  UpdateContentTypeInput,
+  CreateContentFileTypeInput,
+  UpdateContentFileTypeInput,
+  CreateCourseTemplateInput,
+  UpdateCourseTemplateInput,
+} from "./course-configuration.types.js";
 import {
   NotFoundError,
   ConflictError,
@@ -34,7 +34,7 @@ export class CourseConfigurationService {
   // 1. Course Category Logic
   // ==========================================
 
-async createCategory(dto: CreateCourseCategoryDto, companyId: number, createdBy?: number) {
+async createCategory(dto: CreateCourseCategoryInput, companyId: number, createdBy?: number) {
   const existingName = await this.repository.findCategoryByName(companyId, dto.name);
   if (existingName) {
     throw new ConflictError(`Category with name '${dto.name}' already exists.`);
@@ -87,7 +87,7 @@ async createCategory(dto: CreateCourseCategoryDto, companyId: number, createdBy?
     return category;
   }
 
-  async updateCategory(id: number, companyId: number, dto: UpdateCourseCategoryDto) {
+  async updateCategory(id: number, companyId: number, dto: UpdateCourseCategoryInput) {
     const category = await this.getCategoryById(id, companyId);
     if (dto.name && dto.name !== category.name) {
       const existing = await this.repository.findCategoryByName(companyId, dto.name);
@@ -151,7 +151,7 @@ async createCategory(dto: CreateCourseCategoryDto, companyId: number, createdBy?
   // 2. Difficulty Level Logic
   // ==========================================
 
-  async createDifficultyLevel(dto: CreateDifficultyLevelDto, companyId: number) {
+  async createDifficultyLevel(dto: CreateDifficultyLevelInput, companyId: number) {
     const existing = await this.repository.findDifficultyLevelByName(companyId, dto.name);
     if (existing) {
       throw new ConflictError(`Difficulty level with name '${dto.name}' already exists.`);
@@ -189,7 +189,7 @@ async createCategory(dto: CreateCourseCategoryDto, companyId: number, createdBy?
     return difficultyLevel;
   }
 
-  async updateDifficultyLevel(id: number, companyId: number, dto: UpdateDifficultyLevelDto) {
+  async updateDifficultyLevel(id: number, companyId: number, dto: UpdateDifficultyLevelInput) {
     const difficultyLevel = await this.getDifficultyLevelById(id, companyId);
 
     if (difficultyLevel.isSystem || difficultyLevel.companyId === null) {
@@ -235,7 +235,7 @@ async createCategory(dto: CreateCourseCategoryDto, companyId: number, createdBy?
   // 3. Content Type Logic (Global System Table)
   // ==========================================
 
-  async createContentType(dto: CreateContentTypeDto) {
+  async createContentType(dto: CreateContentTypeInput) {
     const existing = await this.repository.findContentTypeByName(dto.name);
     if (existing) {
       throw new ConflictError(`Content type with name '${dto.name}' already exists.`);
@@ -271,7 +271,7 @@ async createCategory(dto: CreateCourseCategoryDto, companyId: number, createdBy?
     return contentType;
   }
 
-  async updateContentType(id: number, dto: UpdateContentTypeDto) {
+  async updateContentType(id: number, dto: UpdateContentTypeInput) {
     const contentType = await this.getContentTypeById(id);
 
     if (dto.name && dto.name !== contentType.name) {
@@ -311,7 +311,7 @@ async createCategory(dto: CreateCourseCategoryDto, companyId: number, createdBy?
   // 4. Content File Type Logic (Global System Table)
   // ==========================================
 
-  async createContentFileType(dto: CreateContentFileTypeDto) {
+  async createContentFileType(dto: CreateContentFileTypeInput) {
     const existing = await this.repository.findContentFileTypeByName(dto.name);
     if (existing) {
       throw new ConflictError(`Content file type with name '${dto.name}' already exists.`);
@@ -346,7 +346,7 @@ async createCategory(dto: CreateCourseCategoryDto, companyId: number, createdBy?
     return fileType;
   }
 
-  async updateContentFileType(id: number, dto: UpdateContentFileTypeDto) {
+  async updateContentFileType(id: number, dto: UpdateContentFileTypeInput) {
     const fileType = await this.getContentFileTypeById(id);
 
     if (dto.name && dto.name !== fileType.name) {
@@ -385,7 +385,7 @@ async createCategory(dto: CreateCourseCategoryDto, companyId: number, createdBy?
   // 5. Course Template Logic
   // ==========================================
 
-  async createTemplate(dto: CreateCourseTemplateDto, companyId: number, createdById: number) {
+  async createTemplate(dto: CreateCourseTemplateInput, companyId: number, createdById: number) {
     const existing = await this.repository.findTemplateByName(companyId, dto.name);
     if (existing) {
       throw new ConflictError(`Course template with name '${dto.name}' already exists.`);
@@ -435,7 +435,7 @@ async createCategory(dto: CreateCourseCategoryDto, companyId: number, createdBy?
     return template;
   }
 
-  async updateTemplate(id: number, companyId: number, dto: UpdateCourseTemplateDto) {
+  async updateTemplate(id: number, companyId: number, dto: UpdateCourseTemplateInput) {
     const template = await this.getTemplateById(id, companyId);
 
     if (dto.name && dto.name !== template.name) {

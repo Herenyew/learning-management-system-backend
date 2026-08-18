@@ -1,6 +1,7 @@
-import { Prisma, PrismaClient, AudienceGroupRule, RuleOperator, Employee, AppUser } from "@prisma/client";
+import { Prisma, RuleOperator } from "@prisma/client";
+import type { PrismaClient, AudienceGroupRule, Employee, AppUser } from "@prisma/client";
 import { NotFoundError } from "../../../common/errors/http-errors.js";
-import { IAudienceRepository } from "./audience.repository.js";
+import type { IAudienceRepository } from "./audience.types.js";
 
 export interface MemberFilter {
   search?: string;

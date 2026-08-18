@@ -7,7 +7,6 @@ export const idParamSchema = z.object({
 });
 
 export const EntityTypeEnum = z.nativeEnum($Enums.EnrollmentEntityType);
-export type EntityType = $Enums.EnrollmentEntityType;
 
 // ==========================================
 // 1. EnrollmentRuleType Schemas
@@ -37,15 +36,7 @@ export const enrollmentRuleTypeFilterSchema = z.object({
   limit: z.coerce.number().int().positive().max(100).default(20),
 });
 
-export type CreateEnrollmentRuleTypeInputDto = z.infer<
-  typeof createEnrollmentRuleTypeSchema
->;
-export type UpdateEnrollmentRuleTypeInputDto = z.infer<
-  typeof updateEnrollmentRuleTypeSchema
->;
-export type EnrollmentRuleTypeFilterQueryDto = z.infer<
-  typeof enrollmentRuleTypeFilterSchema
->;
+// DTO schemas only — types moved to enrollment-configuration.types.ts
 
 // ==========================================
 // 2. EnrollmentRule Schemas
@@ -132,12 +123,4 @@ export const enrollmentRuleFilterSchema = z.object({
   limit: z.coerce.number().int().positive().max(100).default(20),
 });
 
-export type CreateEnrollmentRuleInputDto = z.infer<
-  typeof createEnrollmentRuleSchema
->;
-export type UpdateEnrollmentRuleInputDto = z.infer<
-  typeof updateEnrollmentRuleSchema
->;
-export type EnrollmentRuleFilterQueryDto = z.infer<
-  typeof enrollmentRuleFilterSchema
->;
+// DTO schemas only — types moved to enrollment-configuration.types.ts

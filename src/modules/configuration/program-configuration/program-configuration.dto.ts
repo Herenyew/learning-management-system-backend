@@ -106,24 +106,4 @@ export const programTemplateQuerySchema = paginationQuerySchema.extend({
   programTypeId: z.coerce.number().int().positive().optional(),
 });
 
-// ==========================================
-// Infer TypeScript Types
-// ==========================================
-
-export type PaginationQueryInput = z.infer<typeof paginationQuerySchema>;
-
-export type CreateProgramTypeInput = z.infer<typeof createProgramTypeSchema>;
-export type UpdateProgramTypeInput = z.infer<typeof updateProgramTypeSchema>;
-export type ProgramTypeQueryInput = z.infer<typeof programTypeQuerySchema>;
-
-export type CreateProgramCategoryInput = z.infer<typeof createProgramCategorySchema>;
-export type UpdateProgramCategoryInput = z.infer<typeof updateProgramCategorySchema>;
-export type ProgramCategoryQueryInput = z.infer<typeof programCategoryQuerySchema>;
-
-export type CreateTaskTypeInput = z.infer<typeof createTaskTypeSchema>;
-export type UpdateTaskTypeInput = z.infer<typeof updateTaskTypeSchema>;
-export type TaskTypeQueryInput = z.infer<typeof taskTypeQuerySchema>;
-
-export type CreateProgramTemplateInput = z.infer<typeof createProgramTemplateSchema>;
-export type UpdateProgramTemplateInput = z.infer<typeof updateProgramTemplateSchema>;
-export type ProgramTemplateQueryInput = z.infer<typeof programTemplateQuerySchema>;
+// DTO schemas only — types moved to program-configuration.types.ts

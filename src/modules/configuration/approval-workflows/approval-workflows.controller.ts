@@ -1,12 +1,13 @@
-import { Request, Response, NextFunction } from "express";
-import { ApprovalWorkflowsService } from "./approval-workflows.service.js";
-import {
-  CreateApprovalWorkflowDto,
-  UpdateApprovalWorkflowDto,
-  ApprovalWorkflowFilterDto,
-  CreateApprovalWorkflowStepDto,
-  UpdateApprovalWorkflowStepDto,
-} from "./approval-workflows.dto.js";
+import type { NextFunction, Response } from "express";
+import type { AuthRequest } from "../auth-request.js";
+import type { ApprovalWorkflowsService } from "./approval-workflows.service.js";
+import type {
+  CreateApprovalWorkflowInput,
+  UpdateApprovalWorkflowInput,
+  ApprovalWorkflowFilterInput,
+  CreateApprovalWorkflowStepInput,
+  UpdateApprovalWorkflowStepInput,
+} from "./approval-workflows.types.js";
 
 export class ApprovalWorkflowsController {
   constructor(private service: ApprovalWorkflowsService) {}
@@ -16,14 +17,14 @@ export class ApprovalWorkflowsController {
   // ==========================================
 
   createWorkflow = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const userId = req.user.id;
-      const dto = req.body as CreateApprovalWorkflowDto;
+      const userId = req.user.appUserId;
+      const dto = req.body as CreateApprovalWorkflowInput;
 
       const result = await this.service.createWorkflow(
         companyId,
@@ -41,13 +42,13 @@ export class ApprovalWorkflowsController {
   };
 
   getWorkflows = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const filter = req.query as unknown as ApprovalWorkflowFilterDto;
+      const filter = req.query;
 
       const result = await this.service.getWorkflows(companyId, filter);
 
@@ -61,7 +62,7 @@ export class ApprovalWorkflowsController {
   };
 
   getWorkflowById = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -81,15 +82,15 @@ export class ApprovalWorkflowsController {
   };
 
   updateWorkflow = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const userId = req.user.id;
+      const userId = req.user.appUserId;
       const id = parseInt(req.params.id, 10);
-      const dto = req.body as UpdateApprovalWorkflowDto;
+      const dto = req.body as UpdateApprovalWorkflowInput;
 
       const result = await this.service.updateWorkflow(
         companyId,
@@ -108,13 +109,13 @@ export class ApprovalWorkflowsController {
   };
 
   deleteWorkflow = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const userId = req.user.id;
+      const userId = req.user.appUserId;
       const id = parseInt(req.params.id, 10);
 
       const result = await this.service.deleteWorkflow(
@@ -137,14 +138,14 @@ export class ApprovalWorkflowsController {
   // ==========================================
 
   createWorkflowStep = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
       const workflowId = parseInt(req.params.workflowId, 10);
-      const dto = req.body as CreateApprovalWorkflowStepDto;
+      const dto = req.body as CreateApprovalWorkflowStepInput;
 
       const result = await this.service.createWorkflowStep(
         companyId,
@@ -162,7 +163,7 @@ export class ApprovalWorkflowsController {
   };
 
   getWorkflowSteps = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -185,7 +186,7 @@ export class ApprovalWorkflowsController {
   };
 
   updateWorkflowStep = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -193,7 +194,7 @@ export class ApprovalWorkflowsController {
       const companyId = req.user.companyId;
       const workflowId = parseInt(req.params.workflowId, 10);
       const stepId = parseInt(req.params.stepId, 10);
-      const dto = req.body as UpdateApprovalWorkflowStepDto;
+      const dto = req.body as UpdateApprovalWorkflowStepInput;
 
       const result = await this.service.updateWorkflowStep(
         companyId,
@@ -212,7 +213,7 @@ export class ApprovalWorkflowsController {
   };
 
   deleteWorkflowStep = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {

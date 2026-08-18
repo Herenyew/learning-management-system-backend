@@ -1,21 +1,22 @@
-import { Request, Response, NextFunction } from "express";
-import { CertificateConfigurationService } from "./certificate-configuration.service.js";
-import {
-  CreateCertificateTypeDto,
-  UpdateCertificateTypeDto,
-  CertificateTypeFilterDto,
-  CreateCredentialSourceDto,
-  UpdateCredentialSourceDto,
-  CredentialSourceFilterDto,
-  CreateProviderTypeDto,
-  UpdateProviderTypeDto,
-  ProviderTypeFilterDto,
-  CreateCertificateTemplateDto,
-  UpdateCertificateTemplateDto,
-  CertificateTemplateFilterDto,
-  CreateCertificateTemplateSignerDto,
-  UpdateCertificateTemplateSignerDto,
-} from "./certificate-configuration.dto.js";
+import type { NextFunction, Response } from "express";
+import type { AuthRequest } from "../auth-request.js";
+import type { CertificateConfigurationService } from "./certificate-configuration.service.js";
+import type {
+  CreateCertificateTypeInput,
+  UpdateCertificateTypeInput,
+  CertificateTypeFilterInput,
+  CreateCredentialSourceInput,
+  UpdateCredentialSourceInput,
+  CredentialSourceFilterInput,
+  CreateProviderTypeInput,
+  UpdateProviderTypeInput,
+  ProviderTypeFilterInput,
+  CreateCertificateTemplateInput,
+  UpdateCertificateTemplateInput,
+  CertificateTemplateFilterInput,
+  CreateCertificateTemplateSignerInput,
+  UpdateCertificateTemplateSignerInput,
+} from "./certificate-configuration.types.js";
 
 export class CertificateConfigurationController {
   constructor(
@@ -27,13 +28,13 @@ export class CertificateConfigurationController {
   // ==========================================
 
   createCertificateType = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const dto: CreateCertificateTypeDto = req.body;
+      const dto: CreateCertificateTypeInput = req.body;
       const result = await this.service.createCertificateType(companyId, dto);
       res.status(201).json({ success: true, data: result });
     } catch (error) {
@@ -42,13 +43,13 @@ export class CertificateConfigurationController {
   };
 
   listCertificateTypes = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const query = req.query as unknown as CertificateTypeFilterDto;
+      const query = req.query;
       const result = await this.service.getCertificateTypes(companyId, query);
       res.status(200).json({ success: true, ...result });
     } catch (error) {
@@ -57,7 +58,7 @@ export class CertificateConfigurationController {
   };
 
   getCertificateTypeById = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -72,14 +73,14 @@ export class CertificateConfigurationController {
   };
 
   updateCertificateType = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
       const id = Number(req.params.id);
-      const dto: UpdateCertificateTypeDto = req.body;
+      const dto: UpdateCertificateTypeInput = req.body;
       const result = await this.service.updateCertificateType(
         companyId,
         id,
@@ -92,7 +93,7 @@ export class CertificateConfigurationController {
   };
 
   deleteCertificateType = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -111,13 +112,13 @@ export class CertificateConfigurationController {
   // ==========================================
 
   createCredentialSource = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const dto: CreateCredentialSourceDto = req.body;
+      const dto: CreateCredentialSourceInput = req.body;
       const result = await this.service.createCredentialSource(companyId, dto);
       res.status(201).json({ success: true, data: result });
     } catch (error) {
@@ -126,13 +127,13 @@ export class CertificateConfigurationController {
   };
 
   listCredentialSources = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const query = req.query as unknown as CredentialSourceFilterDto;
+      const query = req.query;
       const result = await this.service.getCredentialSources(companyId, query);
       res.status(200).json({ success: true, ...result });
     } catch (error) {
@@ -141,7 +142,7 @@ export class CertificateConfigurationController {
   };
 
   getCredentialSourceById = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -156,14 +157,14 @@ export class CertificateConfigurationController {
   };
 
   updateCredentialSource = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
       const id = Number(req.params.id);
-      const dto: UpdateCredentialSourceDto = req.body;
+      const dto: UpdateCredentialSourceInput = req.body;
       const result = await this.service.updateCredentialSource(
         companyId,
         id,
@@ -176,7 +177,7 @@ export class CertificateConfigurationController {
   };
 
   deleteCredentialSource = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -195,13 +196,13 @@ export class CertificateConfigurationController {
   // ==========================================
 
   createProviderType = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const dto: CreateProviderTypeDto = req.body;
+      const dto: CreateProviderTypeInput = req.body;
       const result = await this.service.createProviderType(companyId, dto);
       res.status(201).json({ success: true, data: result });
     } catch (error) {
@@ -210,13 +211,13 @@ export class CertificateConfigurationController {
   };
 
   listProviderTypes = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const query = req.query as unknown as ProviderTypeFilterDto;
+      const query = req.query;
       const result = await this.service.getProviderTypes(companyId, query);
       res.status(200).json({ success: true, ...result });
     } catch (error) {
@@ -225,7 +226,7 @@ export class CertificateConfigurationController {
   };
 
   getProviderTypeById = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -240,14 +241,14 @@ export class CertificateConfigurationController {
   };
 
   updateProviderType = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
       const id = Number(req.params.id);
-      const dto: UpdateProviderTypeDto = req.body;
+      const dto: UpdateProviderTypeInput = req.body;
       const result = await this.service.updateProviderType(
         companyId,
         id,
@@ -260,7 +261,7 @@ export class CertificateConfigurationController {
   };
 
   deleteProviderType = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -279,14 +280,14 @@ export class CertificateConfigurationController {
   // ==========================================
 
   createTemplate = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const userId = req.user.id;
-      const dto: CreateCertificateTemplateDto = req.body;
+      const userId = req.user.appUserId;
+      const dto: CreateCertificateTemplateInput = req.body;
       const result = await this.service.createTemplate(companyId, userId, dto);
       res.status(201).json({ success: true, data: result });
     } catch (error) {
@@ -295,13 +296,13 @@ export class CertificateConfigurationController {
   };
 
   listTemplates = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const query = req.query as unknown as CertificateTemplateFilterDto;
+      const query = req.query;
       const result = await this.service.getTemplates(companyId, query);
       res.status(200).json({ success: true, ...result });
     } catch (error) {
@@ -310,7 +311,7 @@ export class CertificateConfigurationController {
   };
 
   getTemplateById = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -325,15 +326,15 @@ export class CertificateConfigurationController {
   };
 
   updateTemplate = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const userId = req.user.id;
+      const userId = req.user.appUserId;
       const id = Number(req.params.id);
-      const dto: UpdateCertificateTemplateDto = req.body;
+      const dto: UpdateCertificateTemplateInput = req.body;
       const result = await this.service.updateTemplate(
         companyId,
         id,
@@ -347,7 +348,7 @@ export class CertificateConfigurationController {
   };
 
   deleteTemplate = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -366,14 +367,14 @@ export class CertificateConfigurationController {
   // ==========================================
 
   addSigner = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
       const templateId = Number(req.params.templateId);
-      const dto: CreateCertificateTemplateSignerDto = req.body;
+      const dto: CreateCertificateTemplateSignerInput = req.body;
       const result = await this.service.addSigner(companyId, templateId, dto);
       res.status(201).json({ success: true, data: result });
     } catch (error) {
@@ -382,7 +383,7 @@ export class CertificateConfigurationController {
   };
 
   listSigners = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -397,7 +398,7 @@ export class CertificateConfigurationController {
   };
 
   updateSigner = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -405,7 +406,7 @@ export class CertificateConfigurationController {
       const companyId = req.user.companyId;
       const templateId = Number(req.params.templateId);
       const signerId = Number(req.params.signerId);
-      const dto: UpdateCertificateTemplateSignerDto = req.body;
+      const dto: UpdateCertificateTemplateSignerInput = req.body;
       const result = await this.service.updateSigner(
         companyId,
         templateId,
@@ -419,7 +420,7 @@ export class CertificateConfigurationController {
   };
 
   deleteSigner = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {

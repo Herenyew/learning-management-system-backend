@@ -1,9 +1,9 @@
-import { ITrainingEffectivenessRepository } from "./training-effectiveness.repository.js";
-import {
-  CreateEffectivenessWeightConfigDto,
-  UpdateEffectivenessWeightConfigDto,
-  EffectivenessWeightConfigFilterDto,
-} from "./training-effectiveness.dto.js";
+import type { ITrainingEffectivenessRepository } from "./training-effectiveness.types.js";
+import type {
+  CreateEffectivenessWeightConfigInput,
+  UpdateEffectivenessWeightConfigInput,
+  EffectivenessWeightConfigFilterInput,
+} from "./training-effectiveness.types.js";
 import {
   ValidationError,
   NotFoundError,
@@ -32,7 +32,7 @@ export class TrainingEffectivenessService {
   async createWeightConfig(
     companyId: number,
     userId: number,
-    dto: CreateEffectivenessWeightConfigDto
+    dto: CreateEffectivenessWeightConfigInput
   ) {
     this.validateTotalWeight(
       dto.reactionWeight,
@@ -75,7 +75,7 @@ export class TrainingEffectivenessService {
 
   async getWeightConfigs(
     companyId: number,
-    filter: EffectivenessWeightConfigFilterDto
+    filter: EffectivenessWeightConfigFilterInput
   ) {
     const [data, total] = await Promise.all([
       this.repository.findWeightConfigs(companyId, filter),
@@ -98,7 +98,7 @@ export class TrainingEffectivenessService {
   async updateWeightConfig(
     companyId: number,
     id: number,
-    dto: UpdateEffectivenessWeightConfigDto
+    dto: UpdateEffectivenessWeightConfigInput
   ) {
     const existing = await this.getWeightConfigById(companyId, id);
 

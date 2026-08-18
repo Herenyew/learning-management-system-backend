@@ -3,8 +3,8 @@ import {
   ConflictError,
   ValidationError,
 } from "../../../common/errors/http-errors.js"; 
-import { IProgramConfigurationRepository } from "./program-configuration.repository.js";
-import {
+import type { IProgramConfigurationRepository } from "./program-configuration.types.js";
+import type {
   CreateProgramTypeInput,
   UpdateProgramTypeInput,
   ProgramTypeQueryInput,
@@ -17,7 +17,7 @@ import {
   CreateProgramTemplateInput,
   UpdateProgramTemplateInput,
   ProgramTemplateQueryInput,
-} from "./program-configuration.dto.js";
+} from "./program-configuration.types.js";
 
 // Utility helper for slug generation
 function slugify(text: string): string {

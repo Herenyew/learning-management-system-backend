@@ -7,8 +7,7 @@ export const idParamSchema = z.object({
 });
 
 
-export const NotificationChannelEnum = z.nativeEnum($Enums.NotificationChannel)
-export type Channel = $Enums.NotificationChannel;
+export const NotificationChannelEnum = z.nativeEnum($Enums.NotificationChannel);
 
 // ==========================================
 // 1. NotificationModule Schemas
@@ -31,8 +30,8 @@ export const updateNotificationModuleSchema =
   createNotificationModuleSchema.partial();
 
 export const notificationModuleFilterSchema = z.object({
-  page: z.string().optional().transform((v) => (v ? parseInt(v, 10) : 1)),
-  limit: z.string().optional().transform((v) => (v ? parseInt(v, 10) : 10)),
+  page: z.coerce.number().int().positive().optional().default(1),
+  limit: z.coerce.number().int().positive().max(100).optional().default(10),
   search: z.string().optional(),
   isActive: z
     .string()
@@ -46,15 +45,7 @@ export const notificationModuleFilterSchema = z.object({
   sortOrder: z.enum(["asc", "desc"]).optional().default("desc"),
 });
 
-export type CreateNotificationModuleDto = z.infer<
-  typeof createNotificationModuleSchema
->;
-export type UpdateNotificationModuleDto = z.infer<
-  typeof updateNotificationModuleSchema
->;
-export type NotificationModuleFilterDto = z.infer<
-  typeof notificationModuleFilterSchema
->;
+// DTO schemas only — types moved to notification-configuration.types.ts
 
 // ==========================================
 // 2. NotificationEvent Schemas
@@ -78,10 +69,10 @@ export const updateNotificationEventSchema =
   createNotificationEventSchema.partial();
 
 export const notificationEventFilterSchema = z.object({
-  page: z.string().optional().transform((v) => (v ? parseInt(v, 10) : 1)),
-  limit: z.string().optional().transform((v) => (v ? parseInt(v, 10) : 10)),
+  page: z.coerce.number().int().positive().optional().default(1),
+  limit: z.coerce.number().int().positive().max(100).optional().default(10),
   search: z.string().optional(),
-  moduleId: z.string().optional().transform((v) => (v ? parseInt(v, 10) : undefined)),
+  moduleId: z.coerce.number().int().positive().optional(),
   isActive: z
     .string()
     .optional()
@@ -90,15 +81,7 @@ export const notificationEventFilterSchema = z.object({
   sortOrder: z.enum(["asc", "desc"]).optional().default("desc"),
 });
 
-export type CreateNotificationEventDto = z.infer<
-  typeof createNotificationEventSchema
->;
-export type UpdateNotificationEventDto = z.infer<
-  typeof updateNotificationEventSchema
->;
-export type NotificationEventFilterDto = z.infer<
-  typeof notificationEventFilterSchema
->;
+// DTO schemas only — types moved to notification-configuration.types.ts
 
 // ==========================================
 // 3. NotificationTemplate Schemas
@@ -120,12 +103,12 @@ export const updateNotificationTemplateSchema =
   createNotificationTemplateSchema.partial();
 
 export const notificationTemplateFilterSchema = z.object({
-  page: z.string().optional().transform((v) => (v ? parseInt(v, 10) : 1)),
-  limit: z.string().optional().transform((v) => (v ? parseInt(v, 10) : 10)),
+  page: z.coerce.number().int().positive().optional().default(1),
+  limit: z.coerce.number().int().positive().max(100).optional().default(10),
   search: z.string().optional(),
   channel: NotificationChannelEnum.optional(),
   eventCode: z.string().optional(),
-  notificationEventId: z.string().optional().transform((v) => (v ? parseInt(v, 10) : undefined)),
+  notificationEventId: z.coerce.number().int().positive().optional(),
   isActive: z
     .string()
     .optional()
@@ -134,12 +117,4 @@ export const notificationTemplateFilterSchema = z.object({
   sortOrder: z.enum(["asc", "desc"]).optional().default("desc"),
 });
 
-export type CreateNotificationTemplateDto = z.infer<
-  typeof createNotificationTemplateSchema
->;
-export type UpdateNotificationTemplateDto = z.infer<
-  typeof updateNotificationTemplateSchema
->;
-export type NotificationTemplateFilterDto = z.infer<
-  typeof notificationTemplateFilterSchema
->;
+// DTO schemas only — types moved to notification-configuration.types.ts

@@ -1,171 +1,23 @@
-import {
+import { Prisma } from "@prisma/client";
+import type {
   PrismaClient,
-  Prisma,
   NotificationModule,
   NotificationEvent,
   NotificationTemplate,
 } from "@prisma/client";
-import {
-  CreateNotificationModuleDto,
-  UpdateNotificationModuleDto,
-  NotificationModuleFilterDto,
-  CreateNotificationEventDto,
-  UpdateNotificationEventDto,
-  NotificationEventFilterDto,
-  CreateNotificationTemplateDto,
-  UpdateNotificationTemplateDto,
-  NotificationTemplateFilterDto,
-} from "./notification-configuration.dto.js";
+import type {
+  CreateNotificationModuleInput,
+  UpdateNotificationModuleInput,
+  NotificationModuleFilterParams,
+  CreateNotificationEventInput,
+  UpdateNotificationEventInput,
+  NotificationEventFilterParams,
+  CreateNotificationTemplateInput,
+  UpdateNotificationTemplateInput,
+  NotificationTemplateFilterParams,
+} from "./notification-configuration.types.js";
 
-export interface INotificationConfigurationRepository {
-  // ==========================================
-  // 1. NotificationModule Methods
-  // ==========================================
-  createNotificationModule(
-    companyId: number,
-    data: CreateNotificationModuleDto
-  ): Promise<NotificationModule>;
-
-  findNotificationModuleById(
-    companyId: number,
-    id: number
-  ): Promise<NotificationModule | null>;
-
-  findNotificationModuleByName(
-    companyId: number,
-    name: string
-  ): Promise<NotificationModule | null>;
-
-  findNotificationModuleBySlug(
-    companyId: number,
-    slug: string
-  ): Promise<NotificationModule | null>;
-
-  findNotificationModules(
-    companyId: number,
-    query: NotificationModuleFilterDto
-  ): Promise<{
-    data: NotificationModule[];
-    meta: {
-      total: number;
-      page: number;
-      limit: number;
-      totalPages: number;
-    };
-  }>;
-
-  updateNotificationModule(
-    companyId: number,
-    id: number,
-    data: UpdateNotificationModuleDto
-  ): Promise<Prisma.BatchPayload>;
-
-  deactivateNotificationModule(
-    companyId: number,
-    id: number
-  ): Promise<Prisma.BatchPayload>;
-
-  countNotificationModuleUsages(
-    companyId: number,
-    id: number
-  ): Promise<number>;
-
-  // ==========================================
-  // 2. NotificationEvent Methods
-  // ==========================================
-  createNotificationEvent(
-    companyId: number,
-    data: CreateNotificationEventDto
-  ): Promise<NotificationEvent>;
-
-  findNotificationEventById(
-    companyId: number,
-    id: number
-  ): Promise<NotificationEvent | null>;
-
-  findNotificationEventByCode(
-    companyId: number,
-    code: string
-  ): Promise<NotificationEvent | null>;
-
-  findNotificationEvents(
-    companyId: number,
-    query: NotificationEventFilterDto
-  ): Promise<{
-    data: NotificationEvent[];
-    meta: {
-      total: number;
-      page: number;
-      limit: number;
-      totalPages: number;
-    };
-  }>;
-
-  updateNotificationEvent(
-    companyId: number,
-    id: number,
-    data: UpdateNotificationEventDto
-  ): Promise<Prisma.BatchPayload>;
-
-  deactivateNotificationEvent(
-    companyId: number,
-    id: number
-  ): Promise<Prisma.BatchPayload>;
-
-  countNotificationEventUsages(
-    companyId: number,
-    id: number
-  ): Promise<number>;
-
-  // ==========================================
-  // 3. NotificationTemplate Methods
-  // ==========================================
-  createTemplate(
-    companyId: number,
-    userId: number,
-    data: CreateNotificationTemplateDto
-  ): Promise<NotificationTemplate>;
-
-  findTemplateById(
-    companyId: number,
-    id: number
-  ): Promise<NotificationTemplate | null>;
-
-  findTemplateByName(
-    companyId: number,
-    name: string
-  ): Promise<NotificationTemplate | null>;
-
-  findTemplates(
-    companyId: number,
-    query: NotificationTemplateFilterDto
-  ): Promise<{
-    data: NotificationTemplate[];
-    meta: {
-      total: number;
-      page: number;
-      limit: number;
-      totalPages: number;
-    };
-  }>;
-
-  updateTemplate(
-    companyId: number,
-    id: number,
-    userId: number,
-    data: UpdateNotificationTemplateDto
-  ): Promise<Prisma.BatchPayload>;
-
-  softDeleteTemplate(
-    companyId: number,
-    id: number
-  ): Promise<Prisma.BatchPayload>;
-
-  countTemplateUsages(
-    companyId: number,
-    id: number
-  ): Promise<number>;
-}
+import type { INotificationConfigurationRepository } from "./notification-configuration.types.js";
 
 export class NotificationConfigurationRepository
   implements INotificationConfigurationRepository
@@ -178,7 +30,7 @@ export class NotificationConfigurationRepository
 
   async createNotificationModule(
     companyId: number,
-    data: CreateNotificationModuleDto
+    data: CreateNotificationModuleInput
   ): Promise<NotificationModule> {
     return this.prisma.notificationModule.create({
       data: {
@@ -226,7 +78,7 @@ export class NotificationConfigurationRepository
 
   async findNotificationModules(
     companyId: number,
-    query: NotificationModuleFilterDto
+    query: NotificationModuleFilterParams
   ) {
     const { search, isActive, isSystem, page = 1, limit = 10, sortBy = "createdAt", sortOrder = "desc" } = query;
     const skip = (page - 1) * limit;
@@ -268,7 +120,7 @@ export class NotificationConfigurationRepository
   async updateNotificationModule(
     companyId: number,
     id: number,
-    data: UpdateNotificationModuleDto
+    data: UpdateNotificationModuleInput
   ): Promise<Prisma.BatchPayload> {
     return this.prisma.notificationModule.updateMany({
       where: { id, companyId },
@@ -306,7 +158,7 @@ export class NotificationConfigurationRepository
 
   async createNotificationEvent(
     companyId: number,
-    data: CreateNotificationEventDto
+    data: CreateNotificationEventInput
   ): Promise<NotificationEvent> {
     return this.prisma.notificationEvent.create({
       data: {
@@ -341,7 +193,7 @@ export class NotificationConfigurationRepository
 
   async findNotificationEvents(
     companyId: number,
-    query: NotificationEventFilterDto
+    query: NotificationEventFilterParams
   ) {
     const { search, moduleId, isActive, page = 1, limit = 10, sortBy = "createdAt", sortOrder = "desc" } = query;
     const skip = (page - 1) * limit;
@@ -384,7 +236,7 @@ export class NotificationConfigurationRepository
   async updateNotificationEvent(
     companyId: number,
     id: number,
-    data: UpdateNotificationEventDto
+    data: UpdateNotificationEventInput
   ): Promise<Prisma.BatchPayload> {
     return this.prisma.notificationEvent.updateMany({
       where: { id, companyId },
@@ -423,7 +275,7 @@ export class NotificationConfigurationRepository
   async createTemplate(
     companyId: number,
     userId: number,
-    data: CreateNotificationTemplateDto
+    data: CreateNotificationTemplateInput
   ): Promise<NotificationTemplate> {
     return this.prisma.notificationTemplate.create({
       data: {
@@ -469,7 +321,7 @@ export class NotificationConfigurationRepository
 
   async findTemplates(
     companyId: number,
-    query: NotificationTemplateFilterDto
+    query: NotificationTemplateFilterParams
   ) {
     const {
       search,
@@ -526,7 +378,7 @@ export class NotificationConfigurationRepository
     companyId: number,
     id: number,
     userId: number,
-    data: UpdateNotificationTemplateDto
+    data: UpdateNotificationTemplateInput
   ): Promise<Prisma.BatchPayload> {
     return this.prisma.notificationTemplate.updateMany({
       where: { id, companyId, deletedAt: null },

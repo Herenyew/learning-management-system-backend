@@ -1,90 +1,19 @@
-import {
+import type {
   PrismaClient,
   Prisma,
   ApprovalWorkflow,
   ApprovalWorkflowStep,
 } from "@prisma/client";
-import {
-  CreateApprovalWorkflowDto,
-  UpdateApprovalWorkflowDto,
-  ApprovalWorkflowFilterDto,
-  CreateApprovalWorkflowStepDto,
-  UpdateApprovalWorkflowStepDto,
-} from "./approval-workflows.dto.js";
+import type {
+  ApprovalWorkflowFilterParams,
+  ApprovalWorkflowWithSteps,
+  CreateApprovalWorkflowInput,
+  UpdateApprovalWorkflowInput,
+  CreateApprovalWorkflowStepInput,
+  UpdateApprovalWorkflowStepInput,
+} from "./approval-workflows.types.js";
 
-export interface IApprovalWorkflowsRepository {
-  // ApprovalWorkflow
-  createWorkflow(
-    companyId: number,
-    userId: number,
-    dto: CreateApprovalWorkflowDto
-  ): Promise<ApprovalWorkflow>;
-  findWorkflowById(
-    companyId: number,
-    id: number
-  ): Promise<(ApprovalWorkflow & { steps: ApprovalWorkflowStep[] }) | null>;
-  findWorkflowByName(
-    companyId: number,
-    name: string
-  ): Promise<ApprovalWorkflow | null>;
-  findWorkflows(
-    companyId: number,
-    filter: ApprovalWorkflowFilterDto
-  ): Promise<ApprovalWorkflow[]>;
-  countWorkflows(
-    companyId: number,
-    filter: ApprovalWorkflowFilterDto
-  ): Promise<number>;
-  updateWorkflow(
-    companyId: number,
-    id: number,
-    userId: number,
-    dto: UpdateApprovalWorkflowDto
-  ): Promise<ApprovalWorkflow>;
-  softDeleteWorkflow(
-    companyId: number,
-    id: number,
-    userId: number
-  ): Promise<ApprovalWorkflow>;
-  countWorkflowUsages(companyId: number, id: number): Promise<number>;
-  unsetPreviousDefaults(
-    companyId: number,
-    entityType: string,
-    prismaTx?: Prisma.TransactionClient
-  ): Promise<Prisma.BatchPayload>;
-
-  // ApprovalWorkflowStep
-  createWorkflowStep(
-    companyId: number,
-    workflowId: number,
-    dto: CreateApprovalWorkflowStepDto
-  ): Promise<ApprovalWorkflowStep>;
-  findWorkflowStepById(
-    companyId: number,
-    id: number
-  ): Promise<ApprovalWorkflowStep | null>;
-  findWorkflowStepByOrder(
-    workflowId: number,
-    approvalOrder: number
-  ): Promise<ApprovalWorkflowStep | null>;
-  findWorkflowSteps(
-    companyId: number,
-    workflowId: number
-  ): Promise<ApprovalWorkflowStep[]>;
-  updateWorkflowStep(
-    companyId: number,
-    id: number,
-    dto: UpdateApprovalWorkflowStepDto
-  ): Promise<ApprovalWorkflowStep>;
-  deleteWorkflowStep(
-    companyId: number,
-    id: number
-  ): Promise<ApprovalWorkflowStep>;
-
-  // External Verification Helpers
-  findAppRole(companyId: number, roleId: number): Promise<boolean>;
-  findEmployee(companyId: number, employeeId: string): Promise<boolean>;
-}
+import type { IApprovalWorkflowsRepository } from "./approval-workflows.types.js";
 
 export class ApprovalWorkflowsRepository
   implements IApprovalWorkflowsRepository
@@ -98,7 +27,7 @@ export class ApprovalWorkflowsRepository
   async createWorkflow(
     companyId: number,
     userId: number,
-    dto: CreateApprovalWorkflowDto
+    dto: CreateApprovalWorkflowInput
   ): Promise<ApprovalWorkflow> {
     return this.prisma.approvalWorkflow.create({
       data: {
@@ -116,7 +45,7 @@ export class ApprovalWorkflowsRepository
   async findWorkflowById(
     companyId: number,
     id: number
-  ): Promise<(ApprovalWorkflow & { steps: ApprovalWorkflowStep[] }) | null> {
+  ): Promise<ApprovalWorkflowWithSteps | null> {
     return this.prisma.approvalWorkflow.findFirst({
       where: { id, companyId, deletedAt: null },
       include: {
@@ -142,9 +71,9 @@ export class ApprovalWorkflowsRepository
 
   async findWorkflows(
     companyId: number,
-    filter: ApprovalWorkflowFilterDto
+    filter: ApprovalWorkflowFilterParams
   ): Promise<ApprovalWorkflow[]> {
-    const { search, entityType, isActive, isSystem, page, limit } = filter;
+    const { search, entityType, isActive, isSystem, page = 1, limit = 10 } = filter;
     const skip = (page - 1) * limit;
 
     const where: Prisma.ApprovalWorkflowWhereInput = {
@@ -171,7 +100,7 @@ export class ApprovalWorkflowsRepository
 
   async countWorkflows(
     companyId: number,
-    filter: ApprovalWorkflowFilterDto
+    filter: ApprovalWorkflowFilterParams
   ): Promise<number> {
     const { search, entityType, isActive, isSystem } = filter;
 
@@ -196,7 +125,7 @@ export class ApprovalWorkflowsRepository
     companyId: number,
     id: number,
     userId: number,
-    dto: UpdateApprovalWorkflowDto
+    dto: UpdateApprovalWorkflowInput
   ): Promise<ApprovalWorkflow> {
     return this.prisma.approvalWorkflow.update({
       where: { id },
@@ -251,7 +180,7 @@ export class ApprovalWorkflowsRepository
   async createWorkflowStep(
     companyId: number,
     workflowId: number,
-    dto: CreateApprovalWorkflowStepDto
+    dto: CreateApprovalWorkflowStepInput
   ): Promise<ApprovalWorkflowStep> {
     return this.prisma.approvalWorkflowStep.create({
       data: {
@@ -298,7 +227,7 @@ export class ApprovalWorkflowsRepository
   async updateWorkflowStep(
     companyId: number,
     id: number,
-    dto: UpdateApprovalWorkflowStepDto
+    dto: UpdateApprovalWorkflowStepInput
   ): Promise<ApprovalWorkflowStep> {
     return this.prisma.approvalWorkflowStep.update({
       where: { id },

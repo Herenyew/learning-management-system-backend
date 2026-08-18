@@ -1,4 +1,4 @@
-import {
+import type {
   PrismaClient,
   Prisma,
   CertificateType,
@@ -7,276 +7,24 @@ import {
   CertificateTemplate,
   CertificateTemplateSigner,
 } from "@prisma/client";
-import {
-  CreateCertificateTypeDto,
-  UpdateCertificateTypeDto,
-  CertificateTypeFilterDto,
-  CreateCredentialSourceDto,
-  UpdateCredentialSourceDto,
-  CredentialSourceFilterDto,
-  CreateProviderTypeDto,
-  UpdateProviderTypeDto,
-  ProviderTypeFilterDto,
-  CreateCertificateTemplateDto,
-  UpdateCertificateTemplateDto,
-  CertificateTemplateFilterDto,
-  CreateCertificateTemplateSignerDto,
-  UpdateCertificateTemplateSignerDto,
-} from "./certificate-configuration.dto.js";
+import type {
+  CreateCertificateTypeInput,
+  UpdateCertificateTypeInput,
+  CertificateTypeFilterParams,
+  CreateCredentialSourceInput,
+  UpdateCredentialSourceInput,
+  CredentialSourceFilterParams,
+  CreateProviderTypeInput,
+  UpdateProviderTypeInput,
+  ProviderTypeFilterParams,
+  CreateCertificateTemplateInput,
+  UpdateCertificateTemplateInput,
+  CertificateTemplateFilterParams,
+  CreateCertificateTemplateSignerInput,
+  UpdateCertificateTemplateSignerInput,
+} from "./certificate-configuration.types.js";
 
-export interface ICertificateConfigurationRepository {
-  // ==========================================
-  // 1. CertificateType Methods
-  // ==========================================
-  createCertificateType(
-    companyId: number,
-    data: CreateCertificateTypeDto,
-  ): Promise<CertificateType>;
-
-  findCertificateTypeById(
-    companyId: number,
-    id: number,
-  ): Promise<CertificateType | null>;
-
-  findCertificateTypeByName(
-    companyId: number,
-    name: string,
-  ): Promise<CertificateType | null>;
-
-  findCertificateTypeBySlug(
-    companyId: number,
-    slug: string,
-  ): Promise<CertificateType | null>;
-
-  findCertificateTypes(
-    companyId: number,
-    query: CertificateTypeFilterDto,
-  ): Promise<{
-    data: CertificateType[];
-    meta: {
-      total: number;
-      page: number;
-      limit: number;
-      totalPages: number;
-    };
-  }>;
-
-  countCertificateTypes(
-    companyId: number,
-    query?: Prisma.CertificateTypeWhereInput,
-  ): Promise<number>;
-
-  updateCertificateType(
-    companyId: number,
-    id: number,
-    data: UpdateCertificateTypeDto,
-  ): Promise<Prisma.BatchPayload>;
-
-  softDeleteCertificateType(
-    companyId: number,
-    id: number,
-  ): Promise<Prisma.BatchPayload>;
-
-  countCertificateTypeUsages(companyId: number, id: number): Promise<number>;
-
-  // ==========================================
-  // 2. CredentialSource Methods
-  // ==========================================
-  createCredentialSource(
-    companyId: number,
-    data: CreateCredentialSourceDto,
-  ): Promise<CredentialSource>;
-
-  findCredentialSourceById(
-    companyId: number,
-    id: number,
-  ): Promise<CredentialSource | null>;
-
-  findCredentialSourceByName(
-    companyId: number,
-    name: string,
-  ): Promise<CredentialSource | null>;
-
-  findCredentialSourceBySlug(
-    companyId: number,
-    slug: string,
-  ): Promise<CredentialSource | null>;
-
-  findCredentialSources(
-    companyId: number,
-    query: CredentialSourceFilterDto,
-  ): Promise<{
-    data: CredentialSource[];
-    meta: {
-      total: number;
-      page: number;
-      limit: number;
-      totalPages: number;
-    };
-  }>;
-
-  countCredentialSources(
-    companyId: number,
-    query?: Prisma.CredentialSourceWhereInput,
-  ): Promise<number>;
-
-  updateCredentialSource(
-    companyId: number,
-    id: number,
-    data: UpdateCredentialSourceDto,
-  ): Promise<Prisma.BatchPayload>;
-
-  softDeleteCredentialSource(
-    companyId: number,
-    id: number,
-  ): Promise<Prisma.BatchPayload>;
-
-  countCredentialSourceUsages(companyId: number, id: number): Promise<number>;
-
-  // ==========================================
-  // 3. ProviderType Methods
-  // ==========================================
-  createProviderType(
-    companyId: number,
-    data: CreateProviderTypeDto,
-  ): Promise<ProviderType>;
-
-  findProviderTypeById(
-    companyId: number,
-    id: number,
-  ): Promise<ProviderType | null>;
-
-  findProviderTypeByName(
-    companyId: number,
-    name: string,
-  ): Promise<ProviderType | null>;
-
-  findProviderTypeBySlug(
-    companyId: number,
-    slug: string,
-  ): Promise<ProviderType | null>;
-
-  findProviderTypes(
-    companyId: number,
-    query: ProviderTypeFilterDto,
-  ): Promise<{
-    data: ProviderType[];
-    meta: {
-      total: number;
-      page: number;
-      limit: number;
-      totalPages: number;
-    };
-  }>;
-
-  countProviderTypes(
-    companyId: number,
-    query?: Prisma.ProviderTypeWhereInput,
-  ): Promise<number>;
-
-  updateProviderType(
-    companyId: number,
-    id: number,
-    data: UpdateProviderTypeDto,
-  ): Promise<Prisma.BatchPayload>;
-
-  softDeleteProviderType(
-    companyId: number,
-    id: number,
-  ): Promise<Prisma.BatchPayload>;
-
-  countProviderTypeUsages(companyId: number, id: number): Promise<number>;
-
-  // ==========================================
-  // 4. CertificateTemplate Methods
-  // ==========================================
-  createTemplate(
-    companyId: number,
-    userId: number,
-    data: CreateCertificateTemplateDto,
-  ): Promise<CertificateTemplate>;
-
-  findTemplateById(
-    companyId: number,
-    id: number,
-  ): Promise<CertificateTemplate | null>;
-
-  findTemplateByName(
-    companyId: number,
-    name: string,
-  ): Promise<CertificateTemplate | null>;
-
-  findTemplates(
-    companyId: number,
-    query: CertificateTemplateFilterDto,
-  ): Promise<{
-    data: CertificateTemplate[];
-    meta: {
-      total: number;
-      page: number;
-      limit: number;
-      totalPages: number;
-    };
-  }>;
-
-  countTemplates(
-    companyId: number,
-    query?: Prisma.CertificateTemplateWhereInput,
-  ): Promise<number>;
-
-  updateTemplate(
-    companyId: number,
-    id: number,
-    userId: number,
-    data: UpdateCertificateTemplateDto,
-  ): Promise<Prisma.BatchPayload>;
-
-  softDeleteTemplate(
-    companyId: number,
-    id: number,
-  ): Promise<Prisma.BatchPayload>;
-
-  countTemplateUsages(companyId: number, id: number): Promise<number>;
-
-  // ==========================================
-  // 5. CertificateTemplateSigner Methods
-  // ==========================================
-  createSigner(
-    companyId: number,
-    templateId: number,
-    data: CreateCertificateTemplateSignerDto,
-  ): Promise<CertificateTemplateSigner>;
-
-  findSignerById(
-    companyId: number,
-    id: number,
-  ): Promise<CertificateTemplateSigner | null>;
-
-  findSignerByOrder(
-    companyId: number,
-    templateId: number,
-    displayOrder: number,
-  ): Promise<CertificateTemplateSigner | null>;
-
-  findSignerByEmployee(
-    companyId: number,
-    templateId: number,
-    employeeId: string,
-  ): Promise<CertificateTemplateSigner | null>;
-
-  findSigners(
-    companyId: number,
-    templateId: number,
-  ): Promise<CertificateTemplateSigner[]>;
-
-  updateSigner(
-    companyId: number,
-    id: number,
-    data: UpdateCertificateTemplateSignerDto,
-  ): Promise<Prisma.BatchPayload>;
-
-  deleteSigner(companyId: number, id: number): Promise<Prisma.BatchPayload>;
-}
+import type { ICertificateConfigurationRepository } from "./certificate-configuration.types.js";
 
 export class CertificateConfigurationRepository implements ICertificateConfigurationRepository {
   constructor(private prisma: PrismaClient) {}
@@ -287,7 +35,7 @@ export class CertificateConfigurationRepository implements ICertificateConfigura
 
   async createCertificateType(
     companyId: number,
-    data: CreateCertificateTypeDto,
+    data: CreateCertificateTypeInput,
   ): Promise<CertificateType> {
     return this.prisma.certificateType.create({
       data: {
@@ -332,7 +80,7 @@ export class CertificateConfigurationRepository implements ICertificateConfigura
 
   async findCertificateTypes(
     companyId: number,
-    query: CertificateTypeFilterDto,
+    query: CertificateTypeFilterParams,
   ) {
     const {
       search,
@@ -391,7 +139,7 @@ export class CertificateConfigurationRepository implements ICertificateConfigura
   async updateCertificateType(
     companyId: number,
     id: number,
-    data: UpdateCertificateTypeDto,
+    data: UpdateCertificateTypeInput,
   ): Promise<Prisma.BatchPayload> {
     return this.prisma.certificateType.updateMany({
       where: { id, companyId },
@@ -431,7 +179,7 @@ export class CertificateConfigurationRepository implements ICertificateConfigura
 
   async createCredentialSource(
     companyId: number,
-    data: CreateCredentialSourceDto,
+    data: CreateCredentialSourceInput,
   ): Promise<CredentialSource> {
     return this.prisma.credentialSource.create({
       data: {
@@ -476,7 +224,7 @@ export class CertificateConfigurationRepository implements ICertificateConfigura
 
   async findCredentialSources(
     companyId: number,
-    query: CredentialSourceFilterDto,
+    query: CredentialSourceFilterParams,
   ) {
     const {
       search,
@@ -535,7 +283,7 @@ export class CertificateConfigurationRepository implements ICertificateConfigura
   async updateCredentialSource(
     companyId: number,
     id: number,
-    data: UpdateCredentialSourceDto,
+    data: UpdateCredentialSourceInput,
   ): Promise<Prisma.BatchPayload> {
     return this.prisma.credentialSource.updateMany({
       where: { id, companyId },
@@ -575,7 +323,7 @@ export class CertificateConfigurationRepository implements ICertificateConfigura
 
   async createProviderType(
     companyId: number,
-    data: CreateProviderTypeDto,
+    data: CreateProviderTypeInput,
   ): Promise<ProviderType> {
     return this.prisma.providerType.create({
       data: {
@@ -618,7 +366,7 @@ export class CertificateConfigurationRepository implements ICertificateConfigura
     });
   }
 
-  async findProviderTypes(companyId: number, query: ProviderTypeFilterDto) {
+  async findProviderTypes(companyId: number, query: ProviderTypeFilterParams) {
     const {
       search,
       isActive,
@@ -676,7 +424,7 @@ export class CertificateConfigurationRepository implements ICertificateConfigura
   async updateProviderType(
     companyId: number,
     id: number,
-    data: UpdateProviderTypeDto,
+    data: UpdateProviderTypeInput,
   ): Promise<Prisma.BatchPayload> {
     return this.prisma.providerType.updateMany({
       where: { id, companyId },
@@ -717,7 +465,7 @@ export class CertificateConfigurationRepository implements ICertificateConfigura
   async createTemplate(
     companyId: number,
     userId: number,
-    data: CreateCertificateTemplateDto,
+    data: CreateCertificateTemplateInput,
   ): Promise<CertificateTemplate> {
     return this.prisma.certificateTemplate.create({
       data: {
@@ -767,7 +515,7 @@ export class CertificateConfigurationRepository implements ICertificateConfigura
     });
   }
 
-  async findTemplates(companyId: number, query: CertificateTemplateFilterDto) {
+  async findTemplates(companyId: number, query: CertificateTemplateFilterParams) {
     const {
       search,
       certificateTypeId,
@@ -831,7 +579,7 @@ export class CertificateConfigurationRepository implements ICertificateConfigura
     companyId: number,
     id: number,
     userId: number,
-    data: UpdateCertificateTemplateDto,
+    data: UpdateCertificateTemplateInput,
   ): Promise<Prisma.BatchPayload> {
     return this.prisma.certificateTemplate.updateMany({
       where: { id, companyId, deletedAt: null },
@@ -891,7 +639,7 @@ export class CertificateConfigurationRepository implements ICertificateConfigura
   async createSigner(
     companyId: number,
     templateId: number,
-    data: CreateCertificateTemplateSignerDto,
+    data: CreateCertificateTemplateSignerInput,
   ): Promise<CertificateTemplateSigner> {
     return this.prisma.certificateTemplateSigner.create({
       data: {
@@ -947,7 +695,7 @@ export class CertificateConfigurationRepository implements ICertificateConfigura
   async updateSigner(
     companyId: number,
     id: number,
-    data: UpdateCertificateTemplateSignerDto,
+    data: UpdateCertificateTemplateSignerInput,
   ): Promise<Prisma.BatchPayload> {
     return this.prisma.certificateTemplateSigner.updateMany({
       where: { id, companyId },

@@ -1,22 +1,20 @@
-import {
-  ICertificateConfigurationRepository,
-} from "./certificate-configuration.repository.js";
-import {
-  CreateCertificateTypeDto,
-  UpdateCertificateTypeDto,
-  CertificateTypeFilterDto,
-  CreateCredentialSourceDto,
-  UpdateCredentialSourceDto,
-  CredentialSourceFilterDto,
-  CreateProviderTypeDto,
-  UpdateProviderTypeDto,
-  ProviderTypeFilterDto,
-  CreateCertificateTemplateDto,
-  UpdateCertificateTemplateDto,
-  CertificateTemplateFilterDto,
-  CreateCertificateTemplateSignerDto,
-  UpdateCertificateTemplateSignerDto,
-} from "./certificate-configuration.dto.js";
+import type { ICertificateConfigurationRepository } from "./certificate-configuration.types.js";
+import type {
+  CreateCertificateTypeInput,
+  UpdateCertificateTypeInput,
+  CertificateTypeFilterInput,
+  CreateCredentialSourceInput,
+  UpdateCredentialSourceInput,
+  CredentialSourceFilterInput,
+  CreateProviderTypeInput,
+  UpdateProviderTypeInput,
+  ProviderTypeFilterInput,
+  CreateCertificateTemplateInput,
+  UpdateCertificateTemplateInput,
+  CertificateTemplateFilterInput,
+  CreateCertificateTemplateSignerInput,
+  UpdateCertificateTemplateSignerInput,
+} from "./certificate-configuration.types.js";
 
 export class CertificateConfigurationService {
   constructor(
@@ -29,7 +27,7 @@ export class CertificateConfigurationService {
 
   async createCertificateType(
     companyId: number,
-    dto: CreateCertificateTypeDto
+    dto: CreateCertificateTypeInput
   ) {
     const existingName = await this.repository.findCertificateTypeByName(
       companyId,
@@ -60,7 +58,7 @@ export class CertificateConfigurationService {
 
   async getCertificateTypes(
     companyId: number,
-    query: CertificateTypeFilterDto
+    query: CertificateTypeFilterInput
   ) {
     return this.repository.findCertificateTypes(companyId, query);
   }
@@ -68,7 +66,7 @@ export class CertificateConfigurationService {
   async updateCertificateType(
     companyId: number,
     id: number,
-    dto: UpdateCertificateTypeDto
+    dto: UpdateCertificateTypeInput
   ) {
     await this.getCertificateTypeById(companyId, id);
 
@@ -130,7 +128,7 @@ export class CertificateConfigurationService {
 
   async createCredentialSource(
     companyId: number,
-    dto: CreateCredentialSourceDto
+    dto: CreateCredentialSourceInput
   ) {
     const existingName = await this.repository.findCredentialSourceByName(
       companyId,
@@ -161,7 +159,7 @@ export class CertificateConfigurationService {
 
   async getCredentialSources(
     companyId: number,
-    query: CredentialSourceFilterDto
+    query: CredentialSourceFilterInput
   ) {
     return this.repository.findCredentialSources(companyId, query);
   }
@@ -169,7 +167,7 @@ export class CertificateConfigurationService {
   async updateCredentialSource(
     companyId: number,
     id: number,
-    dto: UpdateCredentialSourceDto
+    dto: UpdateCredentialSourceInput
   ) {
     await this.getCredentialSourceById(companyId, id);
 
@@ -229,7 +227,7 @@ export class CertificateConfigurationService {
   // 3. ProviderType Operations
   // ==========================================
 
-  async createProviderType(companyId: number, dto: CreateProviderTypeDto) {
+  async createProviderType(companyId: number, dto: CreateProviderTypeInput) {
     const existingName = await this.repository.findProviderTypeByName(
       companyId,
       dto.name
@@ -257,14 +255,14 @@ export class CertificateConfigurationService {
     return provider;
   }
 
-  async getProviderTypes(companyId: number, query: ProviderTypeFilterDto) {
+  async getProviderTypes(companyId: number, query: ProviderTypeFilterInput) {
     return this.repository.findProviderTypes(companyId, query);
   }
 
   async updateProviderType(
     companyId: number,
     id: number,
-    dto: UpdateProviderTypeDto
+    dto: UpdateProviderTypeInput
   ) {
     await this.getProviderTypeById(companyId, id);
 
@@ -327,7 +325,7 @@ export class CertificateConfigurationService {
   async createTemplate(
     companyId: number,
     userId: number,
-    dto: CreateCertificateTemplateDto
+    dto: CreateCertificateTemplateInput
   ) {
     const certType = await this.repository.findCertificateTypeById(
       companyId,
@@ -360,7 +358,7 @@ export class CertificateConfigurationService {
 
   async getTemplates(
     companyId: number,
-    query: CertificateTemplateFilterDto
+    query: CertificateTemplateFilterInput
   ) {
     return this.repository.findTemplates(companyId, query);
   }
@@ -369,7 +367,7 @@ export class CertificateConfigurationService {
     companyId: number,
     id: number,
     userId: number,
-    dto: UpdateCertificateTemplateDto
+    dto: UpdateCertificateTemplateInput
   ) {
     await this.getTemplateById(companyId, id);
 
@@ -431,7 +429,7 @@ export class CertificateConfigurationService {
   async addSigner(
     companyId: number,
     templateId: number,
-    dto: CreateCertificateTemplateSignerDto
+    dto: CreateCertificateTemplateSignerInput
   ) {
     await this.getTemplateById(companyId, templateId);
 
@@ -469,7 +467,7 @@ export class CertificateConfigurationService {
     companyId: number,
     templateId: number,
     signerId: number,
-    dto: UpdateCertificateTemplateSignerDto
+    dto: UpdateCertificateTemplateSignerInput
   ) {
     await this.getTemplateById(companyId, templateId);
 

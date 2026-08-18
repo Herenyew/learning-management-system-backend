@@ -40,15 +40,7 @@ export const CertificateTypeFilterSchema = PaginationQuerySchema.extend({
     .optional(),
 });
 
-export type CreateCertificateTypeDto = z.infer<
-  typeof CreateCertificateTypeSchema
->;
-export type UpdateCertificateTypeDto = z.infer<
-  typeof UpdateCertificateTypeSchema
->;
-export type CertificateTypeFilterDto = z.infer<
-  typeof CertificateTypeFilterSchema
->;
+// DTO schemas only — types moved to certificate-configuration.types.ts
 
 // ==========================================
 // 2. CredentialSource DTOs
@@ -78,15 +70,7 @@ export const CredentialSourceFilterSchema = PaginationQuerySchema.extend({
     .optional(),
 });
 
-export type CreateCredentialSourceDto = z.infer<
-  typeof CreateCredentialSourceSchema
->;
-export type UpdateCredentialSourceDto = z.infer<
-  typeof UpdateCredentialSourceSchema
->;
-export type CredentialSourceFilterDto = z.infer<
-  typeof CredentialSourceFilterSchema
->;
+// DTO schemas only — types moved to certificate-configuration.types.ts
 
 // ==========================================
 // 3. ProviderType DTOs
@@ -116,9 +100,7 @@ export const ProviderTypeFilterSchema = PaginationQuerySchema.extend({
     .optional(),
 });
 
-export type CreateProviderTypeDto = z.infer<typeof CreateProviderTypeSchema>;
-export type UpdateProviderTypeDto = z.infer<typeof UpdateProviderTypeSchema>;
-export type ProviderTypeFilterDto = z.infer<typeof ProviderTypeFilterSchema>;
+// DTO schemas only — types moved to certificate-configuration.types.ts
 
 // ==========================================
 // 4. CertificateTemplate DTOs
@@ -160,15 +142,7 @@ export const CertificateTemplateFilterSchema = PaginationQuerySchema.extend({
   status: z.nativeEnum(ContentLifecycleStatus).optional(),
 });
 
-export type CreateCertificateTemplateDto = z.infer<
-  typeof CreateCertificateTemplateSchema
->;
-export type UpdateCertificateTemplateDto = z.infer<
-  typeof UpdateCertificateTemplateSchema
->;
-export type CertificateTemplateFilterDto = z.infer<
-  typeof CertificateTemplateFilterSchema
->;
+// DTO schemas only — types moved to certificate-configuration.types.ts
 
 // ==========================================
 // 5. CertificateTemplateSigner DTOs
@@ -183,9 +157,4 @@ export const UpdateCertificateTemplateSignerSchema = z.object({
   displayOrder: z.number().int().min(1).optional(),
 });
 
-export type CreateCertificateTemplateSignerDto = z.infer<
-  typeof CreateCertificateTemplateSignerSchema
->;
-export type UpdateCertificateTemplateSignerDto = z.infer<
-  typeof UpdateCertificateTemplateSignerSchema
->;
+// DTO schemas only — types moved to certificate-configuration.types.ts

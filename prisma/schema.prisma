@@ -362,6 +362,27 @@ enum TargetAudienceEntityType {
   ASSESSMENT_TEMPLATE
 }
 
+enum CustomFieldTarget {
+  COURSE
+  PROGRAM
+  TNA_REQUEST
+  ENROLLMENT
+  CERTIFICATE
+  USER_PROFILE
+  CONTENT
+}
+
+enum CustomFieldType {
+  TEXT
+  TEXTAREA
+  NUMBER
+  DATE
+  BOOLEAN
+  SINGLE_SELECT
+  MULTI_SELECT
+  URL
+}
+
 enum ScormTrackingMode {
   COMPLETION_ONLY
   SCORE_ONLY
@@ -541,6 +562,7 @@ model Company {
   approvalWorkflowSteps      ApprovalWorkflowStep[]
   badgeCategories            BadgeCategory[]
   assessmentAttemptRules     AssessmentAttemptRule[]
+  customFieldDefinition      CustomFieldDefinition[]
 
   @@map("company")
 }
@@ -673,6 +695,8 @@ model AppUser {
   updatedAudienceGroup        AudienceGroup[]             @relation("AudienceGroupUpdatedBy")
   submittedApprovalInstances  ApprovalWorkflowInstance[]  @relation("ApprovalInstanceSubmittedBy")
   approvalDecisions           ApprovalDecision[]          @relation("ApprovalDecisionMadeBy")
+  customFieldCreated          CustomFieldDefinition[]     @relation("CustomFieldCreatedBy")
+  customFieldUpdated          CustomFieldDefinition[]     @relation("CustomFieldUpdatedBy")
   courseInstructors           CourseInstructor[]
   employeeSkillAssessments    EmployeeSkillAssessment[]
   storedFiles                 StoredFile[]
@@ -798,6 +822,38 @@ model LmsRolePermission {
   @@unique([appRoleId, permissionId])
   @@index([companyId])
   @@map("lms_role_permissions")
+}
+
+model CustomFieldDefinition {
+  id        Int @id @default(autoincrement())
+  companyId Int
+
+  target       CustomFieldTarget
+  fieldKey     String            @db.VarChar(100)
+  label        String            @db.VarChar(150)
+  description  String?           @db.Text
+  fieldType    CustomFieldType
+  settingsJson Json              @default("{}")
+
+  isRequired   Boolean @default(false)
+  isActive     Boolean @default(true)
+  displayOrder Int     @default(0)
+
+  createdBy Int
+  updatedBy Int?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  company       Company  @relation(fields: [companyId], references: [id])
+  createdByUser AppUser  @relation("CustomFieldCreatedBy", fields: [createdBy], references: [id])
+  updatedByUser AppUser? @relation("CustomFieldUpdatedBy", fields: [updatedBy], references: [id])
+
+  @@unique([companyId, target, fieldKey])
+  @@index([companyId])
+  @@index([companyId, target, isActive, displayOrder])
+  @@map("custom_field_definitions")
 }
 
 ///////////////////////////////////////////////////////////
@@ -3593,17 +3649,17 @@ model XpTransaction {
 }
 
 model LearningLevel {
-  id           Int      @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
   companyId    Int
-  name         String   @db.VarChar(100)
+  name         String    @db.VarChar(100)
   minimumXp    Int
   maximumXp    Int?
   badgeColor   String?
   displayOrder Int
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  company Company @relation(fields: [companyId], references: [id])
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+  company      Company   @relation(fields: [companyId], references: [id])
 
   @@unique([companyId, displayOrder])
   @@unique([companyId, minimumXp])

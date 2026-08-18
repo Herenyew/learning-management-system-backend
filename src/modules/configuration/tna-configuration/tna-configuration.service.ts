@@ -1,21 +1,29 @@
-import { ITnaConfigurationRepository } from "./tna-configuration.repository.js";
-import {
-  CreateTnaRequestTypeDto,
-  UpdateTnaRequestTypeDto,
-  TnaRequestTypeFilterDto,
-  CreateFundingTypeDto,
-  UpdateFundingTypeDto,
-  FundingTypeFilterDto,
-  CreateTrainingFormatDto,
-  UpdateTrainingFormatDto,
-  TrainingFormatFilterDto,
-  slugify,
-} from "./tna-configuration.dto.js";
+import type { ITnaConfigurationRepository } from "./tna-configuration.types.js";
+import type {
+  CreateTnaRequestTypeInput,
+  UpdateTnaRequestTypeInput,
+  TnaRequestTypeFilterInput,
+  CreateFundingTypeInput,
+  UpdateFundingTypeInput,
+  FundingTypeFilterInput,
+  CreateTrainingFormatInput,
+  UpdateTrainingFormatInput,
+  TrainingFormatFilterInput,
+} from "./tna-configuration.types.js";
 import {
   ConflictError,
   NotFoundError,
   ForbiddenError,
 } from "../../../common/errors/http-errors.js";
+
+function slugify(value: string): string {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
 export class TnaConfigurationService {
   constructor(private repository: ITnaConfigurationRepository) {}
@@ -24,7 +32,7 @@ export class TnaConfigurationService {
   // 1. TnaRequestTypeConfig Services
   // ==========================================
 
-  async createRequestType(companyId: number, dto: CreateTnaRequestTypeDto) {
+  async createRequestType(companyId: number, dto: CreateTnaRequestTypeInput) {
     const existing = await this.repository.findRequestTypeByName(
       companyId,
       dto.name
@@ -37,7 +45,7 @@ export class TnaConfigurationService {
     return this.repository.createRequestType(companyId, dto);
   }
 
-  async getRequestTypes(companyId: number, filter: TnaRequestTypeFilterDto) {
+  async getRequestTypes(companyId: number, filter: TnaRequestTypeFilterInput) {
     const [data, total] = await Promise.all([
       this.repository.findRequestTypes(companyId, filter),
       this.repository.countRequestTypes(companyId, filter),
@@ -68,7 +76,7 @@ export class TnaConfigurationService {
   async updateRequestType(
     companyId: number,
     id: number,
-    dto: UpdateTnaRequestTypeDto
+    dto: UpdateTnaRequestTypeInput
   ) {
     await this.getRequestTypeById(companyId, id);
 
@@ -106,7 +114,7 @@ export class TnaConfigurationService {
   // 2. FundingType Services
   // ==========================================
 
-  async createFundingType(companyId: number, dto: CreateFundingTypeDto) {
+  async createFundingType(companyId: number, dto: CreateFundingTypeInput) {
     const existingName = await this.repository.findFundingTypeByName(
       companyId,
       dto.name
@@ -131,7 +139,7 @@ export class TnaConfigurationService {
     return this.repository.createFundingType(companyId, { ...dto, slug });
   }
 
-  async getFundingTypes(companyId: number, filter: FundingTypeFilterDto) {
+  async getFundingTypes(companyId: number, filter: FundingTypeFilterInput) {
     const [data, total] = await Promise.all([
       this.repository.findFundingTypes(companyId, filter),
       this.repository.countFundingTypes(companyId, filter),
@@ -162,7 +170,7 @@ export class TnaConfigurationService {
   async updateFundingType(
     companyId: number,
     id: number,
-    dto: UpdateFundingTypeDto
+    dto: UpdateFundingTypeInput
   ) {
     const existing = await this.getFundingTypeById(companyId, id);
 
@@ -213,7 +221,7 @@ export class TnaConfigurationService {
   // 3. TrainingFormat Services
   // ==========================================
 
-  async createTrainingFormat(companyId: number, dto: CreateTrainingFormatDto) {
+  async createTrainingFormat(companyId: number, dto: CreateTrainingFormatInput) {
     const existingName = await this.repository.findTrainingFormatByName(
       companyId,
       dto.name
@@ -240,7 +248,7 @@ export class TnaConfigurationService {
 
   async getTrainingFormats(
     companyId: number,
-    filter: TrainingFormatFilterDto
+    filter: TrainingFormatFilterInput
   ) {
     const [data, total] = await Promise.all([
       this.repository.findTrainingFormats(companyId, filter),
@@ -272,7 +280,7 @@ export class TnaConfigurationService {
   async updateTrainingFormat(
     companyId: number,
     id: number,
-    dto: UpdateTrainingFormatDto
+    dto: UpdateTrainingFormatInput
   ) {
     const existing = await this.getTrainingFormatById(companyId, id);
 

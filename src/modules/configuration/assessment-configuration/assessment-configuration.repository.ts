@@ -1,4 +1,4 @@
-import {
+import type {
   PrismaClient,
   AssessmentType,
   QuestionType,
@@ -6,56 +6,24 @@ import {
   AssessmentTemplate,
   Prisma,
 } from "@prisma/client";
-import {
-  AssessmentTypeFilterDto,
-  QuestionTypeFilterDto,
-  GradingMethodFilterDto,
-  AssessmentTemplateFilterDto,
-} from "./assessment-configuration.dto.js";
+import type {
+  CreateAssessmentTypeInput,
+  UpdateAssessmentTypeInput,
+  AssessmentTypeFilterParams,
+  CreateQuestionTypeInput,
+  UpdateQuestionTypeInput,
+  QuestionTypeFilterParams,
+  CreateGradingMethodInput,
+  UpdateGradingMethodInput,
+  GradingMethodFilterParams,
+  CreateAssessmentTemplateInput,
+  UpdateAssessmentTemplateInput,
+  AssessmentTemplateDetail,
+  AssessmentTemplateFilterParams,
+  AssessmentTemplateListItem,
+} from "./assessment-configuration.types.js";
 
-export interface IAssessmentConfigurationRepository {
-  // Assessment Type
-  createAssessmentType(data: Prisma.AssessmentTypeCreateInput): Promise<AssessmentType>;
-  findAssessmentTypeById(id: number, companyId: number): Promise<AssessmentType | null>;
-  findAssessmentTypeByCode(code: string, companyId: number): Promise<AssessmentType | null>;
-  findAssessmentTypes(filter: AssessmentTypeFilterDto, companyId: number): Promise<AssessmentType[]>;
-  countAssessmentTypes(filter: AssessmentTypeFilterDto, companyId: number): Promise<number>;
-  updateAssessmentType(id: number, companyId: number, data: Prisma.AssessmentTypeUpdateInput): Promise<AssessmentType>;
-  deleteAssessmentType(id: number, companyId: number): Promise<AssessmentType>;
-  countAssessmentTypeUsages(id: number, companyId: number): Promise<number>;
-
-  // Question Type
-  createQuestionType(data: Prisma.QuestionTypeCreateInput): Promise<QuestionType>;
-  findQuestionTypeById(id: number, companyId: number): Promise<QuestionType | null>;
-  findQuestionTypeByName(name: string, companyId: number): Promise<QuestionType | null>;
-  findQuestionTypeBySlug(slug: string, companyId: number): Promise<QuestionType | null>;
-  findQuestionTypes(filter: QuestionTypeFilterDto, companyId: number): Promise<QuestionType[]>;
-  countQuestionTypes(filter: QuestionTypeFilterDto, companyId: number): Promise<number>;
-  updateQuestionType(id: number, companyId: number, data: Prisma.QuestionTypeUpdateInput): Promise<QuestionType>;
-  deleteQuestionType(id: number, companyId: number): Promise<QuestionType>;
-  countQuestionTypeUsages(id: number, companyId: number): Promise<number>;
-
-  // Grading Method
-  createGradingMethod(data: Prisma.GradingMethodCreateInput): Promise<GradingMethod>;
-  findGradingMethodById(id: number, companyId: number): Promise<GradingMethod | null>;
-  findGradingMethodByName(name: string, companyId: number): Promise<GradingMethod | null>;
-  findGradingMethodBySlug(slug: string, companyId: number): Promise<GradingMethod | null>;
-  findGradingMethods(filter: GradingMethodFilterDto, companyId: number): Promise<GradingMethod[]>;
-  countGradingMethods(filter: GradingMethodFilterDto, companyId: number): Promise<number>;
-  updateGradingMethod(id: number, companyId: number, data: Prisma.GradingMethodUpdateInput): Promise<GradingMethod>;
-  deleteGradingMethod(id: number, companyId: number): Promise<GradingMethod>;
-  countGradingMethodUsages(id: number, companyId: number): Promise<number>;
-
-  // Assessment Template
-  createTemplate(data: Prisma.AssessmentTemplateCreateInput): Promise<AssessmentTemplate>;
-  findTemplateById(id: number, companyId: number): Promise<any | null>;
-  findTemplateByName(name: string, companyId: number): Promise<AssessmentTemplate | null>;
-  findTemplates(filter: AssessmentTemplateFilterDto, companyId: number): Promise<any[]>;
-  countTemplates(filter: AssessmentTemplateFilterDto, companyId: number): Promise<number>;
-  updateTemplate(id: number, companyId: number, data: Prisma.AssessmentTemplateUpdateInput): Promise<AssessmentTemplate>;
-  softDeleteTemplate(id: number, companyId: number, updatedBy: number): Promise<AssessmentTemplate>;
-  countTemplateUsages(id: number, companyId: number): Promise<number>;
-}
+import type { IAssessmentConfigurationRepository } from "./assessment-configuration.types.js";
 
 export class AssessmentConfigurationRepository implements IAssessmentConfigurationRepository {
   constructor(private readonly prisma: PrismaClient) {}
@@ -83,8 +51,8 @@ export class AssessmentConfigurationRepository implements IAssessmentConfigurati
     });
   }
 
-  async findAssessmentTypes(filter: AssessmentTypeFilterDto, companyId: number): Promise<AssessmentType[]> {
-    const { search, isActive, page, pageSize } = filter;
+  async findAssessmentTypes(filter: AssessmentTypeFilterParams, companyId: number): Promise<AssessmentType[]> {
+    const { search, isActive, page = 1, pageSize = 10 } = filter;
     return this.prisma.assessmentType.findMany({
       where: {
         OR: [{ companyId }, { companyId: null }],
@@ -102,7 +70,7 @@ export class AssessmentConfigurationRepository implements IAssessmentConfigurati
     });
   }
 
-  async countAssessmentTypes(filter: AssessmentTypeFilterDto, companyId: number): Promise<number> {
+  async countAssessmentTypes(filter: AssessmentTypeFilterParams, companyId: number): Promise<number> {
     const { search, isActive } = filter;
     return this.prisma.assessmentType.count({
       where: {
@@ -124,7 +92,7 @@ export class AssessmentConfigurationRepository implements IAssessmentConfigurati
     data: Prisma.AssessmentTypeUpdateInput
   ): Promise<AssessmentType> {
     return this.prisma.assessmentType.update({
-      where: { id },
+      where: { id, companyId },
       data,
     });
   }
@@ -166,8 +134,8 @@ export class AssessmentConfigurationRepository implements IAssessmentConfigurati
     });
   }
 
-  async findQuestionTypes(filter: QuestionTypeFilterDto, companyId: number): Promise<QuestionType[]> {
-    const { search, isActive, answerStructure, page, pageSize } = filter;
+  async findQuestionTypes(filter: QuestionTypeFilterParams, companyId: number): Promise<QuestionType[]> {
+    const { search, isActive, answerStructure, page = 1, pageSize = 10 } = filter;
     return this.prisma.questionType.findMany({
       where: {
         companyId,
@@ -186,7 +154,7 @@ export class AssessmentConfigurationRepository implements IAssessmentConfigurati
     });
   }
 
-  async countQuestionTypes(filter: QuestionTypeFilterDto, companyId: number): Promise<number> {
+  async countQuestionTypes(filter: QuestionTypeFilterParams, companyId: number): Promise<number> {
     const { search, isActive, answerStructure } = filter;
     return this.prisma.questionType.count({
       where: {
@@ -209,7 +177,7 @@ export class AssessmentConfigurationRepository implements IAssessmentConfigurati
     data: Prisma.QuestionTypeUpdateInput
   ): Promise<QuestionType> {
     return this.prisma.questionType.update({
-      where: { id },
+      where: { id, companyId },
       data,
     });
   }
@@ -251,8 +219,8 @@ export class AssessmentConfigurationRepository implements IAssessmentConfigurati
     });
   }
 
-  async findGradingMethods(filter: GradingMethodFilterDto, companyId: number): Promise<GradingMethod[]> {
-    const { search, isActive, page, pageSize } = filter;
+  async findGradingMethods(filter: GradingMethodFilterParams, companyId: number): Promise<GradingMethod[]> {
+    const { search, isActive, page = 1, pageSize = 10 } = filter;
     return this.prisma.gradingMethod.findMany({
       where: {
         companyId,
@@ -270,7 +238,7 @@ export class AssessmentConfigurationRepository implements IAssessmentConfigurati
     });
   }
 
-  async countGradingMethods(filter: GradingMethodFilterDto, companyId: number): Promise<number> {
+  async countGradingMethods(filter: GradingMethodFilterParams, companyId: number): Promise<number> {
     const { search, isActive } = filter;
     return this.prisma.gradingMethod.count({
       where: {
@@ -316,7 +284,7 @@ export class AssessmentConfigurationRepository implements IAssessmentConfigurati
     return this.prisma.assessmentTemplate.create({ data });
   }
 
-  async findTemplateById(id: number, companyId: number): Promise<any | null> {
+  async findTemplateById(id: number, companyId: number): Promise<AssessmentTemplateDetail | null> {
     return this.prisma.assessmentTemplate.findFirst({
       where: { id, companyId, deletedAt: null },
       select: {
@@ -357,8 +325,8 @@ export class AssessmentConfigurationRepository implements IAssessmentConfigurati
     });
   }
 
-  async findTemplates(filter: AssessmentTemplateFilterDto, companyId: number): Promise<any[]> {
-    const { search, assessmentTypeId, gradingMethodId, isActive, page, pageSize } = filter;
+  async findTemplates(filter: AssessmentTemplateFilterParams, companyId: number): Promise<AssessmentTemplateListItem[]> {
+    const { search, assessmentTypeId, gradingMethodId, isActive, page = 1, pageSize = 10 } = filter;
     return this.prisma.assessmentTemplate.findMany({
       where: {
         companyId,
@@ -392,7 +360,7 @@ export class AssessmentConfigurationRepository implements IAssessmentConfigurati
     });
   }
 
-  async countTemplates(filter: AssessmentTemplateFilterDto, companyId: number): Promise<number> {
+  async countTemplates(filter: AssessmentTemplateFilterParams, companyId: number): Promise<number> {
     const { search, assessmentTypeId, gradingMethodId, isActive } = filter;
     return this.prisma.assessmentTemplate.count({
       where: {

@@ -1,13 +1,14 @@
-import { Request, Response, NextFunction } from 'express';
+import type { NextFunction, Response } from "express";
+import type { AuthRequest } from "../auth-request.js";
 import { SystemSettingService } from './system-setting.service.js';
 
 export class SystemSettingController {
   constructor(private svc: SystemSettingService) {}
 
-  create = async (req: Request, res: Response, next: NextFunction) => {
+  create = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = (req as any).ctx.companyId;
-      const userId = (req as any).ctx.userId;
+      const companyId = req.user.companyId;
+      const userId = req.user.appUserId;
       const data = req.body;
       const result = await this.svc.create(companyId, userId, data);
       res.status(201).json(result);
@@ -16,9 +17,9 @@ export class SystemSettingController {
     }
   };
 
-  findMany = async (req: Request, res: Response, next: NextFunction) => {
+  findMany = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = (req as any).ctx.companyId;
+      const companyId = req.user.companyId;
       const query = req.query;
       const result = await this.svc.findMany(companyId, query);
       res.json(result);
@@ -27,9 +28,9 @@ export class SystemSettingController {
     }
   };
 
-  findById = async (req: Request, res: Response, next: NextFunction) => {
+  findById = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = (req as any).ctx.companyId;
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
       const item = await this.svc.findById(companyId, id);
       if (!item) return res.status(404).send({ message: 'Not found' });
@@ -39,9 +40,9 @@ export class SystemSettingController {
     }
   };
 
-  findByKey = async (req: Request, res: Response, next: NextFunction) => {
+  findByKey = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = (req as any).ctx.companyId;
+      const companyId = req.user.companyId;
       const key = String(req.params.key);
       const item = await this.svc.findByKey(companyId, key);
       if (!item) return res.status(404).send({ message: 'Not found' });
@@ -51,10 +52,10 @@ export class SystemSettingController {
     }
   };
 
-  update = async (req: Request, res: Response, next: NextFunction) => {
+  update = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = (req as any).ctx.companyId;
-      const userId = (req as any).ctx.userId;
+      const companyId = req.user.companyId;
+      const userId = req.user.appUserId;
       const id = Number(req.params.id);
       const data = req.body;
       const result = await this.svc.update(companyId, id, userId, data);
@@ -64,9 +65,9 @@ export class SystemSettingController {
     }
   };
 
-  delete = async (req: Request, res: Response, next: NextFunction) => {
+  delete = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = (req as any).ctx.companyId;
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
       await this.svc.delete(companyId, id);
       res.status(204).send();

@@ -1,26 +1,26 @@
-import { Prisma, QuestionAnswerStructure } from "@prisma/client";
-import { IAssessmentConfigurationRepository } from "./assessment-configuration.repository.js";
-import {
-  CreateAssessmentTypeDto,
-  UpdateAssessmentTypeDto,
-  AssessmentTypeFilterDto,
-  CreateQuestionTypeDto,
-  UpdateQuestionTypeDto,
-  QuestionTypeFilterDto,
-  CreateGradingMethodDto,
-  UpdateGradingMethodDto,
-  GradingMethodFilterDto,
-  CreateAssessmentTemplateDto,
-  UpdateAssessmentTemplateDto,
-  AssessmentTemplateFilterDto,
-} from "./assessment-configuration.dto.js";
+import type { Prisma, QuestionAnswerStructure } from "@prisma/client";
+import type { IAssessmentConfigurationRepository } from "./assessment-configuration.types.js";
+import type {
+  CreateAssessmentTypeInput,
+  UpdateAssessmentTypeInput,
+  AssessmentTypeFilterInput,
+  CreateQuestionTypeInput,
+  UpdateQuestionTypeInput,
+  QuestionTypeFilterInput,
+  CreateGradingMethodInput,
+  UpdateGradingMethodInput,
+  GradingMethodFilterInput,
+  CreateAssessmentTemplateInput,
+  UpdateAssessmentTemplateInput,
+  AssessmentTemplateFilterInput,
+} from "./assessment-configuration.types.js";
 import { AppError, ErrorCode } from "../../../common/errors/index.js";
 
 export class AssessmentConfigurationService {
   constructor(private readonly repository: IAssessmentConfigurationRepository) {}
 
   // ─── 1. Assessment Types ─────────────────────────────────────────────────
-  async createAssessmentType(dto: CreateAssessmentTypeDto, companyId: number) {
+  async createAssessmentType(dto: CreateAssessmentTypeInput, companyId: number) {
     const existing = await this.repository.findAssessmentTypeByCode(dto.code, companyId);
     if (existing) {
       throw new AppError(`Assessment type code '${dto.code}' already exists.`, 409, ErrorCode.CONFLICT);
@@ -42,7 +42,7 @@ export class AssessmentConfigurationService {
     return this.repository.createAssessmentType(data);
   }
 
-  async getAssessmentTypes(filter: AssessmentTypeFilterDto, companyId: number) {
+  async getAssessmentTypes(filter: AssessmentTypeFilterInput, companyId: number) {
     const [items, total] = await Promise.all([
       this.repository.findAssessmentTypes(filter, companyId),
       this.repository.countAssessmentTypes(filter, companyId),
@@ -67,7 +67,7 @@ export class AssessmentConfigurationService {
     return item;
   }
 
-  async updateAssessmentType(id: number, dto: UpdateAssessmentTypeDto, companyId: number) {
+  async updateAssessmentType(id: number, dto: UpdateAssessmentTypeInput, companyId: number) {
     const existing = await this.getAssessmentTypeById(id, companyId);
 
     if (existing.isSystem) {
@@ -104,7 +104,7 @@ export class AssessmentConfigurationService {
   }
 
   // ─── 2. Question Types ───────────────────────────────────────────────────
-  async createQuestionType(dto: CreateQuestionTypeDto, companyId: number) {
+  async createQuestionType(dto: CreateQuestionTypeInput, companyId: number) {
     const existingName = await this.repository.findQuestionTypeByName(dto.name, companyId);
     if (existingName) {
       throw new AppError(`Question type with name '${dto.name}' already exists.`, 409, ErrorCode.CONFLICT);
@@ -128,7 +128,7 @@ export class AssessmentConfigurationService {
     return this.repository.createQuestionType(data);
   }
 
-  async getQuestionTypes(filter: QuestionTypeFilterDto, companyId: number) {
+  async getQuestionTypes(filter: QuestionTypeFilterInput, companyId: number) {
     const [items, total] = await Promise.all([
       this.repository.findQuestionTypes(filter, companyId),
       this.repository.countQuestionTypes(filter, companyId),
@@ -153,7 +153,7 @@ export class AssessmentConfigurationService {
     return item;
   }
 
-  async updateQuestionType(id: number, dto: UpdateQuestionTypeDto, companyId: number) {
+  async updateQuestionType(id: number, dto: UpdateQuestionTypeInput, companyId: number) {
     const existing = await this.getQuestionTypeById(id, companyId);
 
     if (existing.isSystem) {
@@ -209,7 +209,7 @@ export class AssessmentConfigurationService {
   }
 
   // ─── 3. Grading Methods ──────────────────────────────────────────────────
-  async createGradingMethod(dto: CreateGradingMethodDto, companyId: number) {
+  async createGradingMethod(dto: CreateGradingMethodInput, companyId: number) {
     const existingName = await this.repository.findGradingMethodByName(dto.name, companyId);
     if (existingName) {
       throw new AppError(`Grading method with name '${dto.name}' already exists.`, 409, ErrorCode.CONFLICT);
@@ -232,7 +232,7 @@ export class AssessmentConfigurationService {
     return this.repository.createGradingMethod(data);
   }
 
-  async getGradingMethods(filter: GradingMethodFilterDto, companyId: number) {
+  async getGradingMethods(filter: GradingMethodFilterInput, companyId: number) {
     const [items, total] = await Promise.all([
       this.repository.findGradingMethods(filter, companyId),
       this.repository.countGradingMethods(filter, companyId),
@@ -257,7 +257,7 @@ export class AssessmentConfigurationService {
     return item;
   }
 
-  async updateGradingMethod(id: number, dto: UpdateGradingMethodDto, companyId: number) {
+  async updateGradingMethod(id: number, dto: UpdateGradingMethodInput, companyId: number) {
     const existing = await this.getGradingMethodById(id, companyId);
 
     if (existing.isSystem) {
@@ -301,7 +301,7 @@ export class AssessmentConfigurationService {
   }
 
   // ─── 4. Assessment Templates ─────────────────────────────────────────────
-  async createTemplate(dto: CreateAssessmentTemplateDto, companyId: number, createdById: number) {
+  async createTemplate(dto: CreateAssessmentTemplateInput, companyId: number, createdById: number) {
     const existing = await this.repository.findTemplateByName(dto.name, companyId);
     if (existing) {
       throw new AppError(`Assessment template with name '${dto.name}' already exists.`, 409, ErrorCode.CONFLICT);
@@ -335,7 +335,7 @@ export class AssessmentConfigurationService {
     return this.repository.createTemplate(data);
   }
 
-  async getTemplates(filter: AssessmentTemplateFilterDto, companyId: number) {
+  async getTemplates(filter: AssessmentTemplateFilterInput, companyId: number) {
     const [items, total] = await Promise.all([
       this.repository.findTemplates(filter, companyId),
       this.repository.countTemplates(filter, companyId),
@@ -360,7 +360,7 @@ export class AssessmentConfigurationService {
     return item;
   }
 
-  async updateTemplate(id: number, dto: UpdateAssessmentTemplateDto, companyId: number, updatedById: number) {
+  async updateTemplate(id: number, dto: UpdateAssessmentTemplateInput, companyId: number, updatedById: number) {
     const existing = await this.getTemplateById(id, companyId);
 
     if (dto.name && dto.name !== existing.name) {

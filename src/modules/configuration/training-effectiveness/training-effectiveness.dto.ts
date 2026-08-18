@@ -18,7 +18,7 @@ export const createEffectivenessWeightConfigSchema = z.object({
   effectiveFrom: z.string().datetime({ message: "Effective from must be a valid ISO datetime." }).optional(),
 });
 
-export type CreateEffectivenessWeightConfigDto = z.infer<typeof createEffectivenessWeightConfigSchema>;
+// DTO schemas only — types moved to training-effectiveness.types.ts
 
 // ──────────────────────────────────────────────────────────────
 // 2. Update Effectiveness Weight Config
@@ -34,7 +34,6 @@ export const updateEffectivenessWeightConfigSchema = createEffectivenessWeightCo
     { message: "At least one field is required for update." }
   );
 
-export type UpdateEffectivenessWeightConfigDto = z.infer<typeof updateEffectivenessWeightConfigSchema>;
 
 // ──────────────────────────────────────────────────────────────
 // 3. Filter & Pagination
@@ -46,4 +45,4 @@ export const effectivenessWeightConfigFilterSchema = z.object({
   isActive: z.coerce.boolean().optional(),
 });
 
-export type EffectivenessWeightConfigFilterDto = z.infer<typeof effectivenessWeightConfigFilterSchema>;
+// DTO schemas only — types moved to training-effectiveness.types.ts

@@ -1,17 +1,15 @@
-import {
-  INotificationConfigurationRepository,
-} from "./notification-configuration.repository.js";
-import {
-  CreateNotificationModuleDto,
-  UpdateNotificationModuleDto,
-  NotificationModuleFilterDto,
-  CreateNotificationEventDto,
-  UpdateNotificationEventDto,
-  NotificationEventFilterDto,
-  CreateNotificationTemplateDto,
-  UpdateNotificationTemplateDto,
-  NotificationTemplateFilterDto,
-} from "./notification-configuration.dto.js";
+import type { INotificationConfigurationRepository } from "./notification-configuration.types.js";
+import type {
+  CreateNotificationModuleInput,
+  UpdateNotificationModuleInput,
+  NotificationModuleFilterInput,
+  CreateNotificationEventInput,
+  UpdateNotificationEventInput,
+  NotificationEventFilterInput,
+  CreateNotificationTemplateInput,
+  UpdateNotificationTemplateInput,
+  NotificationTemplateFilterInput,
+} from "./notification-configuration.types.js";
 import {
   ValidationError,
   NotFoundError,
@@ -29,7 +27,7 @@ export class NotificationConfigurationService {
 
   async createNotificationModule(
     companyId: number,
-    dto: CreateNotificationModuleDto
+    dto: CreateNotificationModuleInput
   ) {
     const existingByName = await this.repository.findNotificationModuleByName(
       companyId,
@@ -56,7 +54,7 @@ export class NotificationConfigurationService {
 
   async listNotificationModules(
     companyId: number,
-    query: NotificationModuleFilterDto
+    query: NotificationModuleFilterInput
   ) {
     return this.repository.findNotificationModules(companyId, query);
   }
@@ -75,7 +73,7 @@ export class NotificationConfigurationService {
   async updateNotificationModule(
     companyId: number,
     id: number,
-    dto: UpdateNotificationModuleDto
+    dto: UpdateNotificationModuleInput
   ) {
     const module = await this.getNotificationModuleById(companyId, id);
 
@@ -159,7 +157,7 @@ export class NotificationConfigurationService {
 
   async createNotificationEvent(
     companyId: number,
-    dto: CreateNotificationEventDto
+    dto: CreateNotificationEventInput
   ) {
     const module = await this.repository.findNotificationModuleById(
       companyId,
@@ -186,7 +184,7 @@ export class NotificationConfigurationService {
 
   async listNotificationEvents(
     companyId: number,
-    query: NotificationEventFilterDto
+    query: NotificationEventFilterInput
   ) {
     return this.repository.findNotificationEvents(companyId, query);
   }
@@ -205,7 +203,7 @@ export class NotificationConfigurationService {
   async updateNotificationEvent(
     companyId: number,
     id: number,
-    dto: UpdateNotificationEventDto
+    dto: UpdateNotificationEventInput
   ) {
     const event = await this.getNotificationEventById(companyId, id);
 
@@ -278,7 +276,7 @@ export class NotificationConfigurationService {
   async createTemplate(
     companyId: number,
     userId: number,
-    dto: CreateNotificationTemplateDto
+    dto: CreateNotificationTemplateInput
   ) {
     const event = await this.repository.findNotificationEventByCode(
       companyId,
@@ -310,7 +308,7 @@ export class NotificationConfigurationService {
 
   async listTemplates(
     companyId: number,
-    query: NotificationTemplateFilterDto
+    query: NotificationTemplateFilterInput
   ) {
     return this.repository.findTemplates(companyId, query);
   }
@@ -327,7 +325,7 @@ export class NotificationConfigurationService {
     companyId: number,
     id: number,
     userId: number,
-    dto: UpdateNotificationTemplateDto
+    dto: UpdateNotificationTemplateInput
   ) {
     const template = await this.getTemplateById(companyId, id);
 

@@ -190,6 +190,42 @@ export const Permissions = {
   EFFECTIVENESS_WEIGHT_DELETE: "effectiveness_weight.delete",
 
   // ==========================================================
+  // CUSTOM FIELDS CONFIGURATION
+  // ==========================================================
+
+  CUSTOM_FIELD_CREATE: "custom_field.create",
+  CUSTOM_FIELD_VIEW: "custom_field.view",
+  CUSTOM_FIELD_UPDATE: "custom_field.update",
+  CUSTOM_FIELD_DELETE: "custom_field.delete",
+
+  // ==========================================================
+  // GAMIFICATION CONFIGURATION
+  // ==========================================================
+
+  // XP Rules
+  XP_RULE_CREATE: "xp_rule.create",
+  XP_RULE_VIEW: "xp_rule.view",
+  XP_RULE_UPDATE: "xp_rule.update",
+  XP_RULE_DELETE: "xp_rule.delete",
+
+  // Learning Levels
+  LEARNING_LEVEL_CREATE: "learning_level.create",
+  LEARNING_LEVEL_VIEW: "learning_level.view",
+  LEARNING_LEVEL_UPDATE: "learning_level.update",
+  LEARNING_LEVEL_DELETE: "learning_level.delete",
+
+  // Badges
+  BADGE_CREATE: "badge.create",
+  BADGE_VIEW: "badge.view",
+  BADGE_UPDATE: "badge.update",
+  BADGE_DELETE: "badge.delete",
+
+  BADGE_RULE_CREATE: "badge_rule.create",
+  BADGE_RULE_VIEW: "badge_rule.view",
+  BADGE_RULE_UPDATE: "badge_rule.update",
+  BADGE_RULE_DELETE: "badge_rule.delete",
+
+  // ==========================================================
   // SURVEY CONFIGURATION
   // ==========================================================
 

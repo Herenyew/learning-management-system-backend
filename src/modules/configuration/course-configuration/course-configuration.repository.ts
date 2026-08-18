@@ -1,4 +1,4 @@
-import {
+import type {
   PrismaClient,
   Prisma,
   CourseCategory,
@@ -7,99 +7,15 @@ import {
   ContentFileType,
   CourseTemplate,
 } from "@prisma/client";
-
-// ==========================================
-// Filter Interfaces
-// ==========================================
-
-export interface CourseCategoryFilter {
-  companyId: number;
-  search?: string;
-  isActive?: boolean;
-  parentId?: number | null;
-}
-
-export interface DifficultyLevelFilter {
-  companyId: number; // Used to fetch system defaults (companyId: null) + company-specific records
-  search?: string;
-  isActive?: boolean;
-}
-
-export interface ContentTypeFilter {
-  search?: string;
-  isActive?: boolean;
-}
-
-export interface ContentFileTypeFilter {
-  search?: string;
-  isActive?: boolean;
-}
-
-export interface CourseTemplateFilter {
-  companyId: number;
-  search?: string;
-  isActive?: boolean;
-  categoryId?: number;
-  difficultyLevelId?: number;
-}
-
-// ==========================================
-// Repository Interface
-// ==========================================
-
-export interface ICourseConfigurationRepository {
-  // --- 1. Course Category (Tenant Scoped) ---
-  countCategoryChildren(id: number, companyId: number): Promise<number>;
-  createCategory(data: Prisma.CourseCategoryCreateInput): Promise<CourseCategory>;
-  findCategoryById(id: number, companyId: number): Promise<CourseCategory | null>;
-  findCategoryByName(companyId: number, name: string): Promise<CourseCategory | null>;
-  findCategoryBySlug(companyId: number, slug: string): Promise<CourseCategory | null>;
-  findCategories(filter: CourseCategoryFilter, page: number, pageSize: number): Promise<CourseCategory[]>;
-  countCategories(filter: CourseCategoryFilter): Promise<number>;
-  updateCategory(id: number, companyId: number, data: Prisma.CourseCategoryUpdateInput): Promise<CourseCategory>;
-  softDeleteCategory(id: number, companyId: number): Promise<CourseCategory>;
-  countCategoryUsages(id: number, companyId: number): Promise<number>;
-
-  // --- 2. Difficulty Level (System & Tenant Dual Scoped) ---
-  createDifficultyLevel(data: Prisma.DifficultyLevelCreateInput): Promise<DifficultyLevel>;
-  findDifficultyLevelById(id: number, companyId: number): Promise<DifficultyLevel | null>;
-  findDifficultyLevelByName(companyId: number, name: string): Promise<DifficultyLevel | null>;
-  findDifficultyLevels(filter: DifficultyLevelFilter, page: number, pageSize: number): Promise<DifficultyLevel[]>;
-  countDifficultyLevels(filter: DifficultyLevelFilter): Promise<number>;
-  updateDifficultyLevel(id: number, companyId: number, data: Prisma.DifficultyLevelUpdateInput): Promise<DifficultyLevel>;
-  softDeleteDifficultyLevel(id: number, companyId: number): Promise<DifficultyLevel>;
-  countDifficultyLevelUsages(id: number, companyId: number): Promise<number>;
-
-  // --- 3. Content Type (Global) ---
-  createContentType(data: Prisma.ContentTypeCreateInput): Promise<ContentType>;
-  findContentTypeById(id: number): Promise<ContentType | null>;
-  findContentTypeByName(name: string): Promise<ContentType | null>;
-  findContentTypes(filter: ContentTypeFilter, page: number, pageSize: number): Promise<ContentType[]>;
-  countContentTypes(filter: ContentTypeFilter): Promise<number>;
-  updateContentType(id: number, data: Prisma.ContentTypeUpdateInput): Promise<ContentType>;
-  softDeleteContentType(id: number): Promise<ContentType>;
-  countContentTypeUsages(id: number): Promise<number>;
-
-  // --- 4. Content File Type (Global) ---
-  createContentFileType(data: Prisma.ContentFileTypeCreateInput): Promise<ContentFileType>;
-  findContentFileTypeById(id: number): Promise<ContentFileType | null>;
-  findContentFileTypeByName(name: string): Promise<ContentFileType | null>;
-  findContentFileTypes(filter: ContentFileTypeFilter, page: number, pageSize: number): Promise<ContentFileType[]>;
-  countContentFileTypes(filter: ContentFileTypeFilter): Promise<number>;
-  updateContentFileType(id: number, data: Prisma.ContentFileTypeUpdateInput): Promise<ContentFileType>;
-  softDeleteContentFileType(id: number): Promise<ContentFileType>;
-  countContentFileTypeUsages(id: number): Promise<number>;
-
-  // --- 5. Course Template (Tenant Scoped) ---
-  createTemplate(data: Prisma.CourseTemplateCreateInput): Promise<CourseTemplate>;
-  findTemplateById(id: number, companyId: number): Promise<CourseTemplate | null>;
-  findTemplateByName(companyId: number, name: string): Promise<CourseTemplate | null>;
-  findTemplates(filter: CourseTemplateFilter, page: number, pageSize: number): Promise<any[]>;
-  countTemplates(filter: CourseTemplateFilter): Promise<number>;
-  updateTemplate(id: number, companyId: number, data: Prisma.CourseTemplateUpdateInput): Promise<CourseTemplate>;
-  softDeleteTemplate(id: number, companyId: number): Promise<CourseTemplate>;
-  countTemplateUsages(id: number, companyId: number): Promise<number>;
-}
+import type {
+  ContentFileTypeFilter,
+  ContentTypeFilter,
+  CourseCategoryFilter,
+  CourseTemplateFilter,
+  CourseTemplateListItem,
+  DifficultyLevelFilter,
+  ICourseConfigurationRepository,
+} from "./course-configuration.types.js";
 
 // ==========================================
 // Repository Implementation
@@ -491,7 +407,7 @@ async countDifficultyLevels(filter: DifficultyLevelFilter): Promise<number> {
     });
   }
 
-  async findTemplates(filter: CourseTemplateFilter, page: number, pageSize: number): Promise<any[]> {
+  async findTemplates(filter: CourseTemplateFilter, page: number, pageSize: number): Promise<CourseTemplateListItem[]> {
     return this.prisma.courseTemplate.findMany({
       where: {
         companyId: filter.companyId,

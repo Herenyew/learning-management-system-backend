@@ -53,9 +53,7 @@ export const courseCategoryFilterQuerySchema = paginationQuerySchema.extend({
     .transform((val) => (val === "null" ? null : val ? parseInt(val, 10) : undefined)),
 });
 
-export type CreateCourseCategoryDto = z.infer<typeof createCourseCategorySchema>;
-export type UpdateCourseCategoryDto = z.infer<typeof updateCourseCategorySchema>;
-export type CourseCategoryFilterQuery = z.infer<typeof courseCategoryFilterQuerySchema>;
+// DTO schemas only — types moved to course-configuration.types.ts
 
 // ==========================================
 // 2. Difficulty Level DTOs
@@ -85,9 +83,7 @@ export const updateDifficultyLevelSchema = createDifficultyLevelSchema.partial()
 
 export const difficultyLevelFilterQuerySchema = paginationQuerySchema;
 
-export type CreateDifficultyLevelDto = z.infer<typeof createDifficultyLevelSchema>;
-export type UpdateDifficultyLevelDto = z.infer<typeof updateDifficultyLevelSchema>;
-export type DifficultyLevelFilterQuery = z.infer<typeof difficultyLevelFilterQuerySchema>;
+// DTO schemas only — types moved to course-configuration.types.ts
 
 // ==========================================
 // 3. Content Type DTOs (Global System Table)
@@ -116,9 +112,7 @@ export const updateContentTypeSchema = createContentTypeSchema.partial();
 
 export const contentTypeFilterQuerySchema = paginationQuerySchema;
 
-export type CreateContentTypeDto = z.infer<typeof createContentTypeSchema>;
-export type UpdateContentTypeDto = z.infer<typeof updateContentTypeSchema>;
-export type ContentTypeFilterQuery = z.infer<typeof contentTypeFilterQuerySchema>;
+// DTO schemas only — types moved to course-configuration.types.ts
 
 // ==========================================
 // 4. Content File Type DTOs (Global System Table)
@@ -144,9 +138,7 @@ export const updateContentFileTypeSchema = createContentFileTypeSchema.partial()
 
 export const contentFileTypeFilterQuerySchema = paginationQuerySchema;
 
-export type CreateContentFileTypeDto = z.infer<typeof createContentFileTypeSchema>;
-export type UpdateContentFileTypeDto = z.infer<typeof updateContentFileTypeSchema>;
-export type ContentFileTypeFilterQuery = z.infer<typeof contentFileTypeFilterQuerySchema>;
+// DTO schemas only — types moved to course-configuration.types.ts
 
 // ==========================================
 // 5. Course Template DTOs
@@ -181,6 +173,4 @@ export const courseTemplateFilterQuerySchema = paginationQuerySchema.extend({
     .transform((val) => (val ? parseInt(val, 10) : undefined)),
 });
 
-export type CreateCourseTemplateDto = z.infer<typeof createCourseTemplateSchema>;
-export type UpdateCourseTemplateDto = z.infer<typeof updateCourseTemplateSchema>;
-export type CourseTemplateFilterQuery = z.infer<typeof courseTemplateFilterQuerySchema>;
+// DTO schemas only — types moved to course-configuration.types.ts

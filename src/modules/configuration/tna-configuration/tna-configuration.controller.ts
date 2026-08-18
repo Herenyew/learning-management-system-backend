@@ -1,16 +1,17 @@
-import { Request, Response, NextFunction } from "express";
-import { TnaConfigurationService } from "./tna-configuration.service.js";
-import {
-  CreateTnaRequestTypeDto,
-  UpdateTnaRequestTypeDto,
-  TnaRequestTypeFilterDto,
-  CreateFundingTypeDto,
-  UpdateFundingTypeDto,
-  FundingTypeFilterDto,
-  CreateTrainingFormatDto,
-  UpdateTrainingFormatDto,
-  TrainingFormatFilterDto,
-} from "./tna-configuration.dto.js";
+import type { NextFunction, Response } from "express";
+import type { AuthRequest } from "../auth-request.js";
+import type { TnaConfigurationService } from "./tna-configuration.service.js";
+import type {
+  CreateTnaRequestTypeInput,
+  UpdateTnaRequestTypeInput,
+  TnaRequestTypeFilterInput,
+  CreateFundingTypeInput,
+  UpdateFundingTypeInput,
+  FundingTypeFilterInput,
+  CreateTrainingFormatInput,
+  UpdateTrainingFormatInput,
+  TrainingFormatFilterInput,
+} from "./tna-configuration.types.js";
 
 export class TnaConfigurationController {
   constructor(private service: TnaConfigurationService) {}
@@ -20,13 +21,13 @@ export class TnaConfigurationController {
   // ==========================================
 
   createRequestType = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const dto: CreateTnaRequestTypeDto = req.body;
+      const dto: CreateTnaRequestTypeInput = req.body;
       const result = await this.service.createRequestType(companyId, dto);
       res.status(201).json({ success: true, data: result });
     } catch (error) {
@@ -35,13 +36,13 @@ export class TnaConfigurationController {
   };
 
   listRequestTypes = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const query = req.query as unknown as TnaRequestTypeFilterDto;
+      const query = req.query;
       const result = await this.service.getRequestTypes(companyId, query);
       res.status(200).json({ success: true, ...result });
     } catch (error) {
@@ -50,7 +51,7 @@ export class TnaConfigurationController {
   };
 
   getRequestTypeById = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -65,14 +66,14 @@ export class TnaConfigurationController {
   };
 
   updateRequestType = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
       const id = Number(req.params.id);
-      const dto: UpdateTnaRequestTypeDto = req.body;
+      const dto: UpdateTnaRequestTypeInput = req.body;
       const result = await this.service.updateRequestType(
         companyId,
         id,
@@ -85,7 +86,7 @@ export class TnaConfigurationController {
   };
 
   deleteRequestType = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -104,13 +105,13 @@ export class TnaConfigurationController {
   // ==========================================
 
   createFundingType = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const dto: CreateFundingTypeDto = req.body;
+      const dto: CreateFundingTypeInput = req.body;
       const result = await this.service.createFundingType(companyId, dto);
       res.status(201).json({ success: true, data: result });
     } catch (error) {
@@ -119,13 +120,13 @@ export class TnaConfigurationController {
   };
 
   listFundingTypes = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const query = req.query as unknown as FundingTypeFilterDto;
+      const query = req.query;
       const result = await this.service.getFundingTypes(companyId, query);
       res.status(200).json({ success: true, ...result });
     } catch (error) {
@@ -134,7 +135,7 @@ export class TnaConfigurationController {
   };
 
   getFundingTypeById = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -149,14 +150,14 @@ export class TnaConfigurationController {
   };
 
   updateFundingType = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
       const id = Number(req.params.id);
-      const dto: UpdateFundingTypeDto = req.body;
+      const dto: UpdateFundingTypeInput = req.body;
       const result = await this.service.updateFundingType(
         companyId,
         id,
@@ -169,7 +170,7 @@ export class TnaConfigurationController {
   };
 
   deleteFundingType = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -188,13 +189,13 @@ export class TnaConfigurationController {
   // ==========================================
 
   createTrainingFormat = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const dto: CreateTrainingFormatDto = req.body;
+      const dto: CreateTrainingFormatInput = req.body;
       const result = await this.service.createTrainingFormat(companyId, dto);
       res.status(201).json({ success: true, data: result });
     } catch (error) {
@@ -203,13 +204,13 @@ export class TnaConfigurationController {
   };
 
   listTrainingFormats = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const query = req.query as unknown as TrainingFormatFilterDto;
+      const query = req.query;
       const result = await this.service.getTrainingFormats(companyId, query);
       res.status(200).json({ success: true, ...result });
     } catch (error) {
@@ -218,7 +219,7 @@ export class TnaConfigurationController {
   };
 
   getTrainingFormatById = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -233,14 +234,14 @@ export class TnaConfigurationController {
   };
 
   updateTrainingFormat = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
       const id = Number(req.params.id);
-      const dto: UpdateTrainingFormatDto = req.body;
+      const dto: UpdateTrainingFormatInput = req.body;
       const result = await this.service.updateTrainingFormat(
         companyId,
         id,
@@ -253,7 +254,7 @@ export class TnaConfigurationController {
   };
 
   deleteTrainingFormat = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {

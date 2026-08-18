@@ -130,19 +130,4 @@ export const assessmentTemplateFilterSchema = z.object({
   pageSize: z.coerce.number().int().positive().max(100).default(10),
 });
 
-// Type exports
-export type CreateAssessmentTypeDto = z.infer<typeof createAssessmentTypeSchema>;
-export type UpdateAssessmentTypeDto = z.infer<typeof updateAssessmentTypeSchema>;
-export type AssessmentTypeFilterDto = z.infer<typeof assessmentTypeFilterSchema>;
-
-export type CreateQuestionTypeDto = z.infer<typeof createQuestionTypeSchema>;
-export type UpdateQuestionTypeDto = z.infer<typeof updateQuestionTypeSchema>;
-export type QuestionTypeFilterDto = z.infer<typeof questionTypeFilterSchema>;
-
-export type CreateGradingMethodDto = z.infer<typeof createGradingMethodSchema>;
-export type UpdateGradingMethodDto = z.infer<typeof updateGradingMethodSchema>;
-export type GradingMethodFilterDto = z.infer<typeof gradingMethodFilterSchema>;
-
-export type CreateAssessmentTemplateDto = z.infer<typeof createAssessmentTemplateSchema>;
-export type UpdateAssessmentTemplateDto = z.infer<typeof updateAssessmentTemplateSchema>;
-export type AssessmentTemplateFilterDto = z.infer<typeof assessmentTemplateFilterSchema>;
+// DTO schemas only — types moved to assessment-configuration.types.ts

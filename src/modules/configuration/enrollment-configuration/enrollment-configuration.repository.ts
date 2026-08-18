@@ -1,133 +1,15 @@
-import { PrismaClient, Prisma, EnrollmentRuleType, EnrollmentRule } from "@prisma/client";
-import {
-  CreateEnrollmentRuleTypeInputDto,
-  UpdateEnrollmentRuleTypeInputDto,
-  EnrollmentRuleTypeFilterQueryDto,
-  CreateEnrollmentRuleInputDto,
-  UpdateEnrollmentRuleInputDto,
-  EnrollmentRuleFilterQueryDto,
-} from "./enrollment-configuration.dto.js";
+import { Prisma } from "@prisma/client";
+import type { PrismaClient, EnrollmentRuleType, EnrollmentRule } from "@prisma/client";
+import type {
+  CreateEnrollmentRuleTypeInput,
+  UpdateEnrollmentRuleTypeInput,
+  EnrollmentRuleTypeFilterParams,
+  CreateEnrollmentRuleInput,
+  UpdateEnrollmentRuleInput,
+  EnrollmentRuleFilterParams,
+} from "./enrollment-configuration.types.js";
 
-export interface IEnrollmentConfigurationRepository {
-  // ==========================================
-  // 1. EnrollmentRuleType Methods
-  // ==========================================
-  createEnrollmentRuleType(
-    companyId: number,
-    data: CreateEnrollmentRuleTypeInputDto
-  ): Promise<EnrollmentRuleType>;
-
-  findEnrollmentRuleTypeById(
-    companyId: number,
-    id: number
-  ): Promise<EnrollmentRuleType | null>;
-
-  findEnrollmentRuleTypeByName(
-    companyId: number,
-    name: string
-  ): Promise<EnrollmentRuleType | null>;
-
-  findEnrollmentRuleTypeBySlug(
-    companyId: number,
-    slug: string
-  ): Promise<EnrollmentRuleType | null>;
-
-  findEnrollmentRuleTypes(
-    companyId: number,
-    query: EnrollmentRuleTypeFilterQueryDto
-  ): Promise<{
-    data: EnrollmentRuleType[];
-    meta: {
-      total: number;
-      page: number;
-      limit: number;
-      totalPages: number;
-    };
-  }>;
-
-  updateEnrollmentRuleType(
-    companyId: number,
-    id: number,
-    data: UpdateEnrollmentRuleTypeInputDto
-  ): Promise<Prisma.BatchPayload>;
-
-  softDeleteEnrollmentRuleType(
-    companyId: number,
-    id: number
-  ): Promise<Prisma.BatchPayload>;
-
-  countEnrollmentRuleTypeUsages(
-    companyId: number,
-    id: number
-  ): Promise<number>;
-
-  // ==========================================
-  // 2. EnrollmentRule Methods
-  // ==========================================
-  createEnrollmentRule(
-    companyId: number,
-    userId: number,
-    data: CreateEnrollmentRuleInputDto
-  ): Promise<EnrollmentRule>;
-
-  findEnrollmentRuleById(
-    companyId: number,
-    id: number
-  ): Promise<EnrollmentRule | null>;
-
-  findEnrollmentRuleByName(
-    companyId: number,
-    name: string
-  ): Promise<EnrollmentRule | null>;
-
-  findEnrollmentRules(
-    companyId: number,
-    query: EnrollmentRuleFilterQueryDto
-  ): Promise<{
-    data: EnrollmentRule[];
-    meta: {
-      total: number;
-      page: number;
-      limit: number;
-      totalPages: number;
-    };
-  }>;
-
-  updateEnrollmentRule(
-    companyId: number,
-    id: number,
-    userId: number,
-    data: UpdateEnrollmentRuleInputDto
-  ): Promise<Prisma.BatchPayload>;
-
-  softDeleteEnrollmentRule(
-    companyId: number,
-    id: number
-  ): Promise<Prisma.BatchPayload>;
-
-  countEnrollmentRuleUsages(
-    companyId: number,
-    id: number
-  ): Promise<number>;
-
-  // ==========================================
-  // Foreign Key Existence Checks
-  // ==========================================
-  findCourseVersionById(
-    companyId: number,
-    id: number
-  ): Promise<any | null>;
-
-  findLearningProgramById(
-    companyId: number,
-    id: number
-  ): Promise<any | null>;
-
-  findTargetAudienceById(
-    companyId: number,
-    id: number
-  ): Promise<any | null>;
-}
+import type { IEnrollmentConfigurationRepository } from "./enrollment-configuration.types.js";
 
 function slugify(text: string): string {
   return text
@@ -148,7 +30,7 @@ export class EnrollmentConfigurationRepository implements IEnrollmentConfigurati
 
   async createEnrollmentRuleType(
     companyId: number,
-    data: CreateEnrollmentRuleTypeInputDto
+    data: CreateEnrollmentRuleTypeInput
   ) {
     const slug = data.slug ? slugify(data.slug) : slugify(data.name);
 
@@ -195,9 +77,9 @@ export class EnrollmentConfigurationRepository implements IEnrollmentConfigurati
 
   async findEnrollmentRuleTypes(
     companyId: number,
-    query: EnrollmentRuleTypeFilterQueryDto
+    query: EnrollmentRuleTypeFilterParams
   ) {
-    const { search, isSystem, isActive, page, limit } = query;
+    const { search, isSystem, isActive, page = 1, limit = 20 } = query;
     const skip = (page - 1) * limit;
 
     const where: Prisma.EnrollmentRuleTypeWhereInput = {
@@ -237,7 +119,7 @@ export class EnrollmentConfigurationRepository implements IEnrollmentConfigurati
   async updateEnrollmentRuleType(
     companyId: number,
     id: number,
-    data: UpdateEnrollmentRuleTypeInputDto
+    data: UpdateEnrollmentRuleTypeInput
   ) {
     return this.prisma.enrollmentRuleType.updateMany({
       where: {
@@ -284,7 +166,7 @@ export class EnrollmentConfigurationRepository implements IEnrollmentConfigurati
   async createEnrollmentRule(
     companyId: number,
     userId: number,
-    data: CreateEnrollmentRuleInputDto
+    data: CreateEnrollmentRuleInput
   ) {
     return this.prisma.enrollmentRule.create({
       data: {
@@ -332,7 +214,7 @@ export class EnrollmentConfigurationRepository implements IEnrollmentConfigurati
 
   async findEnrollmentRules(
     companyId: number,
-    query: EnrollmentRuleFilterQueryDto
+    query: EnrollmentRuleFilterParams
   ) {
     const {
       search,
@@ -342,8 +224,8 @@ export class EnrollmentConfigurationRepository implements IEnrollmentConfigurati
       programId,
       targetAudienceId,
       isActive,
-      page,
-      limit,
+      page = 1,
+      limit = 20,
     } = query;
     const skip = (page - 1) * limit;
 
@@ -393,7 +275,7 @@ export class EnrollmentConfigurationRepository implements IEnrollmentConfigurati
     companyId: number,
     id: number,
     userId: number,
-    data: UpdateEnrollmentRuleInputDto
+    data: UpdateEnrollmentRuleInput
   ) {
     return this.prisma.enrollmentRule.updateMany({
       where: {

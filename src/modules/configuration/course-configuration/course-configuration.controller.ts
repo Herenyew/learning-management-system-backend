@@ -1,7 +1,8 @@
-import { Request, Response, NextFunction } from "express";
+import type { NextFunction, Response } from "express";
+import type { AuthRequest } from "../auth-request.js";
 import { CourseConfigurationService } from "./course-configuration.service.js";
+import type { CreateCourseCategoryInput } from "./course-configuration.types.js";
 import {
-  createCourseCategorySchema,
   updateCourseCategorySchema,
   courseCategoryFilterQuerySchema,
   createDifficultyLevelSchema,
@@ -17,57 +18,20 @@ import {
   updateCourseTemplateSchema,
   courseTemplateFilterQuerySchema,
 } from "./course-configuration.dto.js";
-import { UnauthorizedError } from "../../../common/errors/index.js";
-import type { CurrentUser } from "../../../common/auth/current-user.js";
-import { AppError, ErrorCode } from "../../../common/errors/index.js";
 
 export class CourseConfigurationController {
   constructor(private readonly service: CourseConfigurationService) {}
 
-  // Helper to safely extract tenant company ID from request context/user session
-private getUserId(req: Request): number {
-  const user = (req as any).user as CurrentUser | undefined;
-  
-  const userId = user?.appUserId ?? (user as any)?.id ?? (user as any)?.userId;
-  const parsedUserId = Number(userId);
-
-  if (!userId || isNaN(parsedUserId)) {
-    throw new AppError(
-      "User context missing: valid appUserId is required.",
-      401,
-      ErrorCode.UNAUTHORIZED
-    );
-  }
-
-  return parsedUserId;
-}
-
-private getCompanyId(req: Request): number {
-  const user = (req as any).user as CurrentUser | undefined;
-  
-  const companyId = user?.companyId;
-  const parsedCompanyId = Number(companyId);
-
-  if (!companyId || isNaN(parsedCompanyId)) {
-    throw new AppError(
-      "User context missing: valid companyId is required.",
-      401,
-      ErrorCode.UNAUTHORIZED
-    );
-  }
-
-  return parsedCompanyId;
-}
 
   // ==========================================
   // 1. Course Category Handlers
   // ==========================================
 
-  createCategory = async (req: Request, res: Response, next: NextFunction) => {
+  createCategory = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = this.getCompanyId(req);
-      const userId = this.getUserId(req);
-      const dto = createCourseCategorySchema.parse(req.body);
+      const companyId = req.user.companyId;
+      const userId = req.user.appUserId;
+      const dto: CreateCourseCategoryInput = req.body;
 
       const result = await this.service.createCategory(dto, companyId, userId);
 
@@ -81,9 +45,9 @@ private getCompanyId(req: Request): number {
     }
   };
 
-  getCategories = async (req: Request, res: Response, next: NextFunction) => {
+  getCategories = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = this.getCompanyId(req);
+      const companyId = req.user.companyId;
       const query = courseCategoryFilterQuerySchema.parse(req.query);
 
       const { page, pageSize, ...filter } = query;
@@ -108,9 +72,9 @@ private getCompanyId(req: Request): number {
     }
   };
 
-  getCategoryById = async (req: Request, res: Response, next: NextFunction) => {
+  getCategoryById = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = this.getCompanyId(req);
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
 
       const result = await this.service.getCategoryById(id, companyId);
@@ -124,9 +88,9 @@ private getCompanyId(req: Request): number {
     }
   };
 
-  updateCategory = async (req: Request, res: Response, next: NextFunction) => {
+  updateCategory = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = this.getCompanyId(req);
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
       const dto = updateCourseCategorySchema.parse(req.body);
 
@@ -142,9 +106,9 @@ private getCompanyId(req: Request): number {
     }
   };
 
-  deleteCategory = async (req: Request, res: Response, next: NextFunction) => {
+  deleteCategory = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = this.getCompanyId(req);
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
 
       await this.service.deleteCategory(id, companyId);
@@ -162,9 +126,9 @@ private getCompanyId(req: Request): number {
   // 2. Difficulty Level Handlers
   // ==========================================
 
-  createDifficultyLevel = async (req: Request, res: Response, next: NextFunction) => {
+  createDifficultyLevel = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = this.getCompanyId(req);
+      const companyId = req.user.companyId;
       const dto = createDifficultyLevelSchema.parse(req.body);
 
       const result = await this.service.createDifficultyLevel(dto, companyId);
@@ -179,9 +143,9 @@ private getCompanyId(req: Request): number {
     }
   };
 
-  getDifficultyLevels = async (req: Request, res: Response, next: NextFunction) => {
+  getDifficultyLevels = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = this.getCompanyId(req);
+      const companyId = req.user.companyId;
       const query = difficultyLevelFilterQuerySchema.parse(req.query);
 
       const { page, pageSize, ...filter } = query;
@@ -206,9 +170,9 @@ private getCompanyId(req: Request): number {
     }
   };
 
-  getDifficultyLevelById = async (req: Request, res: Response, next: NextFunction) => {
+  getDifficultyLevelById = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = this.getCompanyId(req);
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
 
       const result = await this.service.getDifficultyLevelById(id, companyId);
@@ -222,9 +186,9 @@ private getCompanyId(req: Request): number {
     }
   };
 
-  updateDifficultyLevel = async (req: Request, res: Response, next: NextFunction) => {
+  updateDifficultyLevel = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = this.getCompanyId(req);
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
       const dto = updateDifficultyLevelSchema.parse(req.body);
 
@@ -240,9 +204,9 @@ private getCompanyId(req: Request): number {
     }
   };
 
-  deleteDifficultyLevel = async (req: Request, res: Response, next: NextFunction) => {
+  deleteDifficultyLevel = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = this.getCompanyId(req);
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
 
       await this.service.deleteDifficultyLevel(id, companyId);
@@ -260,7 +224,7 @@ private getCompanyId(req: Request): number {
   // 3. Content Type Handlers (Global System Table)
   // ==========================================
 
-  createContentType = async (req: Request, res: Response, next: NextFunction) => {
+  createContentType = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const dto = createContentTypeSchema.parse(req.body);
 
@@ -276,7 +240,7 @@ private getCompanyId(req: Request): number {
     }
   };
 
-  getContentTypes = async (req: Request, res: Response, next: NextFunction) => {
+  getContentTypes = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const query = contentTypeFilterQuerySchema.parse(req.query);
 
@@ -298,7 +262,7 @@ private getCompanyId(req: Request): number {
     }
   };
 
-  getContentTypeById = async (req: Request, res: Response, next: NextFunction) => {
+  getContentTypeById = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const id = Number(req.params.id);
 
@@ -313,7 +277,7 @@ private getCompanyId(req: Request): number {
     }
   };
 
-  updateContentType = async (req: Request, res: Response, next: NextFunction) => {
+  updateContentType = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const id = Number(req.params.id);
       const dto = updateContentTypeSchema.parse(req.body);
@@ -330,7 +294,7 @@ private getCompanyId(req: Request): number {
     }
   };
 
-  deleteContentType = async (req: Request, res: Response, next: NextFunction) => {
+  deleteContentType = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const id = Number(req.params.id);
 
@@ -349,7 +313,7 @@ private getCompanyId(req: Request): number {
   // 4. Content File Type Handlers (Global System Table)
   // ==========================================
 
-  createContentFileType = async (req: Request, res: Response, next: NextFunction) => {
+  createContentFileType = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const dto = createContentFileTypeSchema.parse(req.body);
 
@@ -365,7 +329,7 @@ private getCompanyId(req: Request): number {
     }
   };
 
-  getContentFileTypes = async (req: Request, res: Response, next: NextFunction) => {
+  getContentFileTypes = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const query = contentFileTypeFilterQuerySchema.parse(req.query);
 
@@ -387,7 +351,7 @@ private getCompanyId(req: Request): number {
     }
   };
 
-  getContentFileTypeById = async (req: Request, res: Response, next: NextFunction) => {
+  getContentFileTypeById = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const id = Number(req.params.id);
 
@@ -402,7 +366,7 @@ private getCompanyId(req: Request): number {
     }
   };
 
-  updateContentFileType = async (req: Request, res: Response, next: NextFunction) => {
+  updateContentFileType = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const id = Number(req.params.id);
       const dto = updateContentFileTypeSchema.parse(req.body);
@@ -419,7 +383,7 @@ private getCompanyId(req: Request): number {
     }
   };
 
-  deleteContentFileType = async (req: Request, res: Response, next: NextFunction) => {
+  deleteContentFileType = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const id = Number(req.params.id);
 
@@ -438,10 +402,10 @@ private getCompanyId(req: Request): number {
   // 5. Course Template Handlers
   // ==========================================
 
-  createTemplate = async (req: Request, res: Response, next: NextFunction) => {
+  createTemplate = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = this.getCompanyId(req);
-      const userId = this.getUserId(req);
+      const companyId = req.user.companyId;
+      const userId = req.user.appUserId;
       const dto = createCourseTemplateSchema.parse(req.body);
 
       const result = await this.service.createTemplate(dto, companyId, userId);
@@ -456,9 +420,9 @@ private getCompanyId(req: Request): number {
     }
   };
 
-  getTemplates = async (req: Request, res: Response, next: NextFunction) => {
+  getTemplates = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = this.getCompanyId(req);
+      const companyId = req.user.companyId;
       const query = courseTemplateFilterQuerySchema.parse(req.query);
 
       const { page, pageSize, ...filter } = query;
@@ -483,9 +447,9 @@ private getCompanyId(req: Request): number {
     }
   };
 
-  getTemplateById = async (req: Request, res: Response, next: NextFunction) => {
+  getTemplateById = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = this.getCompanyId(req);
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
 
       const result = await this.service.getTemplateById(id, companyId);
@@ -499,9 +463,9 @@ private getCompanyId(req: Request): number {
     }
   };
 
-  updateTemplate = async (req: Request, res: Response, next: NextFunction) => {
+  updateTemplate = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = this.getCompanyId(req);
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
       const dto = updateCourseTemplateSchema.parse(req.body);
 
@@ -517,9 +481,9 @@ private getCompanyId(req: Request): number {
     }
   };
 
-  deleteTemplate = async (req: Request, res: Response, next: NextFunction) => {
+  deleteTemplate = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = this.getCompanyId(req);
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
 
       await this.service.deleteTemplate(id, companyId);

@@ -5,14 +5,14 @@ import {
   ValidationError,
 } from "../../../common/errors/http-errors.js"; // Adjust import path
 import { EnrollmentConfigurationRepository } from "./enrollment-configuration.repository.js";
-import {
-  CreateEnrollmentRuleTypeInputDto,
-  UpdateEnrollmentRuleTypeInputDto,
-  EnrollmentRuleTypeFilterQueryDto,
-  CreateEnrollmentRuleInputDto,
-  UpdateEnrollmentRuleInputDto,
-  EnrollmentRuleFilterQueryDto,
-} from "./enrollment-configuration.dto.js";
+import type {
+  CreateEnrollmentRuleTypeInput,
+  UpdateEnrollmentRuleTypeInput,
+  EnrollmentRuleTypeFilterQueryInput,
+  CreateEnrollmentRuleInput,
+  UpdateEnrollmentRuleInput,
+  EnrollmentRuleFilterQueryInput,
+} from "./enrollment-configuration.types.js";
 
 function slugify(text: string): string {
   return text
@@ -33,7 +33,7 @@ export class EnrollmentConfigurationService {
 
   async createEnrollmentRuleType(
     companyId: number,
-    data: CreateEnrollmentRuleTypeInputDto
+    data: CreateEnrollmentRuleTypeInput
   ) {
     const existingName = await this.repo.findEnrollmentRuleTypeByName(companyId, data.name);
     if (existingName) {
@@ -63,7 +63,7 @@ export class EnrollmentConfigurationService {
 
   async listEnrollmentRuleTypes(
     companyId: number,
-    query: EnrollmentRuleTypeFilterQueryDto
+    query: EnrollmentRuleTypeFilterQueryInput
   ) {
     return this.repo.findEnrollmentRuleTypes(companyId, query);
   }
@@ -71,7 +71,7 @@ export class EnrollmentConfigurationService {
   async updateEnrollmentRuleType(
     companyId: number,
     id: number,
-    data: UpdateEnrollmentRuleTypeInputDto
+    data: UpdateEnrollmentRuleTypeInput
   ) {
     const existingType = await this.getEnrollmentRuleTypeById(companyId, id);
 
@@ -121,7 +121,7 @@ export class EnrollmentConfigurationService {
   async createEnrollmentRule(
     companyId: number,
     userId: number,
-    data: CreateEnrollmentRuleInputDto
+    data: CreateEnrollmentRuleInput
   ) {
     const existingName = await this.repo.findEnrollmentRuleByName(companyId, data.name);
     if (existingName) {
@@ -167,7 +167,7 @@ export class EnrollmentConfigurationService {
 
   async listEnrollmentRules(
     companyId: number,
-    query: EnrollmentRuleFilterQueryDto
+    query: EnrollmentRuleFilterQueryInput
   ) {
     return this.repo.findEnrollmentRules(companyId, query);
   }
@@ -176,7 +176,7 @@ export class EnrollmentConfigurationService {
     companyId: number,
     id: number,
     userId: number,
-    data: UpdateEnrollmentRuleInputDto
+    data: UpdateEnrollmentRuleInput
   ) {
     await this.getEnrollmentRuleById(companyId, id);
 

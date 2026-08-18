@@ -1,13 +1,14 @@
-import { Request, Response, NextFunction } from 'express';
+import type { NextFunction, Response } from "express";
+import type { AuthRequest } from "../auth-request.js";
 import { SurveyConfigurationService } from './survey-configuration.service.js';
 
 export class SurveyConfigurationController {
   constructor(private svc: SurveyConfigurationService) {}
 
   // SurveyQuestionType
-  createSurveyQuestionType = async (req: Request, res: Response, next: NextFunction) => {
+  createSurveyQuestionType = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = (req as any).ctx.companyId;
+      const companyId = req.user.companyId;
       const data = req.body;
       const result = await this.svc.createSurveyQuestionType(companyId, data);
       res.status(201).json(result);
@@ -16,9 +17,9 @@ export class SurveyConfigurationController {
     }
   };
 
-  findSurveyQuestionTypes = async (req: Request, res: Response, next: NextFunction) => {
+  findSurveyQuestionTypes = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = (req as any).ctx.companyId;
+      const companyId = req.user.companyId;
       const query = req.query;
       const result = await this.svc.findSurveyQuestionTypes(companyId, query);
       res.json(result);
@@ -27,9 +28,9 @@ export class SurveyConfigurationController {
     }
   };
 
-  findSurveyQuestionTypeById = async (req: Request, res: Response, next: NextFunction) => {
+  findSurveyQuestionTypeById = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = (req as any).ctx.companyId;
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
       const item = await this.svc.findSurveyQuestionTypeById(companyId, id);
       if (!item) return res.status(404).send({ message: 'Not found' });
@@ -39,9 +40,9 @@ export class SurveyConfigurationController {
     }
   };
 
-  updateSurveyQuestionType = async (req: Request, res: Response, next: NextFunction) => {
+  updateSurveyQuestionType = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = (req as any).ctx.companyId;
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
       const data = req.body;
       const result = await this.svc.updateSurveyQuestionType(companyId, id, data);
@@ -51,9 +52,9 @@ export class SurveyConfigurationController {
     }
   };
 
-  deleteSurveyQuestionType = async (req: Request, res: Response, next: NextFunction) => {
+  deleteSurveyQuestionType = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = (req as any).ctx.companyId;
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
       await this.svc.softDeleteSurveyQuestionType(companyId, id);
       res.status(204).send();
@@ -63,10 +64,10 @@ export class SurveyConfigurationController {
   };
 
   // SurveyTemplate
-  createTemplate = async (req: Request, res: Response, next: NextFunction) => {
+  createTemplate = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = (req as any).ctx.companyId;
-      const userId = (req as any).ctx.userId;
+      const companyId = req.user.companyId;
+      const userId = req.user.appUserId;
       const data = req.body;
       const result = await this.svc.createTemplate(companyId, userId, data);
       res.status(201).json(result);
@@ -75,9 +76,9 @@ export class SurveyConfigurationController {
     }
   };
 
-  findTemplates = async (req: Request, res: Response, next: NextFunction) => {
+  findTemplates = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = (req as any).ctx.companyId;
+      const companyId = req.user.companyId;
       const query = req.query;
       const result = await this.svc.findTemplates(companyId, query);
       res.json(result);
@@ -86,9 +87,9 @@ export class SurveyConfigurationController {
     }
   };
 
-  findTemplateById = async (req: Request, res: Response, next: NextFunction) => {
+  findTemplateById = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = (req as any).ctx.companyId;
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
       const item = await this.svc.findTemplateById(companyId, id);
       if (!item) return res.status(404).send({ message: 'Not found' });
@@ -98,10 +99,10 @@ export class SurveyConfigurationController {
     }
   };
 
-  updateTemplate = async (req: Request, res: Response, next: NextFunction) => {
+  updateTemplate = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = (req as any).ctx.companyId;
-      const userId = (req as any).ctx.userId;
+      const companyId = req.user.companyId;
+      const userId = req.user.appUserId;
       const id = Number(req.params.id);
       const data = req.body;
       const result = await this.svc.updateTemplate(companyId, id, userId, data);
@@ -111,9 +112,9 @@ export class SurveyConfigurationController {
     }
   };
 
-  deleteTemplate = async (req: Request, res: Response, next: NextFunction) => {
+  deleteTemplate = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = (req as any).ctx.companyId;
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
       await this.svc.softDeleteTemplate(companyId, id);
       res.status(204).send();

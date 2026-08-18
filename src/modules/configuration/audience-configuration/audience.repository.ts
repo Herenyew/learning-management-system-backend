@@ -1,54 +1,12 @@
-import { AudienceGroup, AudienceGroupRule, Prisma, PrismaClient } from "@prisma/client";
-
-export interface AudienceGroupFilter {
-  companyId: number;
-  search?: string;
-  isActive?: boolean;
-}
-
-// Scalar IDs from DTO — do not use AudienceGroupRuleCreateInput for this
-export type AudienceGroupRuleWriteData = {
-  departmentId?: number | null;
-  jobTitleId?: number | null;
-  jobLevelId?: number | null;
-  appRoleId?: number | null;
-  employmentTypeId?: number | null;
-  hireWithinDays?: number | null;
-  operator?: "AND" | "OR";
-  isExclusion?: boolean;
-};
-
-export interface IAudienceRepository {
-  create(data: Prisma.AudienceGroupCreateInput): Promise<AudienceGroup>;
-  findById(audienceGroupId: number, companyId: number): Promise<AudienceGroup | null>;
-  findByName(companyId: number, name: string): Promise<AudienceGroup | null>;
-  findMany(filter: AudienceGroupFilter, page: number, pageSize: number): Promise<AudienceGroup[]>;
-  countMany(filter: AudienceGroupFilter): Promise<number>;
-  update(
-    audienceGroupId: number,
-    companyId: number,
-    data: Prisma.AudienceGroupUpdateInput,
-  ): Promise<AudienceGroup>;
-  softDelete(audienceGroupId: number, companyId: number): Promise<AudienceGroup>;
-  findTargetUsages(
-    audienceGroupId: number,
-    companyId: number,
-  ): Promise<{ entityType: string; entityId: number }[]>;
-
-  createRule(
-    audienceGroupId: number,
-    companyId: number,
-    data: AudienceGroupRuleWriteData,
-  ): Promise<AudienceGroupRule>;
-  findRuleById(ruleId: number, companyId: number): Promise<AudienceGroupRule | null>;
-  updateRule(
-    ruleId: number,
-    companyId: number,
-    data: AudienceGroupRuleWriteData,
-  ): Promise<AudienceGroupRule>;
-  deleteRule(ruleId: number, companyId: number): Promise<AudienceGroupRule>;
-  findRules(audienceGroupId: number, companyId: number): Promise<AudienceGroupRule[]>;
-}
+import type { AudienceGroup, AudienceGroupRule, PrismaClient } from "@prisma/client";
+import type {
+  AudienceGroupFilterParams,
+  AudienceGroupRuleWriteData,
+  AudienceGroupWithRules,
+  CreateAudienceGroupInput,
+  IAudienceRepository,
+  UpdateAudienceGroupInput,
+} from "./audience.types.js";
 
 export class AudienceRepository implements IAudienceRepository {
   constructor(private readonly prisma: PrismaClient) {}
@@ -57,16 +15,32 @@ export class AudienceRepository implements IAudienceRepository {
   // Audience Groups
   // ==========================================
 
-  async create(data: Prisma.AudienceGroupCreateInput): Promise<AudienceGroup> {
-    return this.prisma.audienceGroup.create({ data });
+  async create(
+    companyId: number,
+    userId: number,
+    data: CreateAudienceGroupInput,
+  ): Promise<AudienceGroup> {
+    return this.prisma.audienceGroup.create({
+      data: {
+        ...data,
+        companyId,
+        createdBy: userId,
+      },
+    });
   }
 
-  async findById(audienceGroupId: number, companyId: number): Promise<AudienceGroup | null> {
+  async findById(
+    audienceGroupId: number,
+    companyId: number,
+  ): Promise<AudienceGroupWithRules | null> {
     return this.prisma.audienceGroup.findFirst({
       where: {
         id: audienceGroupId,
         companyId,
         deletedAt: null,
+      },
+      include: {
+        rules: true,
       },
     });
   }
@@ -82,13 +56,15 @@ export class AudienceRepository implements IAudienceRepository {
   }
 
   async findMany(
-    filter: AudienceGroupFilter,
-    page: number,
-    pageSize: number,
+    companyId: number,
+    filter: AudienceGroupFilterParams,
   ): Promise<AudienceGroup[]> {
+    const page = filter.page ?? 1;
+    const pageSize = filter.pageSize ?? 10;
+
     return this.prisma.audienceGroup.findMany({
       where: {
-        companyId: filter.companyId,
+        companyId,
         deletedAt: null,
         ...(filter.isActive !== undefined && { isActive: filter.isActive }),
         ...(filter.search && {
@@ -100,14 +76,17 @@ export class AudienceRepository implements IAudienceRepository {
       },
       skip: (page - 1) * pageSize,
       take: pageSize,
-      orderBy: { createdAt: "desc" },
+      orderBy: { [filter.sortBy ?? "createdAt"]: filter.sortOrder ?? "desc" },
     });
   }
 
-  async countMany(filter: AudienceGroupFilter): Promise<number> {
+  async countMany(
+    companyId: number,
+    filter: AudienceGroupFilterParams,
+  ): Promise<number> {
     return this.prisma.audienceGroup.count({
       where: {
-        companyId: filter.companyId,
+        companyId,
         deletedAt: null,
         ...(filter.isActive !== undefined && { isActive: filter.isActive }),
         ...(filter.search && {
@@ -120,22 +99,30 @@ export class AudienceRepository implements IAudienceRepository {
     });
   }
 
-  // Ownership checked in service before this is called
   async update(
     audienceGroupId: number,
-    _companyId: number,
-    data: Prisma.AudienceGroupUpdateInput,
+    companyId: number,
+    userId: number,
+    data: UpdateAudienceGroupInput,
   ): Promise<AudienceGroup> {
     return this.prisma.audienceGroup.update({
-      where: { id: audienceGroupId },
-      data,
+      where: {
+        id: audienceGroupId,
+        companyId,
+      },
+      data: {
+        ...data,
+        updatedBy: userId,
+      },
     });
   }
 
-  // Ownership checked in service before this is called
-  async softDelete(audienceGroupId: number, _companyId: number): Promise<AudienceGroup> {
+  async softDelete(audienceGroupId: number, companyId: number): Promise<AudienceGroup> {
     return this.prisma.audienceGroup.update({
-      where: { id: audienceGroupId },
+      where: {
+        id: audienceGroupId,
+        companyId,
+      },
       data: {
         deletedAt: new Date(),
         isActive: false,
@@ -184,14 +171,13 @@ export class AudienceRepository implements IAudienceRepository {
     });
   }
 
-  // Ownership checked in service before this is called
   async updateRule(
     ruleId: number,
-    _companyId: number,
+    companyId: number,
     data: AudienceGroupRuleWriteData,
   ): Promise<AudienceGroupRule> {
     return this.prisma.audienceGroupRule.update({
-      where: { id: ruleId },
+      where: { id: ruleId, companyId },
       data: {
         ...(data.departmentId !== undefined && { departmentId: data.departmentId }),
         ...(data.jobTitleId !== undefined && { jobTitleId: data.jobTitleId }),

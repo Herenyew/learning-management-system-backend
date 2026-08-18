@@ -8,14 +8,14 @@ export const slugify = (str: string): string =>
     .replace(/[^\w\s-]/g, "")
     .replace(/[\s_-]+/g, "-")
     .replace(/^-+|-+$/g, "");
+    
+export const idParamSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
 
 // ==========================================
 // 1. TnaRequestTypeConfig Schemas & DTOs
 // ==========================================
-
-export const idParamSchema = z.object({
-  id: z.coerce.number().int().positive(),
-});
 
 export const CreateTnaRequestTypeSchema = z.object({
   name: z.string().min(1).max(100),
@@ -23,11 +23,8 @@ export const CreateTnaRequestTypeSchema = z.object({
   isActive: z.boolean().optional().default(true),
 });
 
-export type CreateTnaRequestTypeDto = z.infer<typeof CreateTnaRequestTypeSchema>;
-
 export const UpdateTnaRequestTypeSchema = CreateTnaRequestTypeSchema.partial();
 
-export type UpdateTnaRequestTypeDto = z.infer<typeof UpdateTnaRequestTypeSchema>;
 
 export const TnaRequestTypeFilterSchema = z.object({
   search: z.string().optional(),
@@ -35,11 +32,11 @@ export const TnaRequestTypeFilterSchema = z.object({
     .string()
     .transform((val) => val === "true")
     .optional(),
-  page: z.string().transform(Number).optional().default(1),
-  limit: z.string().transform(Number).optional().default(10),
+  page: z.coerce.number().int().positive().optional().default(1),
+  limit: z.coerce.number().int().positive().max(100).optional().default(10),
 });
 
-export type TnaRequestTypeFilterDto = z.infer<typeof TnaRequestTypeFilterSchema>;
+// DTO schemas only — types moved to tna-configuration.types.ts
 
 // ==========================================
 // 2. FundingType Schemas & DTOs
@@ -52,11 +49,9 @@ export const CreateFundingTypeSchema = z.object({
   isActive: z.boolean().optional().default(true),
 });
 
-export type CreateFundingTypeDto = z.infer<typeof CreateFundingTypeSchema>;
 
 export const UpdateFundingTypeSchema = CreateFundingTypeSchema.partial();
 
-export type UpdateFundingTypeDto = z.infer<typeof UpdateFundingTypeSchema>;
 
 export const FundingTypeFilterSchema = z.object({
   search: z.string().optional(),
@@ -68,11 +63,11 @@ export const FundingTypeFilterSchema = z.object({
     .string()
     .transform((val) => val === "true")
     .optional(),
-  page: z.string().transform(Number).optional().default(1),
-  limit: z.string().transform(Number).optional().default(10),
+  page: z.coerce.number().int().positive().optional().default(1),
+  limit: z.coerce.number().int().positive().max(100).optional().default(10),
 });
 
-export type FundingTypeFilterDto = z.infer<typeof FundingTypeFilterSchema>;
+// DTO schemas only — types moved to tna-configuration.types.ts
 
 // ==========================================
 // 3. TrainingFormat Schemas & DTOs
@@ -85,11 +80,9 @@ export const CreateTrainingFormatSchema = z.object({
   isActive: z.boolean().optional().default(true),
 });
 
-export type CreateTrainingFormatDto = z.infer<typeof CreateTrainingFormatSchema>;
 
 export const UpdateTrainingFormatSchema = CreateTrainingFormatSchema.partial();
 
-export type UpdateTrainingFormatDto = z.infer<typeof UpdateTrainingFormatSchema>;
 
 export const TrainingFormatFilterSchema = z.object({
   search: z.string().optional(),
@@ -101,8 +94,8 @@ export const TrainingFormatFilterSchema = z.object({
     .string()
     .transform((val) => val === "true")
     .optional(),
-  page: z.string().transform(Number).optional().default(1),
-  limit: z.string().transform(Number).optional().default(10),
+  page: z.coerce.number().int().positive().optional().default(1),
+  limit: z.coerce.number().int().positive().max(100).optional().default(10),
 });
 
-export type TrainingFormatFilterDto = z.infer<typeof TrainingFormatFilterSchema>;
+// DTO schemas only — types moved to tna-configuration.types.ts

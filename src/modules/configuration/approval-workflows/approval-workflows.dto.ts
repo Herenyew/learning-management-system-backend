@@ -13,13 +13,10 @@ export const createApprovalWorkflowSchema = z.object({
   isActive: z.boolean().default(true).optional(),
 });
 
-export type CreateApprovalWorkflowDto = z.infer<
-  typeof createApprovalWorkflowSchema
->;
+// DTO schemas only — types moved to approval-workflows.types.ts
 
-export const updateApprovalWorkflowSchema = z
-  .object({
-    name: z.string().trim().min(1).max(255).optional(),
+export const updateApprovalWorkflowSchema = 
+z.object({ name: z.string().trim().min(1).max(255).optional(),
     entityType: z.nativeEnum(WorkflowEntityType).optional(),
     description: z.string().trim().optional(),
     isDefault: z.boolean().optional(),
@@ -29,9 +26,7 @@ export const updateApprovalWorkflowSchema = z
     message: "At least one field is required for update.",
   });
 
-export type UpdateApprovalWorkflowDto = z.infer<
-  typeof updateApprovalWorkflowSchema
->;
+// DTO schemas only — types moved to approval-workflows.types.ts
 
 export const approvalWorkflowFilterSchema = z.object({
   page: z.coerce.number().int().positive().default(1),
@@ -42,9 +37,7 @@ export const approvalWorkflowFilterSchema = z.object({
   isSystem: z.coerce.boolean().optional(),
 });
 
-export type ApprovalWorkflowFilterDto = z.infer<
-  typeof approvalWorkflowFilterSchema
->;
+// DTO schemas only — types moved to approval-workflows.types.ts
 
 // ──────────────────────────────────────────────────────────────
 // 2. Approval Workflow Step Schemas
@@ -71,9 +64,7 @@ export const createApprovalWorkflowStepSchema = z
     }
   );
 
-export type CreateApprovalWorkflowStepDto = z.infer<
-  typeof createApprovalWorkflowStepSchema
->;
+// DTO schemas only — types moved to approval-workflows.types.ts
 
 export const updateApprovalWorkflowStepSchema = z
   .object({
@@ -88,6 +79,4 @@ export const updateApprovalWorkflowStepSchema = z
     message: "At least one field is required for update.",
   });
 
-export type UpdateApprovalWorkflowStepDto = z.infer<
-  typeof updateApprovalWorkflowStepSchema
->;
+// DTO schemas only — types moved to approval-workflows.types.ts

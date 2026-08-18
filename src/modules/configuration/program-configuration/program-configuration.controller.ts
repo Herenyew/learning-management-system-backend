@@ -1,35 +1,25 @@
-import { Request, Response, NextFunction } from "express";
+import type { NextFunction, Response } from "express";
+import type { AuthRequest } from "../auth-request.js";
 import { ProgramConfigurationService } from "./program-configuration.service.js";
+import type {
+  ProgramCategoryQueryInput,
+  ProgramTemplateQueryInput,
+  ProgramTypeQueryInput,
+  TaskTypeQueryInput,
+} from "./program-configuration.types.js";
 
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: number;
-    companyId: number;
-    email: string;
-    role: string;
-  };
-}
 
 export class ProgramConfigurationController {
   constructor(private service: ProgramConfigurationService) {}
 
-  private getUserContext(req: AuthenticatedRequest): { companyId: number; userId: number } {
-    if (!req.user?.companyId || !req.user?.id) {
-      throw new Error("Unauthorized: Missing user context in request.");
-    }
-    return {
-      companyId: req.user.companyId,
-      userId: req.user.id,
-    };
-  }
 
   // ==========================================
   // 1. ProgramType Handlers
   // ==========================================
 
-  createProgramType = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  createProgramType = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const { companyId } = this.getUserContext(req);
+      const companyId = req.user.companyId;
       const result = await this.service.createProgramType(companyId, req.body);
       res.status(201).json({ success: true, data: result });
     } catch (error) {
@@ -37,9 +27,9 @@ export class ProgramConfigurationController {
     }
   };
 
-  getProgramTypeById = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  getProgramTypeById = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const { companyId } = this.getUserContext(req);
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
 
       const result = await this.service.getProgramTypeById(companyId, id);
@@ -49,19 +39,19 @@ export class ProgramConfigurationController {
     }
   };
 
-  listProgramTypes = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  listProgramTypes = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const { companyId } = this.getUserContext(req);
-      const result = await this.service.listProgramTypes(companyId, req.query as any);
+      const companyId = req.user.companyId;
+      const result = await this.service.listProgramTypes(companyId, req.query);
       res.status(200).json({ success: true, ...result });
     } catch (error) {
       next(error);
     }
   };
 
-  updateProgramType = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  updateProgramType = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const { companyId } = this.getUserContext(req);
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
 
       const result = await this.service.updateProgramType(companyId, id, req.body);
@@ -71,9 +61,9 @@ export class ProgramConfigurationController {
     }
   };
 
-  deleteProgramType = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  deleteProgramType = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const { companyId } = this.getUserContext(req);
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
 
       await this.service.deleteProgramType(companyId, id);
@@ -87,9 +77,9 @@ export class ProgramConfigurationController {
   // 2. ProgramCategory Handlers
   // ==========================================
 
-  createProgramCategory = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  createProgramCategory = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const { companyId, userId } = this.getUserContext(req);
+      const { companyId, appUserId: userId } = req.user;
       const result = await this.service.createProgramCategory(companyId, userId, req.body);
       res.status(201).json({ success: true, data: result });
     } catch (error) {
@@ -97,9 +87,9 @@ export class ProgramConfigurationController {
     }
   };
 
-  getProgramCategoryById = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  getProgramCategoryById = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const { companyId } = this.getUserContext(req);
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
 
       const result = await this.service.getProgramCategoryById(companyId, id);
@@ -109,19 +99,19 @@ export class ProgramConfigurationController {
     }
   };
 
-  listProgramCategories = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  listProgramCategories = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const { companyId } = this.getUserContext(req);
-      const result = await this.service.listProgramCategories(companyId, req.query as any);
+      const companyId = req.user.companyId;
+      const result = await this.service.listProgramCategories(companyId, req.query);
       res.status(200).json({ success: true, ...result });
     } catch (error) {
       next(error);
     }
   };
 
-  updateProgramCategory = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  updateProgramCategory = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const { companyId, userId } = this.getUserContext(req);
+      const { companyId, appUserId: userId } = req.user;
       const id = Number(req.params.id);
 
       const result = await this.service.updateProgramCategory(companyId, id, userId, req.body);
@@ -131,9 +121,9 @@ export class ProgramConfigurationController {
     }
   };
 
-  deleteProgramCategory = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  deleteProgramCategory = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const { companyId } = this.getUserContext(req);
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
 
       await this.service.deleteProgramCategory(companyId, id);
@@ -147,9 +137,9 @@ export class ProgramConfigurationController {
   // 3. TaskType Handlers
   // ==========================================
 
-  createTaskType = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  createTaskType = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const { companyId } = this.getUserContext(req);
+      const companyId = req.user.companyId;
       const result = await this.service.createTaskType(companyId, req.body);
       res.status(201).json({ success: true, data: result });
     } catch (error) {
@@ -157,9 +147,9 @@ export class ProgramConfigurationController {
     }
   };
 
-  getTaskTypeById = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  getTaskTypeById = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const { companyId } = this.getUserContext(req);
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
 
       const result = await this.service.getTaskTypeById(companyId, id);
@@ -169,19 +159,19 @@ export class ProgramConfigurationController {
     }
   };
 
-  listTaskTypes = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  listTaskTypes = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const { companyId } = this.getUserContext(req);
-      const result = await this.service.listTaskTypes(companyId, req.query as any);
+      const companyId = req.user.companyId;
+      const result = await this.service.listTaskTypes(companyId, req.query);
       res.status(200).json({ success: true, ...result });
     } catch (error) {
       next(error);
     }
   };
 
-  updateTaskType = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  updateTaskType = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const { companyId } = this.getUserContext(req);
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
 
       const result = await this.service.updateTaskType(companyId, id, req.body);
@@ -191,9 +181,9 @@ export class ProgramConfigurationController {
     }
   };
 
-  deleteTaskType = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  deleteTaskType = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const { companyId } = this.getUserContext(req);
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
 
       await this.service.deleteTaskType(companyId, id);
@@ -207,9 +197,9 @@ export class ProgramConfigurationController {
   // 4. ProgramTemplate Handlers
   // ==========================================
 
-  createTemplate = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  createTemplate = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const { companyId, userId } = this.getUserContext(req);
+      const { companyId, appUserId: userId } = req.user;
       const result = await this.service.createTemplate(companyId, userId, req.body);
       res.status(201).json({ success: true, data: result });
     } catch (error) {
@@ -217,9 +207,9 @@ export class ProgramConfigurationController {
     }
   };
 
-  getTemplateById = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  getTemplateById = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const { companyId } = this.getUserContext(req);
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
 
       const result = await this.service.getTemplateById(companyId, id);
@@ -229,19 +219,19 @@ export class ProgramConfigurationController {
     }
   };
 
-  listTemplates = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  listTemplates = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const { companyId } = this.getUserContext(req);
-      const result = await this.service.listTemplates(companyId, req.query as any);
+      const companyId = req.user.companyId;
+      const result = await this.service.listTemplates(companyId, req.query);
       res.status(200).json({ success: true, ...result });
     } catch (error) {
       next(error);
     }
   };
 
-  updateTemplate = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  updateTemplate = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const { companyId, userId } = this.getUserContext(req);
+      const { companyId, appUserId: userId } = req.user;
       const id = Number(req.params.id);
 
       const result = await this.service.updateTemplate(companyId, id, userId, req.body);
@@ -251,9 +241,9 @@ export class ProgramConfigurationController {
     }
   };
 
-  deleteTemplate = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  deleteTemplate = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const { companyId } = this.getUserContext(req);
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
 
       await this.service.deleteTemplate(companyId, id);

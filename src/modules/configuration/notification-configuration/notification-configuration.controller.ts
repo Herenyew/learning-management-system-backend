@@ -1,16 +1,17 @@
-import { Request, Response, NextFunction } from "express";
-import { NotificationConfigurationService } from "./notification-configuration.service.js";
-import {
-  CreateNotificationModuleDto,
-  UpdateNotificationModuleDto,
-  NotificationModuleFilterDto,
-  CreateNotificationEventDto,
-  UpdateNotificationEventDto,
-  NotificationEventFilterDto,
-  CreateNotificationTemplateDto,
-  UpdateNotificationTemplateDto,
-  NotificationTemplateFilterDto,
-} from "./notification-configuration.dto.js";
+import type { NextFunction, Response } from "express";
+import type { AuthRequest } from "../auth-request.js";
+import type { NotificationConfigurationService } from "./notification-configuration.service.js";
+import type {
+  CreateNotificationModuleInput,
+  UpdateNotificationModuleInput,
+  NotificationModuleFilterInput,
+  CreateNotificationEventInput,
+  UpdateNotificationEventInput,
+  NotificationEventFilterInput,
+  CreateNotificationTemplateInput,
+  UpdateNotificationTemplateInput,
+  NotificationTemplateFilterInput,
+} from "./notification-configuration.types.js";
 
 export class NotificationConfigurationController {
   constructor(
@@ -22,13 +23,13 @@ export class NotificationConfigurationController {
   // ==========================================
 
   createNotificationModule = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const dto: CreateNotificationModuleDto = req.body;
+      const dto: CreateNotificationModuleInput = req.body;
       const result = await this.service.createNotificationModule(companyId, dto);
       res.status(201).json({ success: true, data: result });
     } catch (error) {
@@ -37,13 +38,13 @@ export class NotificationConfigurationController {
   };
 
   listNotificationModules = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const query = req.query as unknown as NotificationModuleFilterDto;
+      const query = req.query;
       const result = await this.service.listNotificationModules(companyId, query);
       res.status(200).json({ success: true, ...result });
     } catch (error) {
@@ -52,7 +53,7 @@ export class NotificationConfigurationController {
   };
 
   getNotificationModuleById = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -67,14 +68,14 @@ export class NotificationConfigurationController {
   };
 
   updateNotificationModule = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
       const id = Number(req.params.id);
-      const dto: UpdateNotificationModuleDto = req.body;
+      const dto: UpdateNotificationModuleInput = req.body;
       const result = await this.service.updateNotificationModule(
         companyId,
         id,
@@ -87,7 +88,7 @@ export class NotificationConfigurationController {
   };
 
   deactivateNotificationModule = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -109,13 +110,13 @@ export class NotificationConfigurationController {
   // ==========================================
 
   createNotificationEvent = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const dto: CreateNotificationEventDto = req.body;
+      const dto: CreateNotificationEventInput = req.body;
       const result = await this.service.createNotificationEvent(companyId, dto);
       res.status(201).json({ success: true, data: result });
     } catch (error) {
@@ -124,13 +125,13 @@ export class NotificationConfigurationController {
   };
 
   listNotificationEvents = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const query = req.query as unknown as NotificationEventFilterDto;
+      const query = req.query;
       const result = await this.service.listNotificationEvents(companyId, query);
       res.status(200).json({ success: true, ...result });
     } catch (error) {
@@ -139,7 +140,7 @@ export class NotificationConfigurationController {
   };
 
   getNotificationEventById = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -154,14 +155,14 @@ export class NotificationConfigurationController {
   };
 
   updateNotificationEvent = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
       const id = Number(req.params.id);
-      const dto: UpdateNotificationEventDto = req.body;
+      const dto: UpdateNotificationEventInput = req.body;
       const result = await this.service.updateNotificationEvent(
         companyId,
         id,
@@ -174,7 +175,7 @@ export class NotificationConfigurationController {
   };
 
   deactivateNotificationEvent = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -196,14 +197,14 @@ export class NotificationConfigurationController {
   // ==========================================
 
   createTemplate = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const userId = req.user.id;
-      const dto: CreateNotificationTemplateDto = req.body;
+      const userId = req.user.appUserId;
+      const dto: CreateNotificationTemplateInput = req.body;
       const result = await this.service.createTemplate(companyId, userId, dto);
       res.status(201).json({ success: true, data: result });
     } catch (error) {
@@ -212,13 +213,13 @@ export class NotificationConfigurationController {
   };
 
   listTemplates = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const query = req.query as unknown as NotificationTemplateFilterDto;
+      const query = req.query;
       const result = await this.service.listTemplates(companyId, query);
       res.status(200).json({ success: true, ...result });
     } catch (error) {
@@ -227,7 +228,7 @@ export class NotificationConfigurationController {
   };
 
   getTemplateById = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -242,15 +243,15 @@ export class NotificationConfigurationController {
   };
 
   updateTemplate = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
       const companyId = req.user.companyId;
-      const userId = req.user.id;
+      const userId = req.user.appUserId;
       const id = Number(req.params.id);
-      const dto: UpdateNotificationTemplateDto = req.body;
+      const dto: UpdateNotificationTemplateInput = req.body;
       const result = await this.service.updateTemplate(
         companyId,
         id,
@@ -264,7 +265,7 @@ export class NotificationConfigurationController {
   };
 
   deleteTemplate = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {

@@ -1,55 +1,19 @@
-import { PrismaClient, Prisma, EffectivenessWeightConfig } from "@prisma/client";
-import {
-  CreateEffectivenessWeightConfigDto,
-  UpdateEffectivenessWeightConfigDto,
-  EffectivenessWeightConfigFilterDto,
-} from "./training-effectiveness.dto.js";
+import type { PrismaClient, Prisma, EffectivenessWeightConfig } from "@prisma/client";
+import type {
+  CreateEffectivenessWeightConfigInput,
+  UpdateEffectivenessWeightConfigInput,
+  EffectivenessWeightConfigFilterParams,
+} from "./training-effectiveness.types.js";
 
-export interface ITrainingEffectivenessRepository {
-  createWeightConfig(
-    companyId: number,
-    userId: number,
-    dto: CreateEffectivenessWeightConfigDto
-  ): Promise<EffectivenessWeightConfig>;
-  findWeightConfigById(
-    companyId: number,
-    id: number
-  ): Promise<EffectivenessWeightConfig | null>;
-  findActiveWeightConfig(
-    companyId: number
-  ): Promise<EffectivenessWeightConfig | null>;
-  findWeightConfigs(
-    companyId: number,
-    filter: EffectivenessWeightConfigFilterDto
-  ): Promise<EffectivenessWeightConfig[]>;
-  countWeightConfigs(
-    companyId: number,
-    filter: EffectivenessWeightConfigFilterDto
-  ): Promise<number>;
-  updateWeightConfig(
-    companyId: number,
-    id: number,
-    dto: UpdateEffectivenessWeightConfigDto
-  ): Promise<EffectivenessWeightConfig>;
-  deactivateWeightConfig(
-    companyId: number,
-    id: number
-  ): Promise<EffectivenessWeightConfig>;
-  deactivateAllActiveConfigs(
-    companyId: number,
-    prismaTx?: Prisma.TransactionClient
-  ): Promise<Prisma.BatchPayload>;
-}
+import type { ITrainingEffectivenessRepository } from "./training-effectiveness.types.js";
 
-export class TrainingEffectivenessRepository
-  implements ITrainingEffectivenessRepository
-{
+export class TrainingEffectivenessRepository implements ITrainingEffectivenessRepository {
   constructor(private prisma: PrismaClient) {}
 
   async createWeightConfig(
     companyId: number,
     userId: number,
-    dto: CreateEffectivenessWeightConfigDto
+    dto: CreateEffectivenessWeightConfigInput
   ): Promise<EffectivenessWeightConfig> {
     return this.prisma.effectivenessWeightConfig.create({
       data: {
@@ -85,9 +49,9 @@ export class TrainingEffectivenessRepository
 
   async findWeightConfigs(
     companyId: number,
-    filter: EffectivenessWeightConfigFilterDto
+    filter: EffectivenessWeightConfigFilterParams
   ): Promise<EffectivenessWeightConfig[]> {
-    const { isActive, page, limit } = filter;
+    const { isActive, page = 1, limit = 10 } = filter;
     const skip = (page - 1) * limit;
 
     const where: Prisma.EffectivenessWeightConfigWhereInput = {
@@ -105,7 +69,7 @@ export class TrainingEffectivenessRepository
 
   async countWeightConfigs(
     companyId: number,
-    filter: EffectivenessWeightConfigFilterDto
+    filter: EffectivenessWeightConfigFilterParams
   ): Promise<number> {
     const { isActive } = filter;
 
@@ -120,7 +84,7 @@ export class TrainingEffectivenessRepository
   async updateWeightConfig(
     companyId: number,
     id: number,
-    dto: UpdateEffectivenessWeightConfigDto
+    dto: UpdateEffectivenessWeightConfigInput
   ): Promise<EffectivenessWeightConfig> {
     return this.prisma.effectivenessWeightConfig.update({
       where: { id },

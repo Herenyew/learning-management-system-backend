@@ -1,11 +1,11 @@
-import { IApprovalWorkflowsRepository } from "./approval-workflows.repository.js";
-import {
-  CreateApprovalWorkflowDto,
-  UpdateApprovalWorkflowDto,
-  ApprovalWorkflowFilterDto,
-  CreateApprovalWorkflowStepDto,
-  UpdateApprovalWorkflowStepDto,
-} from "./approval-workflows.dto.js";
+import type { IApprovalWorkflowsRepository } from "./approval-workflows.types.js";
+import type {
+  CreateApprovalWorkflowInput,
+  UpdateApprovalWorkflowInput,
+  ApprovalWorkflowFilterInput,
+  CreateApprovalWorkflowStepInput,
+  UpdateApprovalWorkflowStepInput,
+} from "./approval-workflows.types.js";
 import {
   ConflictError,
   NotFoundError,
@@ -26,7 +26,7 @@ export class ApprovalWorkflowsService {
   async createWorkflow(
     companyId: number,
     userId: number,
-    dto: CreateApprovalWorkflowDto
+    dto: CreateApprovalWorkflowInput
   ) {
     const existing = await this.repository.findWorkflowByName(
       companyId,
@@ -52,7 +52,7 @@ export class ApprovalWorkflowsService {
     return this.repository.createWorkflow(companyId, userId, dto);
   }
 
-  async getWorkflows(companyId: number, filter: ApprovalWorkflowFilterDto) {
+  async getWorkflows(companyId: number, filter: ApprovalWorkflowFilterInput) {
     const [data, total] = await Promise.all([
       this.repository.findWorkflows(companyId, filter),
       this.repository.countWorkflows(companyId, filter),
@@ -83,7 +83,7 @@ export class ApprovalWorkflowsService {
     companyId: number,
     id: number,
     userId: number,
-    dto: UpdateApprovalWorkflowDto
+    dto: UpdateApprovalWorkflowInput
   ) {
     const existing = await this.getWorkflowById(companyId, id);
 
@@ -143,7 +143,7 @@ export class ApprovalWorkflowsService {
   async createWorkflowStep(
     companyId: number,
     workflowId: number,
-    dto: CreateApprovalWorkflowStepDto
+    dto: CreateApprovalWorkflowStepInput
   ) {
     const workflow = await this.getWorkflowById(companyId, workflowId);
 
@@ -181,7 +181,7 @@ export class ApprovalWorkflowsService {
     companyId: number,
     workflowId: number,
     stepId: number,
-    dto: UpdateApprovalWorkflowStepDto
+    dto: UpdateApprovalWorkflowStepInput
   ) {
     const workflow = await this.getWorkflowById(companyId, workflowId);
 

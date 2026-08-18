@@ -1,16 +1,16 @@
-import { AudienceGroup, AudienceGroupRule } from "@prisma/client";
-import { IAudienceRepository, AudienceGroupFilter } from "./audience.repository.js";
+import type { AudienceGroup, AudienceGroupRule } from "@prisma/client";
 import { Prisma } from "@prisma/client";
-import {
-  CreateAudienceGroupBodyDto,
-  UpdateAudienceGroupBodyDto,
-  CreateAudienceGroupRuleBodyDto,
-  UpdateAudienceGroupRuleBodyDto,
-} from "./audience.dto.js";
-import { NotFoundError, ConflictError } from "../../../common/errors/http-errors.js";
+import { ConflictError, NotFoundError } from "../../../common/errors/http-errors.js";
 import { buildPaginationMeta } from "../../../common/http/pagination.js";
-
-
+import type {
+  AudienceGroupFilterParams,
+  AudienceGroupWithRules,
+  CreateAudienceGroupInput,
+  CreateAudienceGroupRuleInput,
+  IAudienceRepository,
+  UpdateAudienceGroupInput,
+  UpdateAudienceGroupRuleInput,
+} from "./audience.types.js";
 
 export class AudienceService {
   constructor(private readonly audienceRepository: IAudienceRepository) {}
@@ -22,23 +22,17 @@ export class AudienceService {
   async create(
     companyId: number,
     createdBy: number,
-    dto: CreateAudienceGroupBodyDto,
+    dto: CreateAudienceGroupInput,
   ): Promise<AudienceGroup> {
     const existing = await this.audienceRepository.findByName(companyId, dto.name);
     if (existing) {
       throw new ConflictError("Audience group already exists.");
     }
 
-    return this.audienceRepository.create({
-      company: { connect: { id: companyId } },
-      createdByUser: { connect: { id: createdBy } },
-      name: dto.name,
-      description: dto.description,
-      isActive: true,
-    });
+    return this.audienceRepository.create(companyId, createdBy, dto);
   }
 
-  async findById(companyId: number, audienceGroupId: number): Promise<AudienceGroup> {
+  async findById(companyId: number, audienceGroupId: number): Promise<AudienceGroupWithRules> {
     const group = await this.audienceRepository.findById(audienceGroupId, companyId);
     if (!group) {
       throw new NotFoundError("Audience group");
@@ -46,10 +40,13 @@ export class AudienceService {
     return group;
   }
 
-  async findMany(filter: AudienceGroupFilter, page: number, pageSize: number) {
+  async findMany(companyId: number, filter: AudienceGroupFilterParams) {
+    const page = filter.page ?? 1;
+    const pageSize = filter.pageSize ?? 10;
+
     const [data, totalRecords] = await Promise.all([
-      this.audienceRepository.findMany(filter, page, pageSize),
-      this.audienceRepository.countMany(filter),
+      this.audienceRepository.findMany(companyId, filter),
+      this.audienceRepository.countMany(companyId, filter),
     ]);
 
     return {
@@ -62,10 +59,8 @@ export class AudienceService {
     companyId: number,
     audienceGroupId: number,
     updatedBy: number,
-    dto: UpdateAudienceGroupBodyDto,
+    dto: UpdateAudienceGroupInput,
   ): Promise<AudienceGroup> {
-    // Ownership check — required before repository.update(), which
-    // trusts this has already happened (see repository comment).
     const group = await this.findById(companyId, audienceGroupId);
 
     if (dto.name && dto.name !== group.name) {
@@ -87,14 +82,10 @@ export class AudienceService {
       }
     }
 
-    return this.audienceRepository.update(audienceGroupId, companyId, {
-      ...dto,
-      updatedByUser: { connect: { id: updatedBy } },
-    });
+    return this.audienceRepository.update(audienceGroupId, companyId, updatedBy, dto);
   }
 
   async delete(companyId: number, audienceGroupId: number): Promise<AudienceGroup> {
-    // Ownership check — required before repository.softDelete().
     await this.findById(companyId, audienceGroupId);
 
     const usages = await this.audienceRepository.findTargetUsages(audienceGroupId, companyId);
@@ -116,11 +107,11 @@ export class AudienceService {
   async createRule(
     audienceGroupId: number,
     companyId: number,
-    dto: CreateAudienceGroupRuleBodyDto,
+    dto: CreateAudienceGroupRuleInput,
   ): Promise<AudienceGroupRule> {
     await this.findById(companyId, audienceGroupId);
     try {
-    return await this.audienceRepository.createRule(audienceGroupId, companyId, dto);
+      return await this.audienceRepository.createRule(audienceGroupId, companyId, dto);
     } catch (error) {
       this.rethrowRuleUniqueViolation(error);
     }
@@ -135,7 +126,7 @@ export class AudienceService {
     audienceGroupId: number,
     ruleId: number,
     companyId: number,
-    dto: UpdateAudienceGroupRuleBodyDto,
+    dto: UpdateAudienceGroupRuleInput,
   ): Promise<AudienceGroupRule> {
     await this.findById(companyId, audienceGroupId);
 
@@ -145,9 +136,7 @@ export class AudienceService {
     }
 
     try {
-    // Ownership check above is required before repository.updateRule(),
-    // which trusts this has already happened (see repository comment).
-    return await this.audienceRepository.updateRule(ruleId, companyId, dto);
+      return await this.audienceRepository.updateRule(ruleId, companyId, dto);
     } catch (error) {
       this.rethrowRuleUniqueViolation(error);
     }
@@ -169,15 +158,14 @@ export class AudienceService {
   }
 
   private rethrowRuleUniqueViolation(error: unknown): never {
-  if (
-    error instanceof Prisma.PrismaClientKnownRequestError &&
-    error.code === "P2002"
-  ) {
-    throw new ConflictError(
-      "A rule with the same targeting conditions already exists in this audience group.",
-    );
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      throw new ConflictError(
+        "A rule with the same targeting conditions already exists in this audience group.",
+      );
+    }
+    throw error;
   }
-  throw error;
-}
-
 }

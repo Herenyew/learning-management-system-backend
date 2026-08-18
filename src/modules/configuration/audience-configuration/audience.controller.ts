@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from "express";
+import type { NextFunction, Response } from "express";
+import type { AuthRequest } from "../auth-request.js";
 import { AudienceService } from "./audience.service.js";
 import { AudienceMatchingService } from "./audience.matching.service.js";
 import { parsePagination } from "../../../common/http/pagination.js";
-import { ValidationError } from "../../../common/errors/http-errors.js";
 
 export class AudienceController {
   constructor(
@@ -10,19 +10,12 @@ export class AudienceController {
     private readonly audienceMatchingService: AudienceMatchingService,
   ) {}
 
-  private parseParamId(paramValue: string, paramName: string): number {
-    const id = Number(paramValue);
-    if (isNaN(id) || id <= 0) {
-      throw new ValidationError(`Invalid ${paramName}: must be a positive integer.`);
-    }
-    return id;
-  }
 
   // ==========================================
   // Audience Groups
   // ==========================================
 
-  create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  create = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const result = await this.audienceService.create(
         req.user.companyId,
@@ -40,9 +33,9 @@ export class AudienceController {
     }
   };
 
-  findById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  findById = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const audienceGroupId = this.parseParamId(req.params.id, "audience group ID");
+      const audienceGroupId = Number(req.params.id);
 
       const result = await this.audienceService.findById(
         req.user.companyId,
@@ -59,21 +52,21 @@ export class AudienceController {
     }
   };
 
-  findMany = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  findMany = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { page, pageSize } = parsePagination(req);
 
       const result = await this.audienceService.findMany(
+        req.user.companyId,
         {
-          companyId: req.user.companyId,
           search: req.query.search as string | undefined,
           isActive:
             req.query.isActive !== undefined
               ? req.query.isActive === "true"
               : undefined,
-        },
-        page,
-        pageSize,
+          page,
+          pageSize,
+        }
       );
 
       res.json({
@@ -87,9 +80,9 @@ export class AudienceController {
     }
   };
 
-  update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  update = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const audienceGroupId = this.parseParamId(req.params.id, "audience group ID");
+      const audienceGroupId = Number(req.params.id);
 
       const result = await this.audienceService.update(
         req.user.companyId,
@@ -108,9 +101,9 @@ export class AudienceController {
     }
   };
 
-  delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  delete = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const audienceGroupId = this.parseParamId(req.params.id, "audience group ID");
+      const audienceGroupId = Number(req.params.id);
 
       await this.audienceService.delete(req.user.companyId, audienceGroupId);
 
@@ -127,9 +120,9 @@ export class AudienceController {
   // Member Matching & Preview
   // ==========================================
 
-  resolveMembers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  resolveMembers = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const audienceGroupId = this.parseParamId(req.params.id, "audience group ID");
+      const audienceGroupId = Number(req.params.id);
       const { page, pageSize } = parsePagination(req);
 
       const result = await this.audienceMatchingService.resolveMembers(
@@ -158,14 +151,11 @@ export class AudienceController {
     }
   };
 
-  matchesEmployee = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  matchesEmployee = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const audienceGroupId = this.parseParamId(req.params.id, "audience group ID");
+      const audienceGroupId = Number(req.params.id);
       const employeeId = req.params.employeeId;
 
-      if (!employeeId?.trim()) {
-        throw new ValidationError("Employee ID is required.");
-      }
 
       const matches = await this.audienceMatchingService.matchesEmployee(
         employeeId,
@@ -187,9 +177,9 @@ export class AudienceController {
   // Audience Group Rules
   // ==========================================
 
-  createRule = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  createRule = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const audienceGroupId = this.parseParamId(req.params.id, "audience group ID");
+      const audienceGroupId = Number(req.params.id);
 
       const result = await this.audienceService.createRule(
         audienceGroupId,
@@ -207,9 +197,9 @@ export class AudienceController {
     }
   };
 
-  findRules = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  findRules = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const audienceGroupId = this.parseParamId(req.params.id, "audience group ID");
+      const audienceGroupId = Number(req.params.id);
 
       const result = await this.audienceService.findRules(
         audienceGroupId,
@@ -226,10 +216,10 @@ export class AudienceController {
     }
   };
 
-  updateRule = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  updateRule = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const audienceGroupId = this.parseParamId(req.params.id, "audience group ID");
-      const ruleId = this.parseParamId(req.params.ruleId, "rule ID");
+      const audienceGroupId = Number(req.params.id);
+      const ruleId = Number(req.params.ruleId);
 
       const result = await this.audienceService.updateRule(
         audienceGroupId,
@@ -248,10 +238,10 @@ export class AudienceController {
     }
   };
 
-  deleteRule = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  deleteRule = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const audienceGroupId = this.parseParamId(req.params.id, "audience group ID");
-      const ruleId = this.parseParamId(req.params.ruleId, "rule ID");
+      const audienceGroupId = Number(req.params.id);
+      const ruleId = Number(req.params.ruleId);
 
       await this.audienceService.deleteRule(
         audienceGroupId,

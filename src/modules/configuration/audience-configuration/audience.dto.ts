@@ -26,8 +26,7 @@ export const updateAudienceGroupBodySchema = z.object({
   isActive: z.boolean().optional(),
 });
 
-export type CreateAudienceGroupBodyDto = z.infer<typeof createAudienceGroupBodySchema>;
-export type UpdateAudienceGroupBodyDto = z.infer<typeof updateAudienceGroupBodySchema>;
+// DTO schemas only — types moved to audience-configuration.types.ts
 
 // ──────────────────────────────────────────────────────────────
 //  AUDIENCE GROUP – PARAMS SCHEMAS
@@ -47,9 +46,7 @@ export const matchesEmployeeParamsSchema = z.object({
   employeeId: z.string().min(1, 'Employee ID is required.'),
 });
 
-export type AudienceGroupParamsDto = z.infer<typeof audienceGroupParamsSchema>;
-export type AudienceGroupRuleParamsDto = z.infer<typeof audienceGroupRuleParamsSchema>;
-export type MatchesEmployeeParamsDto = z.infer<typeof matchesEmployeeParamsSchema>;
+// DTO schemas only — types moved to audience-configuration.types.ts
 
 // ──────────────────────────────────────────────────────────────
 //  AUDIENCE GROUP – QUERY SCHEMAS
@@ -71,8 +68,7 @@ export const resolveMembersQuerySchema = z.object({
   pageSize: z.coerce.number().int().positive().max(100).default(20),
 });
 
-export type ListAudienceGroupsQueryDto = z.infer<typeof listAudienceGroupsQuerySchema>;
-export type ResolveMembersQueryDto = z.infer<typeof resolveMembersQuerySchema>;
+// DTO schemas only — types moved to audience-configuration.types.ts
 
 // ──────────────────────────────────────────────────────────────
 //  RULES – BODY SCHEMAS
@@ -104,5 +100,4 @@ export const updateAudienceGroupRuleBodySchema = z
       'At least one targeting condition (departmentId, jobTitleId, jobLevelId, appRoleId, employmentTypeId, or hireWithinDays) is required for update.',
   });
 
-export type CreateAudienceGroupRuleBodyDto = z.infer<typeof createAudienceGroupRuleBodySchema>;
-export type UpdateAudienceGroupRuleBodyDto = z.infer<typeof updateAudienceGroupRuleBodySchema>;
+// DTO schemas only — types moved to audience-configuration.types.ts

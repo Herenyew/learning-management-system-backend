@@ -1,4 +1,4 @@
-import { PrismaClient, ContentCategory } from "@prisma/client";
+﻿import { PrismaClient, ContentCategory } from "@prisma/client";
 
 const prisma = new PrismaClient();
 

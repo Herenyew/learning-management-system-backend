@@ -1,5 +1,6 @@
-import { PrismaClient, Prisma, ProgramType, ProgramCategory, TaskType, ProgramTemplate } from "@prisma/client";
-import {
+import { Prisma } from "@prisma/client";
+import type { PrismaClient, ProgramType, ProgramCategory, TaskType, ProgramTemplate } from "@prisma/client";
+import type {
   CreateProgramTypeInput,
   UpdateProgramTypeInput,
   ProgramTypeQueryInput,
@@ -12,66 +13,9 @@ import {
   CreateProgramTemplateInput,
   UpdateProgramTemplateInput,
   ProgramTemplateQueryInput,
-} from "./program-configuration.dto.js";
+} from "./program-configuration.types.js";
 
-// ==========================================
-// Repository Interface
-// ==========================================
-
-export interface IProgramConfigurationRepository {
-  // ProgramType
-  createProgramType(companyId: number, data: CreateProgramTypeInput): Promise<ProgramType>;
-  findProgramTypeById(companyId: number, id: number): Promise<ProgramType | null>;
-  findProgramTypeByName(companyId: number, name: string): Promise<ProgramType | null>;
-  findProgramTypes(
-    companyId: number,
-    query: ProgramTypeQueryInput
-  ): Promise<{ items: ProgramType[]; total: number; page: number; pageSize: number }>;
-  countProgramTypes(companyId: number): Promise<number>;
-  updateProgramType(companyId: number, id: number, data: UpdateProgramTypeInput): Promise<ProgramType>;
-  softDeleteProgramType(companyId: number, id: number): Promise<ProgramType>;
-  countProgramTypeUsages(companyId: number, id: number): Promise<number>;
-
-  // ProgramCategory
-  createProgramCategory(companyId: number, userId: number, data: CreateProgramCategoryInput): Promise<ProgramCategory>;
-  findProgramCategoryById(companyId: number, id: number): Promise<ProgramCategory | null>;
-  findProgramCategoryByName(companyId: number, name: string): Promise<ProgramCategory | null>;
-  findProgramCategories(
-    companyId: number,
-    query: ProgramCategoryQueryInput
-  ): Promise<{ items: ProgramCategory[]; total: number; page: number; pageSize: number }>;
-  countProgramCategories(companyId: number): Promise<number>;
-  updateProgramCategory(companyId: number, id: number, userId: number, data: UpdateProgramCategoryInput): Promise<ProgramCategory>;
-  softDeleteProgramCategory(companyId: number, id: number): Promise<ProgramCategory>;
-  countProgramCategoryUsages(companyId: number, id: number): Promise<number>;
-
-  // TaskType
-  createTaskType(companyId: number, data: CreateTaskTypeInput & { slug: string }): Promise<TaskType>;
-  findTaskTypeById(companyId: number, id: number): Promise<TaskType | null>;
-  findTaskTypeByName(companyId: number, name: string): Promise<TaskType | null>;
-  findTaskTypeBySlug(companyId: number, slug: string): Promise<TaskType | null>;
-  findTaskTypes(
-    companyId: number,
-    query: TaskTypeQueryInput
-  ): Promise<{ items: TaskType[]; total: number; page: number; pageSize: number }>;
-  countTaskTypes(companyId: number): Promise<number>;
-  updateTaskType(companyId: number, id: number, data: UpdateTaskTypeInput): Promise<TaskType>;
-  softDeleteTaskType(companyId: number, id: number): Promise<TaskType>;
-  countTaskTypeUsages(companyId: number, id: number): Promise<number>;
-
-  // ProgramTemplate
-  createTemplate(companyId: number, userId: number, data: CreateProgramTemplateInput): Promise<ProgramTemplate>;
-  findTemplateById(companyId: number, id: number): Promise<ProgramTemplate | null>;
-  findTemplateByName(companyId: number, name: string): Promise<ProgramTemplate | null>;
-  findTemplates(
-    companyId: number,
-    query: ProgramTemplateQueryInput
-  ): Promise<{ items: ProgramTemplate[]; total: number; page: number; pageSize: number }>;
-  countTemplates(companyId: number): Promise<number>;
-  updateTemplate(companyId: number, id: number, userId: number, data: UpdateProgramTemplateInput): Promise<ProgramTemplate>;
-  softDeleteTemplate(companyId: number, id: number): Promise<ProgramTemplate>;
-  countTemplateUsages(companyId: number, id: number): Promise<number>;
-}
+import type { IProgramConfigurationRepository } from "./program-configuration.types.js";
 
 // ==========================================
 // Repository Implementation
@@ -434,7 +378,7 @@ export class ProgramConfigurationRepository implements IProgramConfigurationRepo
       data: {
         ...rest,
         defaultMilestones: defaultMilestones
-          ? (defaultMilestones as unknown as Prisma.InputJsonValue)
+          ? (defaultMilestones as Prisma.InputJsonValue)
           : Prisma.JsonNull,
         companyId,
         createdBy: userId,
@@ -527,7 +471,7 @@ export class ProgramConfigurationRepository implements IProgramConfigurationRepo
         ...rest,
         ...(defaultMilestones !== undefined && {
           defaultMilestones: defaultMilestones
-            ? (defaultMilestones as unknown as Prisma.InputJsonValue)
+            ? (defaultMilestones as Prisma.InputJsonValue)
             : Prisma.JsonNull,
         }),
         updatedBy: userId,

@@ -1,32 +1,20 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+import type { PrismaClient, Prisma } from '@prisma/client';
 
-export interface ISurveyConfigurationRepository {
-  // SurveyQuestionType
-  createSurveyQuestionType(companyId: number, data: any): Promise<any>;
-  findSurveyQuestionTypeById(companyId: number, id: number): Promise<any | null>;
-  findSurveyQuestionTypeByName(companyId: number, name: string): Promise<any | null>;
-  findSurveyQuestionTypes(companyId: number, query: any): Promise<{ items: any[]; total: number; page: number; pageSize: number }>;
-  countSurveyQuestionTypes(companyId: number): Promise<number>;
-  updateSurveyQuestionType(companyId: number, id: number, data: any): Promise<any>;
-  softDeleteSurveyQuestionType(companyId: number, id: number): Promise<any>;
-  countSurveyQuestionTypeUsages(companyId: number, id: number): Promise<number>;
-
-  // SurveyTemplate
-  createTemplate(companyId: number, userId: number, data: any): Promise<any>;
-  findTemplateById(companyId: number, id: number): Promise<any | null>;
-  findTemplateByName(companyId: number, name: string): Promise<any | null>;
-  findTemplates(companyId: number, query: any): Promise<{ items: any[]; total: number; page: number; pageSize: number }>;
-  countTemplates(companyId: number): Promise<number>;
-  updateTemplate(companyId: number, id: number, userId: number, data: any): Promise<any>;
-  softDeleteTemplate(companyId: number, id: number): Promise<any>;
-  countTemplateUsages(companyId: number, id: number): Promise<number>;
-}
+import type {
+  CreateSurveyQuestionTypeInput,
+  CreateSurveyTemplateInput,
+  ISurveyConfigurationRepository,
+  SurveyQuestionTypeFilterParams,
+  SurveyTemplateFilterParams,
+  UpdateSurveyQuestionTypeInput,
+  UpdateSurveyTemplateInput,
+} from './survey-configuration.types.js';
 
 export class SurveyConfigurationRepository implements ISurveyConfigurationRepository {
   constructor(private prisma: PrismaClient) {}
 
   // SurveyQuestionType repository methods
-  async createSurveyQuestionType(companyId: number, data: any) {
+  async createSurveyQuestionType(companyId: number, data: CreateSurveyQuestionTypeInput) {
     return this.prisma.surveyQuestionType.create({ data: { ...data, companyId } });
   }
 
@@ -38,7 +26,7 @@ export class SurveyConfigurationRepository implements ISurveyConfigurationReposi
     return this.prisma.surveyQuestionType.findFirst({ where: { companyId, name } });
   }
 
-  async findSurveyQuestionTypes(companyId: number, query: any) {
+  async findSurveyQuestionTypes(companyId: number, query: SurveyQuestionTypeFilterParams) {
     const { page = 1, pageSize = 25, search, isActive } = query;
     const skip = (page - 1) * pageSize;
     const where: Prisma.SurveyQuestionTypeWhereInput = {
@@ -59,7 +47,7 @@ export class SurveyConfigurationRepository implements ISurveyConfigurationReposi
     return this.prisma.surveyQuestionType.count({ where: { companyId } });
   }
 
-  async updateSurveyQuestionType(companyId: number, id: number, data: any) {
+  async updateSurveyQuestionType(companyId: number, id: number, data: UpdateSurveyQuestionTypeInput) {
     return this.prisma.surveyQuestionType.updateMany({ where: { id, companyId }, data });
   }
 
@@ -74,7 +62,7 @@ export class SurveyConfigurationRepository implements ISurveyConfigurationReposi
   }
 
   // SurveyTemplate repository methods
-  async createTemplate(companyId: number, userId: number, data: any) {
+  async createTemplate(companyId: number, userId: number, data: CreateSurveyTemplateInput) {
     return this.prisma.surveyTemplate.create({ data: { ...data, companyId, createdBy: userId } });
   }
 
@@ -86,7 +74,7 @@ export class SurveyConfigurationRepository implements ISurveyConfigurationReposi
     return this.prisma.surveyTemplate.findFirst({ where: { companyId, name, deletedAt: null } });
   }
 
-  async findTemplates(companyId: number, query: any) {
+  async findTemplates(companyId: number, query: SurveyTemplateFilterParams) {
     const { page = 1, pageSize = 25, search, isActive } = query;
     const skip = (page - 1) * pageSize;
     const where: Prisma.SurveyTemplateWhereInput = {
@@ -108,7 +96,7 @@ export class SurveyConfigurationRepository implements ISurveyConfigurationReposi
     return this.prisma.surveyTemplate.count({ where: { companyId, deletedAt: null } });
   }
 
-  async updateTemplate(companyId: number, id: number, userId: number, data: any) {
+  async updateTemplate(companyId: number, id: number, userId: number, data: UpdateSurveyTemplateInput) {
     // Do not modify existing survey instances — ensure template updates only affect template record
     return this.prisma.surveyTemplate.update({ where: { id, companyId }, data: { ...data, updatedBy: userId } });
   }

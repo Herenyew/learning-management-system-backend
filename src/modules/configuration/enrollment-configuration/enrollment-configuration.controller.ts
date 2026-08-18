@@ -1,13 +1,14 @@
-import { Request, Response, NextFunction } from "express";
-import { EnrollmentConfigurationService } from "./enrollment-configuration.service.js";
-import {
-  CreateEnrollmentRuleTypeInputDto,
-  UpdateEnrollmentRuleTypeInputDto,
-  EnrollmentRuleTypeFilterQueryDto,
-  CreateEnrollmentRuleInputDto,
-  UpdateEnrollmentRuleInputDto,
-  EnrollmentRuleFilterQueryDto,
-} from "./enrollment-configuration.dto.js";
+import type { NextFunction, Response } from "express";
+import type { AuthRequest } from "../auth-request.js";
+import type { EnrollmentConfigurationService } from "./enrollment-configuration.service.js";
+import type {
+  CreateEnrollmentRuleTypeInput,
+  UpdateEnrollmentRuleTypeInput,
+  EnrollmentRuleTypeFilterQueryInput,
+  CreateEnrollmentRuleInput,
+  UpdateEnrollmentRuleInput,
+  EnrollmentRuleFilterQueryInput,
+} from "./enrollment-configuration.types.js";
 
 export class EnrollmentConfigurationController {
   constructor(private service: EnrollmentConfigurationService) {}
@@ -17,13 +18,13 @@ export class EnrollmentConfigurationController {
   // ==========================================
 
   createEnrollmentRuleType = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
-      const companyId = req.user!.companyId;
-      const body = req.body as CreateEnrollmentRuleTypeInputDto;
+      const companyId = req.user.companyId;
+      const body = req.body as CreateEnrollmentRuleTypeInput;
 
       const result = await this.service.createEnrollmentRuleType(companyId, body);
       res.status(201).json({
@@ -36,13 +37,13 @@ export class EnrollmentConfigurationController {
   };
 
   getEnrollmentRuleTypes = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
-      const companyId = req.user!.companyId;
-      const query = req.query as unknown as EnrollmentRuleTypeFilterQueryDto;
+      const companyId = req.user.companyId;
+      const query = req.query;
 
       const result = await this.service.listEnrollmentRuleTypes(companyId, query);
       res.status(200).json({
@@ -55,12 +56,12 @@ export class EnrollmentConfigurationController {
   };
 
   getEnrollmentRuleTypeById = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
-      const companyId = req.user!.companyId;
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
 
       const result = await this.service.getEnrollmentRuleTypeById(companyId, id);
@@ -74,14 +75,14 @@ export class EnrollmentConfigurationController {
   };
 
   updateEnrollmentRuleType = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
-      const companyId = req.user!.companyId;
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
-      const body = req.body as UpdateEnrollmentRuleTypeInputDto;
+      const body = req.body as UpdateEnrollmentRuleTypeInput;
 
       await this.service.updateEnrollmentRuleType(companyId, id, body);
       res.status(200).json({
@@ -94,12 +95,12 @@ export class EnrollmentConfigurationController {
   };
 
   deleteEnrollmentRuleType = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
-      const companyId = req.user!.companyId;
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
 
       await this.service.deleteEnrollmentRuleType(companyId, id);
@@ -117,14 +118,14 @@ export class EnrollmentConfigurationController {
   // ==========================================
 
   createEnrollmentRule = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
-      const companyId = req.user!.companyId;
-      const userId = req.user!.id;
-      const body = req.body as CreateEnrollmentRuleInputDto;
+      const companyId = req.user.companyId;
+      const userId = req.user.appUserId;
+      const body = req.body as CreateEnrollmentRuleInput;
 
       const result = await this.service.createEnrollmentRule(
         companyId,
@@ -141,13 +142,13 @@ export class EnrollmentConfigurationController {
   };
 
   getEnrollmentRules = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
-      const companyId = req.user!.companyId;
-      const query = req.query as unknown as EnrollmentRuleFilterQueryDto;
+      const companyId = req.user.companyId;
+      const query = req.query;
 
       const result = await this.service.listEnrollmentRules(companyId, query);
       res.status(200).json({
@@ -160,12 +161,12 @@ export class EnrollmentConfigurationController {
   };
 
   getEnrollmentRuleById = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
-      const companyId = req.user!.companyId;
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
 
       const result = await this.service.getEnrollmentRuleById(companyId, id);
@@ -179,15 +180,15 @@ export class EnrollmentConfigurationController {
   };
 
   updateEnrollmentRule = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
-      const companyId = req.user!.companyId;
-      const userId = req.user!.id;
+      const companyId = req.user.companyId;
+      const userId = req.user.appUserId;
       const id = Number(req.params.id);
-      const body = req.body as UpdateEnrollmentRuleInputDto;
+      const body = req.body as UpdateEnrollmentRuleInput;
 
       await this.service.updateEnrollmentRule(companyId, id, userId, body);
       res.status(200).json({
@@ -200,12 +201,12 @@ export class EnrollmentConfigurationController {
   };
 
   deleteEnrollmentRule = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
-      const companyId = req.user!.companyId;
+      const companyId = req.user.companyId;
       const id = Number(req.params.id);
 
       await this.service.deleteEnrollmentRule(companyId, id);
