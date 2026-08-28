@@ -406,13 +406,6 @@ async createCategory(dto: CreateCourseCategoryInput, companyId: number, createdB
       creator: { connect: { id: createdById } },
       category: { connect: { id: dto.categoryId } },
       difficultyLevel: { connect: { id: dto.difficultyLevelId } },
-      ...(dto.targetAudienceIds && dto.targetAudienceIds.length > 0 && {
-        targetAudiences: {
-          create: dto.targetAudienceIds.map((audienceGroupId) => ({
-            audienceGroup: { connect: { id: audienceGroupId } },
-          })),
-        },
-      }),
     };
 
     return this.repository.createTemplate(data);
@@ -453,21 +446,18 @@ async createCategory(dto: CreateCourseCategoryInput, companyId: number, createdB
       await this.getDifficultyLevelById(dto.difficultyLevelId, companyId);
     }
 
-    const data: Prisma.CourseTemplateUpdateInput = {
+              const data: Prisma.CourseTemplateUpdateInput = {
       ...(dto.name && { name: dto.name }),
       ...(dto.description !== undefined && { description: dto.description }),
       ...(dto.shortSummary !== undefined && { shortSummary: dto.shortSummary }),
+      ...(dto.passingScore !== undefined && { passingScore: dto.passingScore }),
+      ...(dto.completionThreshold !== undefined && { completionThreshold: dto.completionThreshold }),
       ...(dto.isActive !== undefined && { isActive: dto.isActive }),
       ...(dto.categoryId && { category: { connect: { id: dto.categoryId } } }),
       ...(dto.difficultyLevelId && { difficultyLevel: { connect: { id: dto.difficultyLevelId } } }),
-      ...(dto.targetAudienceIds && {
-        targetAudiences: {
-          deleteMany: {},
-          create: dto.targetAudienceIds.map((audienceGroupId) => ({
-            audienceGroup: { connect: { id: audienceGroupId } },
-          })),
-        },
-      }),
+      // `targetAudiences` is intentionally omitted: the `CourseTemplate` Prisma model
+      // has no such relation (only a scalar `targetAudienceText` column), so a nested
+      // write here throws "Unknown argument `targetAudiences`" (HTTP 500).
     };
 
     return this.repository.updateTemplate(id, companyId, data);

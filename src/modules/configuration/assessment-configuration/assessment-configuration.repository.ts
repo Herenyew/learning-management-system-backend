@@ -106,7 +106,9 @@ export class AssessmentConfigurationRepository implements IAssessmentConfigurati
   async countAssessmentTypeUsages(id: number, companyId: number): Promise<number> {
     const [assessmentsCount, templatesCount] = await Promise.all([
       this.prisma.assessment.count({ where: { assessmentTypeId: id, companyId, deletedAt: null } }),
-      this.prisma.assessmentTemplate.count({ where: { assessmentTypeId: id, companyId, deletedAt: null } }),
+      // NOTE: no deletedAt filter — soft-deleted templates still hold the FK,
+      // so they must be counted or the hard delete below 500s (P2003).
+      this.prisma.assessmentTemplate.count({ where: { assessmentTypeId: id, companyId } }),
     ]);
     return assessmentsCount + templatesCount;
   }
@@ -191,7 +193,9 @@ export class AssessmentConfigurationRepository implements IAssessmentConfigurati
   async countQuestionTypeUsages(id: number, companyId: number): Promise<number> {
     const [questionsCount, blueprintsCount] = await Promise.all([
       this.prisma.question.count({ where: { questionTypeId: id, companyId } }),
-      this.prisma.assessmentBlueprint.count({ where: { questionTypeId: id, companyId, deletedAt: null } }),
+      // NOTE: no deletedAt filter — soft-deleted blueprints still hold the FK,
+      // so they must be counted or the hard delete below 500s (P2003).
+      this.prisma.assessmentBlueprint.count({ where: { questionTypeId: id, companyId } }),
     ]);
     return questionsCount + blueprintsCount;
   }
@@ -274,7 +278,9 @@ export class AssessmentConfigurationRepository implements IAssessmentConfigurati
   async countGradingMethodUsages(id: number, companyId: number): Promise<number> {
     const [assessmentsCount, templatesCount] = await Promise.all([
       this.prisma.assessment.count({ where: { gradingMethodId: id, companyId, deletedAt: null } }),
-      this.prisma.assessmentTemplate.count({ where: { gradingMethodId: id, companyId, deletedAt: null } }),
+      // NOTE: no deletedAt filter — soft-deleted templates still hold the FK,
+      // so they must be counted or the hard delete below 500s (P2003).
+      this.prisma.assessmentTemplate.count({ where: { gradingMethodId: id, companyId } }),
     ]);
     return assessmentsCount + templatesCount;
   }

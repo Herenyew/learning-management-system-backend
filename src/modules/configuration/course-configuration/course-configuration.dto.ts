@@ -158,13 +158,55 @@ export const createCourseTemplateSchema = z.object({
   shortSummary: z.string().trim().max(300, "Short summary cannot exceed 300 characters").optional(),
   passingScore: z.number().min(0).max(100).default(0),
   completionThreshold: z.number().min(0).max(100).default(0),
-  categoryId: z.number().int().positive({ message: "Category ID must be a valid integer" }),
+    categoryId: z.number().int().positive({ message: "Category ID must be a valid integer" }),
   difficultyLevelId: z.number().int().positive({ message: "Difficulty Level ID must be a valid integer" }),
-  targetAudienceIds: z.array(z.number().int().positive()).optional().default([]),
   isActive: z.boolean().default(true),
 });
 
-export const updateCourseTemplateSchema = createCourseTemplateSchema.partial();
+/**
+ * Update payload for a course template.
+ *
+ * This is intentionally a standalone optional schema rather than
+ * `createCourseTemplateSchema.partial()`. The create schema attaches
+ * `.default(0)` to `passingScore`/`completionThreshold`. Zod's `.partial()`
+ * *preserves* those defaults, so every update body that omits these fields
+ * would parse to `0` and be written back (e.g. a status toggle resets the
+ * passing score to 0). Defining every field as optional with no defaults
+ * gives correct partial-update semantics: omitted fields are simply not
+ * written.
+ *
+ * Note: `targetAudienceIds`/`targetAudiences` are intentionally excluded
+ * because the `CourseTemplate` Prisma model has no such relation (only a
+ * scalar `targetAudienceText` column), so a nested write throws
+ * `Unknown argument 'targetAudiences'`.
+ */
+export const updateCourseTemplateSchema = z.object({
+  name: z
+    .string({ message: "Template name is required" })
+    .trim()
+    .min(3, "Template name must be at least 3 characters")
+    .max(150, "Template name cannot exceed 150 characters")
+    .optional(),
+  description: z.string().trim().optional(),
+  shortSummary: z
+    .string()
+    .trim()
+    .max(300, "Short summary cannot exceed 300 characters")
+    .optional(),
+  passingScore: z.number().min(0).max(100).optional(),
+  completionThreshold: z.number().min(0).max(100).optional(),
+  categoryId: z
+    .number()
+    .int()
+    .positive({ message: "Category ID must be a valid integer" })
+    .optional(),
+  difficultyLevelId: z
+    .number()
+    .int()
+    .positive({ message: "Difficulty Level ID must be a valid integer" })
+        .optional(),
+  isActive: z.boolean().optional(),
+});
 
 export const courseTemplateFilterQuerySchema = paginationQuerySchema.extend({
   categoryId: z
