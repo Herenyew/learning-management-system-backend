@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import { BadgeController } from "./badge-configuration.controller.js";
-import { authenticate } from "../../../../common/auth/auth.middleware.js";
+import { authenticate } from "../../../auth/auth.middleware.js";
 import { requirePermission } from "../../../../common/auth/permission.middleware.js";
 import { validateBody, validateParams, validateQuery } from "../../../../common/middlewares/validation.middleware.js";
 import { Permissions } from "../../../../common/constants/permission.constant.js";
@@ -33,6 +33,13 @@ export function badgeConfigurationRoutes(controller: BadgeController) {
     requirePermission(Permissions.BADGE_VIEW),
     validateQuery(badgeFilterSchema),
     controller.listBadges.bind(controller)
+  );
+
+  // NOTE: must stay ABOVE "/:id" so "categories" isn't parsed as an id.
+  router.get(
+    "/categories",
+    requirePermission(Permissions.BADGE_VIEW),
+    controller.listBadgeCategories.bind(controller)
   );
 
   router.get(

@@ -47,6 +47,7 @@ export class SystemSettingRepository implements ISystemSettingRepository {
   }
 
   async delete(companyId: number, id: number) {
-    return this.prisma.systemSetting.delete({ where: { id } });
+    // Tenant isolation: the delete must never cross company boundaries
+    return this.prisma.systemSetting.delete({ where: { id, companyId } });
   }
 }

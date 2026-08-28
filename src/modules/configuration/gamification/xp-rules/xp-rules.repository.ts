@@ -1,12 +1,32 @@
-import type { PrismaClient, Prisma } from "@prisma/client";
-import type { CreateXpRuleInput, XpRuleFilterParams, UpdateXpRuleInput } from "./xp-rules.types.js";
+import type { PrismaClient } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import type { CreateXpRuleInput, XpRuleFilterParams, UpdateXpRuleInput, XpRuleLookups } from "./xp-rules.types.js";
 import type { IXpRulesRepository } from "./xp-rules.types.js";
+
+const toJson = (value: unknown): Prisma.InputJsonValue | typeof Prisma.DbNull =>
+  value ? (value as Prisma.InputJsonValue) : Prisma.DbNull;
 
 export class XpRulesRepository implements IXpRulesRepository {
   constructor(private prisma: PrismaClient) {}
 
   async createXpRule(companyId: number, userId: number, data: CreateXpRuleInput) {
-    return this.prisma.xpRule.create({ data: { companyId, createdBy: userId, ...data } as any });
+    return this.prisma.xpRule.create({
+      data: {
+        companyId,
+        createdBy: userId,
+        name: data.name,
+        categoryId: data.categoryId,
+        triggerEventId: data.triggerEventId,
+        xpAmount: data.xpAmount,
+        isActive: data.isActive,
+        maximumAward: data.maximumAward ?? null,
+        multiplier: data.multiplier ?? null,
+        targetAudienceId: data.targetAudienceId ?? null,
+        courseVersionId: data.courseVersionId ?? null,
+        programId: data.programId ?? null,
+        conditionExpression: toJson(data.conditionExpression),
+      },
+    });
   }
 
   async findXpRuleById(companyId: number, id: number) {
@@ -45,14 +65,54 @@ export class XpRulesRepository implements IXpRulesRepository {
   }
 
   async updateXpRule(companyId: number, id: number, userId: number, data: UpdateXpRuleInput) {
-    return this.prisma.xpRule.update({ where: { id }, data: { ...data, updatedBy: userId } as any });
+    await this.prisma.xpRule.updateMany({
+      where: { id, companyId },
+      data: {
+        updatedBy: userId,
+        ...(data.name !== undefined && { name: data.name }),
+        ...(data.categoryId !== undefined && { categoryId: data.categoryId }),
+        ...(data.triggerEventId !== undefined && { triggerEventId: data.triggerEventId }),
+        ...(data.xpAmount !== undefined && { xpAmount: data.xpAmount }),
+        ...(data.maximumAward !== undefined && { maximumAward: data.maximumAward }),
+        ...(data.multiplier !== undefined && { multiplier: data.multiplier }),
+        ...(data.targetAudienceId !== undefined && { targetAudienceId: data.targetAudienceId }),
+        ...(data.courseVersionId !== undefined && { courseVersionId: data.courseVersionId }),
+        ...(data.programId !== undefined && { programId: data.programId }),
+        ...(data.conditionExpression !== undefined && {
+          conditionExpression: toJson(data.conditionExpression),
+        }),
+        ...(data.isActive !== undefined && { isActive: data.isActive }),
+      },
+    });
+    const updated = await this.findXpRuleById(companyId, id);
+    if (!updated) throw Object.assign(new Error("XP rule not found after update."), { statusCode: 404 });
+    return updated;
   }
 
   async softDeleteXpRule(companyId: number, id: number, userId: number) {
-    return this.prisma.xpRule.update({ where: { id }, data: {}  });
+    // XpRule has no deletedAt column in the schema — perform a real delete.
+    // Company scoping was already verified by the service before calling this.
+    return this.prisma.xpRule.delete({ where: { id } });
   }
 
   async findXpRuleUsages(companyId: number, id: number) {
-    return [];
+    const count = await this.prisma.xpTransaction.count({ where: { ruleId: id } });
+    return count > 0 ? [{ count }] : [];
+  }
+
+  async findRuleLookups(companyId: number): Promise<XpRuleLookups> {
+    const [categories, triggerEvents] = await Promise.all([
+      this.prisma.xpRuleCategory.findMany({
+        where: { companyId, isActive: true },
+        select: { id: true, name: true, slug: true },
+        orderBy: { name: "asc" },
+      }),
+      this.prisma.xpTriggerEvent.findMany({
+        where: { companyId, isActive: true },
+        select: { id: true, name: true, slug: true },
+        orderBy: { name: "asc" },
+      }),
+    ]);
+    return { categories, triggerEvents };
   }
 }

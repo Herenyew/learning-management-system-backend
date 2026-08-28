@@ -85,6 +85,7 @@ export type AssessmentTemplateDetail = Prisma.AssessmentTemplateGetPayload<{
     lockdownBrowser: true;
     proctoringEnabled: true;
     negativeMarking: true;
+    questionCount: true;
     isActive: true;
     createdAt: true;
     updatedAt: true;
@@ -101,6 +102,7 @@ export type AssessmentTemplateListItem = Prisma.AssessmentTemplateGetPayload<{
     passingScore: true;
     maxAttempts: true;
     timeLimitMinutes: true;
+    questionCount: true;
     isActive: true;
     createdAt: true;
     assessmentType: { select: { id: true; name: true; code: true } };

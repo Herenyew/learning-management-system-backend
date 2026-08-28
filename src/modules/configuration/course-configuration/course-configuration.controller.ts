@@ -48,7 +48,7 @@ export class CourseConfigurationController {
   getCategories = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const companyId = req.user.companyId;
-      const query = courseCategoryFilterQuerySchema.parse(req.query);
+      const query = req.query as any; // already validated & transformed by validateQuery middleware
 
       const { page, pageSize, ...filter } = query;
       const result = await this.service.getCategories(
@@ -146,7 +146,7 @@ export class CourseConfigurationController {
   getDifficultyLevels = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const companyId = req.user.companyId;
-      const query = difficultyLevelFilterQuerySchema.parse(req.query);
+      const query = req.query as any; // already validated & transformed by validateQuery middleware
 
       const { page, pageSize, ...filter } = query;
       const result = await this.service.getDifficultyLevels(
@@ -242,7 +242,7 @@ export class CourseConfigurationController {
 
   getContentTypes = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const query = contentTypeFilterQuerySchema.parse(req.query);
+      const query = req.query as any; // already validated & transformed by validateQuery middleware
 
       const { page, pageSize, ...filter } = query;
       const result = await this.service.getContentTypes(filter, page, pageSize);
@@ -331,7 +331,7 @@ export class CourseConfigurationController {
 
   getContentFileTypes = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const query = contentFileTypeFilterQuerySchema.parse(req.query);
+      const query = req.query as any; // already validated & transformed by validateQuery middleware
 
       const { page, pageSize, ...filter } = query;
       const result = await this.service.getContentFileTypes(filter, page, pageSize);
@@ -423,7 +423,7 @@ export class CourseConfigurationController {
   getTemplates = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const companyId = req.user.companyId;
-      const query = courseTemplateFilterQuerySchema.parse(req.query);
+      const query = req.query as any; // already validated & transformed by validateQuery middleware
 
       const { page, pageSize, ...filter } = query;
       const result = await this.service.getTemplates(

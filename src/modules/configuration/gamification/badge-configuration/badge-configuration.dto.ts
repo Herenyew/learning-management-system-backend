@@ -3,9 +3,10 @@ import { z } from "zod";
 export const idParamSchema = z.object({ id: z.coerce.number().int().positive() });
 
 export const createBadgeSchema = z.object({
-  name: z.string().min(1).max(255),
-  description: z.string().optional(),
-  categoryId: z.number().int().positive().optional(),
+  name: z.string().min(1).max(150), // matches schema VarChar(150)
+  description: z.string().optional().nullable(),
+  iconUrl: z.string().optional().nullable(),
+  badgeCategoryId: z.number().int().positive(),
   isActive: z.boolean().default(true),
 });
 
@@ -13,7 +14,7 @@ export const updateBadgeSchema = createBadgeSchema.partial();
 
 export const badgeFilterSchema = z.object({
   search: z.string().optional(),
-  categoryId: z.coerce.number().int().positive().optional(),
+  badgeCategoryId: z.coerce.number().int().positive().optional(),
   isActive: z
     .string()
     .transform((v) => (v === "true" ? true : v === "false" ? false : undefined))
@@ -23,9 +24,13 @@ export const badgeFilterSchema = z.object({
 });
 
 export const createBadgeRuleSchema = z.object({
-  code: z.string().min(1).max(100),
-  description: z.string().optional(),
-  condition: z.record(z.string(), z.any()),
+  triggerEventId: z.number().int().positive().nullable().optional(),
+  minimumXp: z.number().int().nonnegative().nullable().optional(),
+  minimumCourses: z.number().int().nonnegative().nullable().optional(),
+  minimumCertificates: z.number().int().nonnegative().nullable().optional(),
+  minimumPrograms: z.number().int().nonnegative().nullable().optional(),
+  targetAudienceId: z.number().int().positive().nullable().optional(),
+  customExpression: z.record(z.string(), z.unknown()).nullable().optional(),
   isActive: z.boolean().default(true),
 });
 

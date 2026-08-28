@@ -21,10 +21,10 @@ export class BadgeRepository implements IBadgeRepository {
   }
 
   async findBadges(companyId: number, query: BadgeFilterParams) {
-    const { search, categoryId, isActive, page = 1, limit = 20 } = query;
+    const { search, badgeCategoryId, isActive, page = 1, limit = 20 } = query;
     const skip = (page - 1) * limit;
     const where: any = { companyId };
-    if (categoryId) where.categoryId = categoryId;
+    if (badgeCategoryId) where.badgeCategoryId = badgeCategoryId;
     if (isActive !== undefined) where.isActive = isActive;
     if (search) where.name = { contains: search, mode: "insensitive" };
     const [data, total] = await Promise.all([
@@ -35,20 +35,32 @@ export class BadgeRepository implements IBadgeRepository {
   }
 
   async countBadges(companyId: number, query: BadgeFilterParams) {
-    const { search, categoryId, isActive } = query;
+    const { search, badgeCategoryId, isActive } = query;
     const where: any = { companyId };
-    if (categoryId) where.categoryId = categoryId;
+    if (badgeCategoryId) where.badgeCategoryId = badgeCategoryId;
     if (isActive !== undefined) where.isActive = isActive;
     if (search) where.name = { contains: search, mode: "insensitive" };
     return this.prisma.badge.count({ where });
   }
 
+  async listBadgeCategories(companyId: number) {
+    return this.prisma.badgeCategory.findMany({
+      where: { companyId },
+      orderBy: { name: "asc" },
+    });
+  }
+
   async updateBadge(companyId: number, id: number, userId: number, data: UpdateBadgeInput) {
-    return this.prisma.badge.updateMany({ where: { id, companyId }, data: { ...data } as any });
+    await this.prisma.badge.updateMany({ where: { id, companyId }, data: { ...data } as any });
+    const updated = await this.findBadgeById(companyId, id);
+    if (!updated) throw Object.assign(new Error("Badge not found after update."), { statusCode: 404 });
+    return updated;
   }
 
   async softDeleteBadge(companyId: number, id: number, userId: number) {
-    return this.prisma.badge.updateMany({ where: { id, companyId }, data: {}  });
+    // Badge has no deletedAt column in the schema — perform a real delete.
+    // Company scoping + usage checks were already done in the service.
+    return this.prisma.badge.delete({ where: { id } });
   }
 
   // Badge Rules
@@ -73,10 +85,15 @@ export class BadgeRepository implements IBadgeRepository {
   }
 
   async updateBadgeRule(companyId: number, badgeId: number, ruleId: number, userId: number, data: UpdateBadgeRuleInput) {
-    return this.prisma.badgeRule.updateMany({ where: { id: ruleId, badgeId, companyId }, data: { ...data } as any });
+    await this.prisma.badgeRule.updateMany({ where: { id: ruleId, badgeId, companyId }, data: { ...data } as any });
+    const updated = await this.findBadgeRuleById(companyId, badgeId, ruleId);
+    if (!updated) throw Object.assign(new Error("Badge rule not found after update."), { statusCode: 404 });
+    return updated;
   }
 
   async deleteBadgeRule(companyId: number, badgeId: number, ruleId: number, userId: number) {
-    return this.prisma.badgeRule.updateMany({ where: { id: ruleId, badgeId, companyId }, data: {}  });
+    // BadgeRule has no deletedAt column in the schema — perform a real delete.
+    // Existence was already verified in the service via findBadgeRuleById (company-scoped).
+    return this.prisma.badgeRule.delete({ where: { id: ruleId } });
   }
 }

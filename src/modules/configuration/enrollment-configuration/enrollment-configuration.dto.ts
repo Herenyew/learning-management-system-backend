@@ -58,16 +58,16 @@ export const createEnrollmentRuleSchema = z
   .refine(
     (data) => {
       if (data.entityType === $Enums.EnrollmentEntityType.COURSE) {
-        return !!data.courseVersionId && !data.programId;
+        return !data.programId;
       }
       if (data.entityType === $Enums.EnrollmentEntityType.PROGRAM) {
-        return !!data.programId && !data.courseVersionId;
+        return !data.courseVersionId;
       }
       return false;
     },
     {
       message:
-        "When entityType is COURSE_VERSION, courseVersionId is required and programId must be empty. When entityType is PROGRAM, programId is required and courseVersionId must be empty.",
+        "entityType must be COURSE or PROGRAM, and courseVersionId/programId cannot be mixed.",
       path: ["entityType"],
     }
   );
@@ -121,6 +121,13 @@ export const enrollmentRuleFilterSchema = z.object({
     .optional(),
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(20),
+});
+
+// Query schema for the lightweight reference-option endpoints used to populate
+// the Course Version / Learning Program dropdowns (search by display name).
+export const enrollmentReferenceOptionsSchema = z.object({
+  search: z.string().optional(),
+  limit: z.coerce.number().int().positive().max(200).default(50),
 });
 
 // DTO schemas only — types moved to enrollment-configuration.types.ts

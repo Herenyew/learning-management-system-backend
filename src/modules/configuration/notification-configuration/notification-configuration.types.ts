@@ -40,7 +40,7 @@ export interface NotificationEventFilterParams {
   search?: string;
   moduleId?: number;
   isActive?: boolean;
-  sortBy?: "code" | "name" | "createdAt";
+  sortBy?: "id" | "code" | "name";
   sortOrder?: "asc" | "desc";
 }
 

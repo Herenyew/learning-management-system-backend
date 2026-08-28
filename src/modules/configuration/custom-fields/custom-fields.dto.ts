@@ -21,6 +21,7 @@ export const createCustomFieldSchema = z.object({
   description: z.string().max(1000).optional(),
   fieldType: z.enum(["TEXT", "NUMBER", "SINGLE_SELECT", "MULTI_SELECT", "BOOLEAN"]).default("TEXT"),
   settingsJson: z.record(z.string(), z.any()).optional(),
+  isRequired: z.boolean().default(false),
   isActive: z.boolean().default(true),
 });
 

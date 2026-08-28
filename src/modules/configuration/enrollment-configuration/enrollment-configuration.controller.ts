@@ -8,6 +8,7 @@ import type {
   CreateEnrollmentRuleInput,
   UpdateEnrollmentRuleInput,
   EnrollmentRuleFilterQueryInput,
+  EnrollmentReferenceOptionsQueryInput,
 } from "./enrollment-configuration.types.js";
 
 export class EnrollmentConfigurationController {
@@ -84,10 +85,10 @@ export class EnrollmentConfigurationController {
       const id = Number(req.params.id);
       const body = req.body as UpdateEnrollmentRuleTypeInput;
 
-      await this.service.updateEnrollmentRuleType(companyId, id, body);
+      const result = await this.service.updateEnrollmentRuleType(companyId, id, body);
       res.status(200).json({
         success: true,
-        message: "Enrollment rule type updated successfully.",
+        data: result,
       });
     } catch (error) {
       next(error);
@@ -190,10 +191,10 @@ export class EnrollmentConfigurationController {
       const id = Number(req.params.id);
       const body = req.body as UpdateEnrollmentRuleInput;
 
-      await this.service.updateEnrollmentRule(companyId, id, userId, body);
+      const result = await this.service.updateEnrollmentRule(companyId, id, userId, body);
       res.status(200).json({
         success: true,
-        message: "Enrollment rule updated successfully.",
+        data: result,
       });
     } catch (error) {
       next(error);
@@ -213,6 +214,48 @@ export class EnrollmentConfigurationController {
       res.status(200).json({
         success: true,
         message: "Enrollment rule deleted successfully.",
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // ==========================================
+  // 3. Reference Option Endpoints (dropdowns)
+  // ==========================================
+
+  getCourseVersionOptions = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const companyId = req.user.companyId;
+      const query = req.query;
+
+      const result = await this.service.listCourseVersionOptions(companyId, query);
+      res.status(200).json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getLearningProgramOptions = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const companyId = req.user.companyId;
+      const query = req.query;
+
+      const result = await this.service.listLearningProgramOptions(companyId, query);
+      res.status(200).json({
+        success: true,
+        data: result,
       });
     } catch (error) {
       next(error);

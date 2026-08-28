@@ -11,7 +11,7 @@ export class SystemSettingController {
       const userId = req.user.appUserId;
       const data = req.body;
       const result = await this.svc.create(companyId, userId, data);
-      res.status(201).json(result);
+      res.status(201).json({ success: true, data: result });
     } catch (err) {
       next(err);
     }
@@ -22,7 +22,8 @@ export class SystemSettingController {
       const companyId = req.user.companyId;
       const query = req.query;
       const result = await this.svc.findMany(companyId, query);
-      res.json(result);
+      const items = Array.isArray(result) ? result : (result as any).items ?? result;
+      res.json({ success: true, data: items });
     } catch (err) {
       next(err);
     }
@@ -33,8 +34,8 @@ export class SystemSettingController {
       const companyId = req.user.companyId;
       const id = Number(req.params.id);
       const item = await this.svc.findById(companyId, id);
-      if (!item) return res.status(404).send({ message: 'Not found' });
-      res.json(item);
+      if (!item) return res.status(404).json({ success: false, error: { message: 'Not found' } });
+      res.json({ success: true, data: item });
     } catch (err) {
       next(err);
     }
@@ -45,8 +46,8 @@ export class SystemSettingController {
       const companyId = req.user.companyId;
       const key = String(req.params.key);
       const item = await this.svc.findByKey(companyId, key);
-      if (!item) return res.status(404).send({ message: 'Not found' });
-      res.json(item);
+      if (!item) return res.status(404).json({ success: false, error: { message: 'Not found' } });
+      res.json({ success: true, data: item });
     } catch (err) {
       next(err);
     }
@@ -59,7 +60,7 @@ export class SystemSettingController {
       const id = Number(req.params.id);
       const data = req.body;
       const result = await this.svc.update(companyId, id, userId, data);
-      res.json(result);
+      res.json({ success: true, data: result });
     } catch (err) {
       next(err);
     }

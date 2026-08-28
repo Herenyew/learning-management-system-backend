@@ -26,7 +26,7 @@ export class AssessmentConfigurationController {
       const companyId = req.user.companyId;
       const filter = req.query;
       const result = await this.service.getAssessmentTypes(filter, companyId);
-      return res.status(200).json({ success: true, message: "Assessment types retrieved successfully", ...result });
+      return res.status(200).json({ success: true, message: "Assessment types retrieved successfully", data: result.items, pagination: result.meta });
     } catch (error) { next(error); }
   };
 
@@ -71,7 +71,7 @@ export class AssessmentConfigurationController {
       const companyId = req.user.companyId;
       const filter = req.query;
       const result = await this.service.getQuestionTypes(filter, companyId);
-      return res.status(200).json({ success: true, message: "Question types retrieved successfully", ...result });
+      return res.status(200).json({ success: true, message: "Question types retrieved successfully", data: result.items, pagination: result.meta });
     } catch (error) { next(error); }
   };
 
@@ -116,7 +116,7 @@ export class AssessmentConfigurationController {
       const companyId = req.user.companyId;
       const filter = req.query;
       const result = await this.service.getGradingMethods(filter, companyId);
-      return res.status(200).json({ success: true, message: "Grading methods retrieved successfully", ...result });
+      return res.status(200).json({ success: true, message: "Grading methods retrieved successfully", data: result.items, pagination: result.meta });
     } catch (error) { next(error); }
   };
 
@@ -162,7 +162,7 @@ export class AssessmentConfigurationController {
       const companyId = req.user.companyId;
       const filter = req.query;
       const result = await this.service.getTemplates(filter, companyId);
-      return res.status(200).json({ success: true, message: "Assessment templates retrieved successfully", ...result });
+      return res.status(200).json({ success: true, message: "Assessment templates retrieved successfully", data: result.items, pagination: result.meta });
     } catch (error) { next(error); }
   };
 

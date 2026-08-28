@@ -24,6 +24,14 @@ export class BadgeController {
     } catch (err) { next(err); }
   };
 
+  listBadgeCategories = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      const companyId = req.user.companyId;
+      const result = await this.service.listBadgeCategories(companyId);
+      res.status(200).json({ success: true, data: result });
+    } catch (err) { next(err); }
+  };
+
   getBadgeById = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const companyId = req.user.companyId;

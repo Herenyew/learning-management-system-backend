@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { TrainingEffectivenessRepository } from "./training-effectiveness.repository.js";
 import { TrainingEffectivenessService } from "./training-effectiveness.service.js";
 import { TrainingEffectivenessController } from "./training-effectiveness.controller.js";
-import { authenticate } from "../../../common/auth/auth.middleware.js";
+import { authenticate } from "../../auth/auth.middleware.js";
 import { requirePermission } from "../../../common/auth/permission.middleware.js";
 import { Permissions } from "../../../common/constants/permission.constant.js";
 import {
@@ -72,6 +72,15 @@ export function TrainingEffectivenessRouter(prisma: PrismaClient): Router {
     requirePermission(Permissions.EFFECTIVENESS_WEIGHT_UPDATE),
     validateParams(idParamSchema),
     controller.deactivateWeightConfig.bind(controller)
+  );
+
+  // NOTE: /:id/deactivate must stay ABOVE /:id/delete is fine; but DELETE /:id
+  // must not be shadowed — it uses a distinct method so order is safe.
+  router.delete(
+    "/:id",
+    requirePermission(Permissions.EFFECTIVENESS_WEIGHT_DELETE),
+    validateParams(idParamSchema),
+    controller.deleteWeightConfig.bind(controller)
   );
 
   return router;

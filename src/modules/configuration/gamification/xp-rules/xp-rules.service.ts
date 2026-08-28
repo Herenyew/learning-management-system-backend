@@ -5,6 +5,10 @@ import { ConflictError, NotFoundError, ValidationError } from "../../../../commo
 export class XpRulesService {
   constructor(private repo: IXpRulesRepository, private prisma: any) {}
 
+  async getLookups(companyId: number) {
+    return this.repo.findRuleLookups(companyId);
+  }
+
   async createXpRule(companyId: number, userId: number, data: CreateXpRuleInput) {
     const existing = await this.repo.findXpRuleByName(companyId, data.name);
     if (existing) throw new ConflictError(`XP rule with name '${data.name}' already exists.`);

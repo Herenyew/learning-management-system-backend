@@ -16,7 +16,8 @@ import {
   resolveMembersQuerySchema,
   matchesEmployeeParamsSchema, // now imported from DTO
 } from "./audience.dto.js";
-import { authenticate, requirePermission } from "../../../common/auth/index.js";
+import { authenticate } from "../../auth/auth.middleware.js";
+import { requirePermission } from "../../../common/auth/permission.middleware.js";
 import { Permissions } from "../../../common/constants/permission.constant.js";
 
 export function audienceRoutes(controller: AudienceController): Router {
@@ -38,6 +39,15 @@ export function audienceRoutes(controller: AudienceController): Router {
     requirePermission(Permissions.AUDIENCE_VIEW),
     validateQuery(listAudienceGroupsQuerySchema),
     controller.findMany.bind(controller)
+  );
+
+  // NOTE: /options must be registered BEFORE /:id. Otherwise Express matches
+  // GET /configuration/audience/options against /:id and the param validator
+  // (z.coerce.number()) turns "options" into a 400 Bad Request.
+  router.get(
+    "/options",
+    requirePermission(Permissions.AUDIENCE_VIEW),
+    controller.getOptions.bind(controller)
   );
 
   router.get(

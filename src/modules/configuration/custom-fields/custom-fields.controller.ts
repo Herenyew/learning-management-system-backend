@@ -21,6 +21,9 @@ export class CustomFieldsController {
       const companyId = req.user.companyId;
       const query = req.query;
       const result = await this.service.getCustomFields(companyId, query);
+      // #region agent log
+      fetch("http://127.0.0.1:7830/ingest/abbebdd7-508e-4568-abae-0d46bcb99c33",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"22a059"},body:JSON.stringify({sessionId:"22a059",location:"custom-fields.controller.ts:getCustomFields",message:"custom fields list shape",hypothesisId:"E",data:{keys:result?Object.keys(result as object):[],dataIsArray:Array.isArray((result as {data?:unknown}).data),firstKeys:Array.isArray((result as {data?:{label?:unknown}[]}).data)&&(result as {data:{label?:unknown;name?:unknown}[]}).data[0]?Object.keys((result as {data:object[]}).data[0]).slice(0,12):[]},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       res.status(200).json({ success: true, ...result });
     } catch (err) { next(err); }
   };

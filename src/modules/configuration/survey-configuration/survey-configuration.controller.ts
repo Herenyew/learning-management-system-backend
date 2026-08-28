@@ -5,121 +5,93 @@ import { SurveyConfigurationService } from './survey-configuration.service.js';
 export class SurveyConfigurationController {
   constructor(private svc: SurveyConfigurationService) {}
 
-  // SurveyQuestionType
+  // ─── Survey Question Types ────────────────────────────────────────────────
+
   createSurveyQuestionType = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = req.user.companyId;
-      const data = req.body;
-      const result = await this.svc.createSurveyQuestionType(companyId, data);
-      res.status(201).json(result);
-    } catch (err) {
-      next(err);
-    }
+      const result = await this.svc.createSurveyQuestionType(req.user.companyId, req.body);
+      res.status(201).json({ success: true, data: result });
+    } catch (err) { next(err); }
   };
 
   findSurveyQuestionTypes = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = req.user.companyId;
-      const query = req.query;
-      const result = await this.svc.findSurveyQuestionTypes(companyId, query);
-      res.json(result);
-    } catch (err) {
-      next(err);
-    }
+      const result = await this.svc.findSurveyQuestionTypes(req.user.companyId, req.query);
+      // result is { items, total, page, pageSize } — return items array for consistency
+      // with every other list endpoint in this service
+      const items = Array.isArray(result) ? result : (result as any).items ?? result;
+      res.json({ success: true, data: items });
+    } catch (err) { next(err); }
   };
 
   findSurveyQuestionTypeById = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = req.user.companyId;
-      const id = Number(req.params.id);
-      const item = await this.svc.findSurveyQuestionTypeById(companyId, id);
-      if (!item) return res.status(404).send({ message: 'Not found' });
-      res.json(item);
-    } catch (err) {
-      next(err);
-    }
+      const item = await this.svc.findSurveyQuestionTypeById(
+        req.user.companyId, Number(req.params.id)
+      );
+      if (!item) return res.status(404).json({ success: false, error: { message: 'Not found' } });
+      res.json({ success: true, data: item });
+    } catch (err) { next(err); }
   };
 
   updateSurveyQuestionType = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = req.user.companyId;
-      const id = Number(req.params.id);
-      const data = req.body;
-      const result = await this.svc.updateSurveyQuestionType(companyId, id, data);
-      res.json(result);
-    } catch (err) {
-      next(err);
-    }
+      const result = await this.svc.updateSurveyQuestionType(
+        req.user.companyId, Number(req.params.id), req.body
+      );
+      res.json({ success: true, data: result });
+    } catch (err) { next(err); }
   };
 
   deleteSurveyQuestionType = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = req.user.companyId;
-      const id = Number(req.params.id);
-      await this.svc.softDeleteSurveyQuestionType(companyId, id);
+      await this.svc.softDeleteSurveyQuestionType(req.user.companyId, Number(req.params.id));
       res.status(204).send();
-    } catch (err) {
-      next(err);
-    }
+    } catch (err) { next(err); }
   };
 
-  // SurveyTemplate
+  // ─── Survey Templates ─────────────────────────────────────────────────────
+
   createTemplate = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = req.user.companyId;
-      const userId = req.user.appUserId;
-      const data = req.body;
-      const result = await this.svc.createTemplate(companyId, userId, data);
-      res.status(201).json(result);
-    } catch (err) {
-      next(err);
-    }
+      const result = await this.svc.createTemplate(
+        req.user.companyId, req.user.appUserId!, req.body
+      );
+      res.status(201).json({ success: true, data: result });
+    } catch (err) { next(err); }
   };
 
   findTemplates = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = req.user.companyId;
-      const query = req.query;
-      const result = await this.svc.findTemplates(companyId, query);
-      res.json(result);
-    } catch (err) {
-      next(err);
-    }
+      const result = await this.svc.findTemplates(req.user.companyId, req.query);
+      const items = Array.isArray(result) ? result : (result as any).items ?? result;
+      res.json({ success: true, data: items });
+    } catch (err) { next(err); }
   };
 
   findTemplateById = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = req.user.companyId;
-      const id = Number(req.params.id);
-      const item = await this.svc.findTemplateById(companyId, id);
-      if (!item) return res.status(404).send({ message: 'Not found' });
-      res.json(item);
-    } catch (err) {
-      next(err);
-    }
+      const item = await this.svc.findTemplateById(
+        req.user.companyId, Number(req.params.id)
+      );
+      if (!item) return res.status(404).json({ success: false, error: { message: 'Not found' } });
+      res.json({ success: true, data: item });
+    } catch (err) { next(err); }
   };
 
   updateTemplate = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = req.user.companyId;
-      const userId = req.user.appUserId;
-      const id = Number(req.params.id);
-      const data = req.body;
-      const result = await this.svc.updateTemplate(companyId, id, userId, data);
-      res.json(result);
-    } catch (err) {
-      next(err);
-    }
+      const result = await this.svc.updateTemplate(
+        req.user.companyId, Number(req.params.id), req.user.appUserId!, req.body
+      );
+      res.json({ success: true, data: result });
+    } catch (err) { next(err); }
   };
 
   deleteTemplate = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const companyId = req.user.companyId;
-      const id = Number(req.params.id);
-      await this.svc.softDeleteTemplate(companyId, id);
+      await this.svc.softDeleteTemplate(req.user.companyId, Number(req.params.id));
       res.status(204).send();
-    } catch (err) {
-      next(err);
-    }
+    } catch (err) { next(err); }
   };
 }

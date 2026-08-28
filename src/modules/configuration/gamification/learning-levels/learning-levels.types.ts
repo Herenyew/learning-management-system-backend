@@ -8,7 +8,6 @@ export type LearningLevelFilterInput = z.infer<typeof learningLevelFilterSchema>
 
 export interface LearningLevelFilterParams {
   search?: string;
-  isActive?: boolean;
   page?: number;
   limit?: number;
   sortBy?: string;

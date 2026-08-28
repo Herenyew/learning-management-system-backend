@@ -302,6 +302,7 @@ export class AssessmentConfigurationRepository implements IAssessmentConfigurati
         lockdownBrowser: true,
         proctoringEnabled: true,
         negativeMarking: true,
+        questionCount: true,
         isActive: true,
         createdAt: true,
         updatedAt: true,
@@ -347,6 +348,7 @@ export class AssessmentConfigurationRepository implements IAssessmentConfigurati
         passingScore: true,
         maxAttempts: true,
         timeLimitMinutes: true,
+        questionCount: true,
         isActive: true,
         createdAt: true,
         assessmentType: {

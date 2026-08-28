@@ -2,16 +2,38 @@ import { z } from "zod";
 
 export const idParamSchema = z.object({ id: z.coerce.number().int().positive() });
 
-export const createXpRuleSchema = z.object({
-  name: z.string().min(1).max(255),
-  description: z.string().optional(),
+const xpRuleBaseSchema = z.object({
+  name: z.string().min(1).max(150),
   categoryId: z.number().int().positive(),
   triggerEventId: z.number().int().positive(),
   xpAmount: z.number().int().positive(),
+  maximumAward: z.number().int().nonnegative().nullable().optional(),
+  multiplier: z.number().nonnegative().nullable().optional(),
+  targetAudienceId: z.number().int().positive().nullable().optional(),
+  courseVersionId: z.number().int().positive().nullable().optional(),
+  programId: z.number().int().positive().nullable().optional(),
+  conditionExpression: z.record(z.string(), z.unknown()).nullable().optional(),
   isActive: z.boolean().default(true),
 });
 
-export const updateXpRuleSchema = createXpRuleSchema.partial();
+export const createXpRuleSchema = xpRuleBaseSchema.refine(
+  (d) => !(d.courseVersionId && d.programId),
+  {
+    message: "Cannot set both courseVersionId and programId on one XP rule.",
+    path: ["courseVersionId"],
+  },
+);
+
+// zod v4: .partial() must be applied to the plain object schema — a refined
+// schema cannot be partially updated, and the cross-field rule is re-applied
+// after partialing (only conflicts when both ids are present together).
+export const updateXpRuleSchema = xpRuleBaseSchema.partial().refine(
+  (d) => !(d.courseVersionId && d.programId),
+  {
+    message: "Cannot set both courseVersionId and programId on one XP rule.",
+    path: ["courseVersionId"],
+  },
+);
 
 export const xpRuleFilterSchema = z.object({
   search: z.string().optional(),

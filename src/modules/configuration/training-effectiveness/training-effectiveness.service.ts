@@ -15,6 +15,22 @@ export class TrainingEffectivenessService {
     private prismaInstance: any
   ) {}
 
+  /**
+   * Prisma Decimal columns serialize to strings over JSON ("30.00"), which
+   * broke frontend arithmetic ("0104020" style totals). Normalize every
+   * weight to a JS number before returning data to clients.
+   */
+  private serialize(config: any) {
+    if (!config) return config;
+    return {
+      ...config,
+      reactionWeight: Number(config.reactionWeight),
+      learningWeight: Number(config.learningWeight),
+      behaviorWeight: Number(config.behaviorWeight),
+      resultsWeight: Number(config.resultsWeight),
+    };
+  }
+
   private validateTotalWeight(
     reaction: number,
     learning: number,
@@ -46,11 +62,11 @@ export class TrainingEffectivenessService {
     if (shouldBeActive) {
       return this.prismaInstance.$transaction(async (tx: any) => {
         await this.repository.deactivateAllActiveConfigs(companyId, tx);
-        return this.repository.createWeightConfig(companyId, userId, dto);
+        return this.serialize(await this.repository.createWeightConfig(companyId, userId, dto));
       });
     }
 
-    return this.repository.createWeightConfig(companyId, userId, dto);
+    return this.serialize(await this.repository.createWeightConfig(companyId, userId, dto));
   }
 
   async getActiveWeightConfig(companyId: number) {
@@ -60,7 +76,7 @@ export class TrainingEffectivenessService {
         "No active training effectiveness weight configuration found"
       );
     }
-    return active;
+    return this.serialize(active);
   }
 
   async getWeightConfigById(companyId: number, id: number) {
@@ -70,7 +86,7 @@ export class TrainingEffectivenessService {
         `Effectiveness weight config with ID ${id} not found`
       );
     }
-    return config;
+    return this.serialize(config);
   }
 
   async getWeightConfigs(
@@ -85,7 +101,7 @@ export class TrainingEffectivenessService {
     const { page, limit } = filter;
 
     return {
-      data,
+      data: data.map((c) => this.serialize(c)),
       meta: {
         total,
         page,
@@ -112,15 +128,30 @@ export class TrainingEffectivenessService {
     if (dto.isActive === true && !existing.isActive) {
       return this.prismaInstance.$transaction(async (tx: any) => {
         await this.repository.deactivateAllActiveConfigs(companyId, tx);
-        return this.repository.updateWeightConfig(companyId, id, dto);
+        return this.serialize(await this.repository.updateWeightConfig(companyId, id, dto));
       });
     }
 
-    return this.repository.updateWeightConfig(companyId, id, dto);
+    return this.serialize(await this.repository.updateWeightConfig(companyId, id, dto));
   }
 
   async deactivateWeightConfig(companyId: number, id: number) {
     await this.getWeightConfigById(companyId, id);
-    return this.repository.deactivateWeightConfig(companyId, id);
+    return this.serialize(await this.repository.deactivateWeightConfig(companyId, id));
+  }
+
+  async deleteWeightConfig(companyId: number, id: number) {
+    const existing = await this.getWeightConfigById(companyId, id);
+    // Keep at least one active configuration alive at all times.
+    if (existing.isActive) {
+      const activeCount = await this.repository.countWeightConfigs(companyId, { isActive: true } as any);
+      if (activeCount <= 1) {
+        throw new ValidationError(
+          "Cannot delete the only active configuration. Create or activate another one first, or deactivate this one."
+        );
+      }
+    }
+    await this.repository.deleteWeightConfig(companyId, id);
+    return { message: "Training effectiveness configuration deleted successfully" };
   }
 }

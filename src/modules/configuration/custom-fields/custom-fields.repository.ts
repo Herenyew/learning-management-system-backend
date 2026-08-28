@@ -9,7 +9,7 @@ import type {
 import type { ICustomFieldsRepository } from "./custom-fields.types.js";
 
 export class CustomFieldsRepository implements ICustomFieldsRepository {
-  constructor(private prisma: PrismaClient) {}
+  constructor(private prisma: PrismaClient) { }
 
   async createCustomFieldDefinition(companyId: number, userId: number, data: CreateCustomFieldInput) {
     return this.prisma.customFieldDefinition.create({
@@ -21,6 +21,7 @@ export class CustomFieldsRepository implements ICustomFieldsRepository {
         target: data.target,
         description: data.description,
         fieldType: data.fieldType,
+        isRequired: data.isRequired,
         settingsJson: data.settingsJson ?? Prisma.JsonNull,
         isActive: data.isActive,
       },
@@ -41,7 +42,7 @@ export class CustomFieldsRepository implements ICustomFieldsRepository {
     const where: any = { companyId, deletedAt: null };
     if (target) where.target = target;
     if (isActive !== undefined) where.isActive = isActive;
-    if (search) where.OR = [{ name: { contains: search, mode: "insensitive" } }, { fieldKey: { contains: search, mode: "insensitive" } }];
+    if (search) where.OR = [{ label: { contains: search, mode: "insensitive" } }, { fieldKey: { contains: search, mode: "insensitive" } }];
 
     const [data, total] = await Promise.all([
       this.prisma.customFieldDefinition.findMany({ where, skip, take: limit, orderBy: { label: "asc" } }),
@@ -56,16 +57,29 @@ export class CustomFieldsRepository implements ICustomFieldsRepository {
     const where: any = { companyId, deletedAt: null };
     if (target) where.target = target;
     if (isActive !== undefined) where.isActive = isActive;
-    if (search) where.OR = [{ name: { contains: search, mode: "insensitive" } }, { fieldKey: { contains: search, mode: "insensitive" } }];
+    if (search) where.OR = [{ label: { contains: search, mode: "insensitive" } }, { fieldKey: { contains: search, mode: "insensitive" } }];
     return this.prisma.customFieldDefinition.count({ where });
   }
 
   async updateCustomFieldDefinition(companyId: number, id: number, userId: number, data: UpdateCustomFieldInput) {
-    return this.prisma.customFieldDefinition.update({ where: { id }, data: { ...data, updatedBy: userId } as any });
+    const updateData: any = {
+      fieldKey: data.fieldKey,
+      target: data.target,
+      description: data.description,
+      fieldType: data.fieldType,
+      isRequired: data.isRequired,
+      settingsJson: data.settingsJson,
+      isActive: data.isActive,
+      updatedBy: userId,
+    };
+    if (data.name !== undefined) {
+      updateData.label = data.name;
+    }
+    return this.prisma.customFieldDefinition.update({ where: { id, companyId }, data: updateData });
   }
 
   async softDeleteCustomFieldDefinition(companyId: number, id: number, userId: number) {
-    return this.prisma.customFieldDefinition.update({ where: { id }, data: { deletedAt: new Date(), updatedBy: userId } });
+    return this.prisma.customFieldDefinition.update({ where: { id, companyId }, data: { deletedAt: new Date(), updatedBy: userId } });
   }
 
   async findCustomFieldDefinitionUsages(companyId: number, id: number) {

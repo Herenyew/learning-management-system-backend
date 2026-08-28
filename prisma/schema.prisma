@@ -563,6 +563,9 @@ model Company {
   badgeCategories            BadgeCategory[]
   assessmentAttemptRules     AssessmentAttemptRule[]
   customFieldDefinition      CustomFieldDefinition[]
+  serviceSessions            ServiceSession[]
+  refreshTokens              RefreshToken[]
+  authorizationCodes         AuthorizationCode[]
 
   @@map("company")
 }
@@ -822,6 +825,77 @@ model LmsRolePermission {
   @@unique([appRoleId, permissionId])
   @@index([companyId])
   @@map("lms_role_permissions")
+}
+
+///////////////////////////////////////////////////////////
+// AUTH SESSION MODELS
+// Cross-domain auth: session, token, and code management
+///////////////////////////////////////////////////////////
+
+model ServiceSession {
+  id            String @id @default(uuid())
+  userId        String // from Auth Service
+  companyId     Int
+  authSessionId String // to link back to Auth Service's session (for revocation)
+
+  accessToken  String // JWT from Auth Service
+  refreshToken String // hashed, stored in DB
+
+  ipAddress String?
+  userAgent String?
+
+  isActive  Boolean  @default(true)
+  expiresAt DateTime // when this session expires
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company       Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  refreshTokens RefreshToken[]
+
+  @@index([userId])
+  @@index([companyId])
+  @@index([authSessionId])
+  @@index([expiresAt])
+  @@map("service_sessions")
+}
+
+model RefreshToken {
+  id    String @id @default(uuid())
+  token String @unique // hashed token
+
+  userId           String // from Auth Service
+  companyId        Int
+  serviceSessionId String
+
+  isRevoked Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  company        Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  serviceSession ServiceSession @relation(fields: [serviceSessionId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([companyId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+model AuthorizationCode {
+  id   String @id @default(uuid())
+  code String @unique // random 32-byte hex
+
+  userId    String // from Auth Service
+  companyId Int
+
+  used      Boolean  @default(false)
+  expiresAt DateTime // now() + 60 seconds
+  createdAt DateTime @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([code])
+  @@index([expiresAt])
+  @@map("authorization_codes")
 }
 
 model CustomFieldDefinition {
@@ -3937,6 +4011,7 @@ model AssessmentTemplate {
   assessmentTypeId Int
   gradingMethodId  Int
 
+  questionCount    Int     @default(0) // ← ADD THIS
   passingScore     Decimal @db.Decimal(5, 2)
   maxAttempts      Int     @default(2)
   timeLimitMinutes Int?
@@ -4010,11 +4085,16 @@ model NotificationTemplate {
   variables           Json?
   language            String?             @db.VarChar(20)
   isActive            Boolean             @default(true)
+
+  senderName          String? @db.VarChar(255) // ← ADD THIS
+  replyToEmail        String? @db.VarChar(255) // ← ADD THIS
+
   createdBy           Int
   updatedBy           Int?
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
   deletedAt           DateTime?
+
   company             Company             @relation(fields: [companyId], references: [id])
   creator             AppUser             @relation("NotificationTemplateCreator", fields: [createdBy], references: [id])
   updater             AppUser?            @relation("NotificationTemplateUpdater", fields: [updatedBy], references: [id])
@@ -4053,7 +4133,7 @@ model NotificationEvent {
   name        String
   description String?
   moduleId    Int // ← Changed to FK
-
+  createdAt   DateTime  @default(now())
   isActive Boolean @default(true)
 
   company   Company                @relation(fields: [companyId], references: [id])

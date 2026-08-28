@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import { XpRulesController } from "./xp-rules.controller.js";
-import { authenticate } from "../../../../common/auth/auth.middleware.js";
+import { authenticate } from "../../../auth/auth.middleware.js";
 import { requirePermission } from "../../../../common/auth/permission.middleware.js";
 import { validateBody, validateParams, validateQuery } from "../../../../common/middlewares/validation.middleware.js";
 import { Permissions } from "../../../../common/constants/permission.constant.js";
@@ -18,6 +18,12 @@ export function xpRulesRoutes(controller: XpRulesController) {
     requirePermission(Permissions.XP_RULE_CREATE),
     validateBody(createXpRuleSchema),
     controller.createXpRule.bind(controller)
+  );
+
+  router.get(
+    "/lookups",
+    requirePermission(Permissions.XP_RULE_VIEW),
+    controller.getLookups.bind(controller)
   );
 
   router.get(

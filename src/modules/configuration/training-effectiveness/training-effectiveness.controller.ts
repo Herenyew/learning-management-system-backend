@@ -137,4 +137,24 @@ export class TrainingEffectivenessController {
       next(error);
     }
   };
+
+  deleteWeightConfig = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const companyId = req.user.companyId;
+      const id = parseInt(req.params.id, 10);
+
+      const result = await this.service.deleteWeightConfig(companyId, id);
+
+      res.status(200).json({
+        success: true,
+        ...result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
 }

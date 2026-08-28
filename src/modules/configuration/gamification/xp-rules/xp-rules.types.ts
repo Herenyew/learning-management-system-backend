@@ -19,6 +19,17 @@ export interface XpRuleFilterParams {
 
 export type XpRule = Prisma.XpRuleGetPayload<{}>;
 
+export interface XpRuleLookupOption {
+  id: number;
+  name: string;
+  slug?: string | null;
+}
+
+export interface XpRuleLookups {
+  categories: XpRuleLookupOption[];
+  triggerEvents: XpRuleLookupOption[];
+}
+
 export type PaginatedXpRuleResult = {
   data: XpRule[];
   meta: { total: number; page: number; limit: number; totalPages: number };
@@ -33,4 +44,5 @@ export interface IXpRulesRepository {
   updateXpRule(companyId: number, id: number, userId: number, data: UpdateXpRuleInput): Promise<XpRule>;
   softDeleteXpRule(companyId: number, id: number, userId: number): Promise<XpRule>;
   findXpRuleUsages(companyId: number, id: number): Promise<any[]>;
+  findRuleLookups(companyId: number): Promise<XpRuleLookups>;
 }

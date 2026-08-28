@@ -6,11 +6,14 @@ import {
   createEnrollmentRuleSchema,
   updateEnrollmentRuleSchema,
   enrollmentRuleFilterSchema,
+  enrollmentReferenceOptionsSchema,
 } from "./enrollment-configuration.dto.js";
 
 import { $Enums } from "@prisma/client";
 
 export type EntityType = $Enums.EnrollmentEntityType;
+
+export type EnrollmentReferenceOptions = Array<{ id: number; label: string }>;
 
 export type CreateEnrollmentRuleTypeInput = z.infer<
   typeof createEnrollmentRuleTypeSchema
@@ -39,6 +42,9 @@ export type UpdateEnrollmentRuleInput = z.infer<
 >;
 export type EnrollmentRuleFilterQueryInput = z.infer<
   typeof enrollmentRuleFilterSchema
+>;
+export type EnrollmentReferenceOptionsQueryInput = z.infer<
+  typeof enrollmentReferenceOptionsSchema
 >;
 export interface EnrollmentRuleFilterParams {
   search?: string;
@@ -81,4 +87,7 @@ export interface IEnrollmentConfigurationRepository {
   findCourseVersionById(companyId: number, id: number): Promise<CourseVersion | null>;
   findLearningProgramById(companyId: number, id: number): Promise<LearningProgram | null>;
   findTargetAudienceById(companyId: number, id: number): Promise<TargetAudience | null>;
+
+  findCourseVersionOptions(companyId: number, query: { search?: string; limit?: number }): Promise<Array<{ id: number; label: string }>>;
+  findLearningProgramOptions(companyId: number, query: { search?: string; limit?: number }): Promise<Array<{ id: number; label: string }>>;
 }

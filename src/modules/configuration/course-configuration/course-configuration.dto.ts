@@ -134,7 +134,11 @@ export const createContentFileTypeSchema = z.object({
   isActive: z.boolean().default(true),
 });
 
-export const updateContentFileTypeSchema = createContentFileTypeSchema.partial();
+export const updateContentFileTypeSchema =
+  createContentFileTypeSchema.partial().extend({
+    // Allow enable/disable through the standard PATCH endpoint
+    isActive: z.boolean().optional(),
+  });
 
 export const contentFileTypeFilterQuerySchema = paginationQuerySchema;
 

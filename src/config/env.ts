@@ -28,6 +28,13 @@ const envSchema = z.object({
     JWT_EXPIRES_IN: z.string(),
 
     ///////////////////////////////////////////////////////////
+    // AUTH SERVICE
+    ///////////////////////////////////////////////////////////
+    AUTH_SERVICE_URL: z.string().url(),
+    AUTH_CLIENT_ID: z.string(),
+    AUTH_CLIENT_SECRET: z.string(),
+
+    ///////////////////////////////////////////////////////////
     // RABBITMQ
     ///////////////////////////////////////////////////////////
     RABBITMQ_URL: z.string().url(),
@@ -103,6 +110,12 @@ export const env = {
     jwt: {
         secret: config.JWT_SECRET,
         expiresIn: config.JWT_EXPIRES_IN,
+    },
+
+    auth: {
+        serviceUrl: config.AUTH_SERVICE_URL,
+        clientId: config.AUTH_CLIENT_ID,
+        clientSecret: config.AUTH_CLIENT_SECRET,
     },
 
     rabbitmq: {

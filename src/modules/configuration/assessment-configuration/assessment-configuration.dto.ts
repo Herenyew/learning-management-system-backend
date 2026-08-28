@@ -116,6 +116,7 @@ export const createAssessmentTemplateSchema = z.object({
   lockdownBrowser: z.boolean().default(false),
   proctoringEnabled: z.boolean().default(false),
   negativeMarking: stringOrNumberToDecimal.pipe(z.number().min(0).max(1)).optional(),
+  questionCount: z.number().int().nonnegative().optional().default(0),
   isActive: z.boolean().default(true),
 });
 

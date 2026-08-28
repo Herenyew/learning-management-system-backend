@@ -87,7 +87,7 @@ export class TrainingEffectivenessRepository implements ITrainingEffectivenessRe
     dto: UpdateEffectivenessWeightConfigInput
   ): Promise<EffectivenessWeightConfig> {
     return this.prisma.effectivenessWeightConfig.update({
-      where: { id },
+      where: { id, companyId },
       data: {
         ...(dto.reactionWeight !== undefined && { reactionWeight: dto.reactionWeight }),
         ...(dto.learningWeight !== undefined && { learningWeight: dto.learningWeight }),
@@ -104,7 +104,7 @@ export class TrainingEffectivenessRepository implements ITrainingEffectivenessRe
     id: number
   ): Promise<EffectivenessWeightConfig> {
     return this.prisma.effectivenessWeightConfig.update({
-      where: { id },
+      where: { id, companyId },
       data: { isActive: false },
     });
   }
@@ -117,6 +117,12 @@ export class TrainingEffectivenessRepository implements ITrainingEffectivenessRe
     return client.effectivenessWeightConfig.updateMany({
       where: { companyId, isActive: true },
       data: { isActive: false },
+    });
+  }
+
+  async deleteWeightConfig(companyId: number, id: number): Promise<void> {
+    await this.prisma.effectivenessWeightConfig.delete({
+      where: { id, companyId },
     });
   }
 }

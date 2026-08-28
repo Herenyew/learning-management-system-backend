@@ -369,4 +369,49 @@ export class EnrollmentConfigurationRepository implements IEnrollmentConfigurati
       },
     });
   }
+
+  async findCourseVersionOptions(
+    companyId: number,
+    query: { search?: string; limit?: number }
+  ) {
+    const limit = query.limit ?? 50;
+    const versions = await this.prisma.courseVersion.findMany({
+      where: {
+        companyId,
+        deletedAt: null,
+        ...(query.search?.trim()
+          ? { course: { title: { contains: query.search.trim(), mode: "insensitive" } } }
+          : {}),
+      },
+      include: { course: { select: { title: true } } },
+      orderBy: [{ courseId: "asc" }, { majorVersion: "desc" }, { minorVersion: "desc" }],
+      take: limit,
+    });
+
+    return versions.map((v) => ({
+      id: v.id,
+      label: `${v.course.title} v${v.majorVersion}.${v.minorVersion}${v.versionLabel ? ` ${v.versionLabel}` : ""}`,
+    }));
+  }
+
+  async findLearningProgramOptions(
+    companyId: number,
+    query: { search?: string; limit?: number }
+  ) {
+    const limit = query.limit ?? 50;
+    const programs = await this.prisma.learningProgram.findMany({
+      where: {
+        companyId,
+        deletedAt: null,
+        ...(query.search?.trim()
+          ? { name: { contains: query.search.trim(), mode: "insensitive" } }
+          : {}),
+      },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+      take: limit,
+    });
+
+    return programs.map((p) => ({ id: p.id, label: p.name }));
+  }
 }

@@ -15,6 +15,10 @@ export class BadgeService {
     return this.repo.findBadges(companyId, query);
   }
 
+  async listBadgeCategories(companyId: number) {
+    return this.repo.listBadgeCategories(companyId);
+  }
+
   async getBadgeById(companyId: number, id: number) {
     const item = await this.repo.findBadgeById(companyId, id);
     if (!item) throw new NotFoundError(`Badge with ID ${id} not found.`);

@@ -8,7 +8,8 @@ import {
   connectDatabase,
   disconnectDatabase,
 } from "./config/database.js";
-import { rabbitMQ } from "./integrations/rabbitmq/index.js"; 
+import { bootstrapAuth } from "./common/bootstrap/auth.bootstrap.js";
+import { getRabbitMQAdapter } from "./integration/rabbitmq/rabbitmq.adapter.js";
 
 const server = http.createServer(app);
 
@@ -17,9 +18,14 @@ async function bootstrap(): Promise<void> {
     // Connect Infrastructure
     await connectDatabase();
 
-    // TODO
-    // await connectRabbitMQ();
-    // await rabbitMQ.connect(env.rabbitmq.url);
+    // Initialize authentication subsystem
+    await bootstrapAuth({
+      rabbitmqUrl: env.rabbitmq.url,
+      authServiceUrl: env.auth.serviceUrl,
+      authClientId: env.auth.clientId,
+      authClientSecret: env.auth.clientSecret,
+      jwtSecret: env.jwt.secret,
+    });
 
     server.listen(env.app.port, () => {
       logger.info(
@@ -47,9 +53,9 @@ async function shutdown(signal: string): Promise<void> {
     try {
       await disconnectDatabase();
 
-      // TODO
-      // await disconnectRabbitMQ();
-      //await rabbitMQ.disconnect();
+      // Disconnect RabbitMQ
+      const rabbitmqAdapter = getRabbitMQAdapter();
+      await rabbitmqAdapter.disconnect();
 
       logger.info("Server stopped successfully.");
 

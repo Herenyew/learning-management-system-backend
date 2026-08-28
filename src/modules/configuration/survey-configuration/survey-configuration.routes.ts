@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { SurveyConfigurationController } from './survey-configuration.controller.js';
 // Common Middlewares
-import { authenticate } from '../../../common/auth/auth.middleware.js';
+import { authenticate } from '../../auth/auth.middleware.js';
 import { requirePermission } from '../../../common/auth/permission.middleware.js';
 import {
   validateBody,

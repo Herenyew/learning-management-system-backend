@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import { CustomFieldsController } from "./custom-fields.controller.js";
-import { authenticate } from "../../../common/auth/auth.middleware.js";
+import { authenticate } from "../../auth/auth.middleware.js";
 import { requirePermission } from "../../../common/auth/permission.middleware.js";
 import { validateBody, validateParams, validateQuery } from "../../../common/middlewares/validation.middleware.js";
 import { Permissions } from "../../../common/constants/permission.constant.js";

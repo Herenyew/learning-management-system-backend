@@ -29,6 +29,24 @@ export type CreateAudienceGroupRuleInput = z.infer<typeof createAudienceGroupRul
 export type UpdateAudienceGroupRuleInput = z.infer<typeof updateAudienceGroupRuleBodySchema>;
 
 // -----------------------------------------------------------------------------
+// Targeting Option Types
+// -----------------------------------------------------------------------------
+export type AudienceOption = {
+  id: number;
+  name: string;
+  code?: string | null;
+  description?: string | null;
+};
+
+export type AudienceOptions = {
+  departments: AudienceOption[];
+  jobTitles: AudienceOption[];
+  jobLevels: AudienceOption[];
+  appRoles: AudienceOption[];
+  employmentTypes: AudienceOption[];
+};
+
+// -----------------------------------------------------------------------------
 // Explicit Filter & Rule Write Interfaces
 // -----------------------------------------------------------------------------
 export interface AudienceGroupFilterParams {
@@ -82,4 +100,11 @@ export interface IAudienceRepository {
   updateRule(ruleId: number, companyId: number, data: AudienceGroupRuleWriteData): Promise<AudienceGroupRule>;
   deleteRule(ruleId: number, companyId: number): Promise<AudienceGroupRule>;
   findRules(audienceGroupId: number, companyId: number): Promise<AudienceGroupRule[]>;
+
+  // Targeting Options
+  findDepartments(companyId: number): Promise<AudienceOption[]>;
+  findJobTitles(companyId: number): Promise<AudienceOption[]>;
+  findJobLevels(companyId: number): Promise<AudienceOption[]>;
+  findAppRoles(companyId: number): Promise<AudienceOption[]>;
+  findEmploymentTypes(companyId: number): Promise<AudienceOption[]>;
 }

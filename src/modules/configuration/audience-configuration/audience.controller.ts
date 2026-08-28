@@ -116,6 +116,20 @@ export class AudienceController {
     }
   };
 
+  getOptions = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const result = await this.audienceService.getOptions(req.user.companyId);
+
+      res.json({
+        success: true,
+        message: "Audience options retrieved successfully.",
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   // ==========================================
   // Member Matching & Preview
   // ==========================================

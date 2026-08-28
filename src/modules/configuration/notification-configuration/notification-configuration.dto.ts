@@ -27,7 +27,10 @@ export const createNotificationModuleSchema = z.object({
 });
 
 export const updateNotificationModuleSchema =
-  createNotificationModuleSchema.partial();
+  createNotificationModuleSchema.partial().extend({
+    // Allow enabling/disabling modules through the standard PATCH endpoint
+    isActive: z.boolean().optional(),
+  });
 
 export const notificationModuleFilterSchema = z.object({
   page: z.coerce.number().int().positive().optional().default(1),
@@ -66,7 +69,10 @@ export const createNotificationEventSchema = z.object({
 });
 
 export const updateNotificationEventSchema =
-  createNotificationEventSchema.partial();
+  createNotificationEventSchema.partial().extend({
+    // Allow enabling/disabling events through the standard PATCH endpoint
+    isActive: z.boolean().optional(),
+  });
 
 export const notificationEventFilterSchema = z.object({
   page: z.coerce.number().int().positive().optional().default(1),
@@ -77,7 +83,8 @@ export const notificationEventFilterSchema = z.object({
     .string()
     .optional()
     .transform((v) => (v === undefined ? undefined : v === "true")),
-  sortBy: z.enum(["code", "name", "createdAt"]).optional().default("createdAt"),
+  // NOTE: NotificationEvent has no createdAt column — sorting by it throws (500)
+  sortBy: z.enum(["id", "code", "name"]).optional().default("code"),
   sortOrder: z.enum(["asc", "desc"]).optional().default("desc"),
 });
 
@@ -97,6 +104,9 @@ export const createNotificationTemplateSchema = z.object({
   body: z.string().min(1),
   variables: z.record(z.string(), z.any()).optional(),
   language: z.string().max(20).optional().default("en"),
+  senderName: z.string().max(255).optional(),
+  replyToEmail: z.string().max(255).optional(),
+  isActive: z.boolean().optional().default(true),
 });
 
 export const updateNotificationTemplateSchema =

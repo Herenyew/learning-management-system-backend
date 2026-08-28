@@ -29,4 +29,5 @@ export interface ITrainingEffectivenessRepository {
   updateWeightConfig(companyId: number, id: number, dto: UpdateEffectivenessWeightConfigInput): Promise<EffectivenessWeightConfig>;
   deactivateWeightConfig(companyId: number, id: number): Promise<EffectivenessWeightConfig>;
   deactivateAllActiveConfigs(companyId: number, prismaTx?: Prisma.TransactionClient): Promise<Prisma.BatchPayload>;
+  deleteWeightConfig(companyId: number, id: number): Promise<void>;
 }

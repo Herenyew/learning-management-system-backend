@@ -7,7 +7,7 @@ import {
   updateBadgeRuleSchema,
   badgeRuleFilterSchema,
 } from "./badge-configuration.dto.js";
-import type { Badge as PrismaBadge, BadgeRule as PrismaBadgeRule, Prisma } from "@prisma/client";
+import type { Badge as PrismaBadge, BadgeRule as PrismaBadgeRule, BadgeCategory as PrismaBadgeCategory, Prisma } from "@prisma/client";
 
 export type CreateBadgeInput = z.infer<typeof createBadgeSchema>;
 export type UpdateBadgeInput = z.infer<typeof updateBadgeSchema>;
@@ -19,7 +19,7 @@ export type BadgeRuleFilterInput = z.infer<typeof badgeRuleFilterSchema>;
 
 export interface BadgeFilterParams {
   search?: string;
-  categoryId?: number;
+  badgeCategoryId?: number;
   isActive?: boolean;
   page?: number;
   limit?: number;
@@ -53,12 +53,13 @@ export interface IBadgeRepository {
   findBadgeById(companyId: number, id: number): Promise<Badge | null>;
   findBadges(companyId: number, query: BadgeFilterParams): Promise<PaginatedBadgeResult>;
   countBadges(companyId: number, query: BadgeFilterParams): Promise<number>;
-  updateBadge(companyId: number, id: number, userId: number, data: UpdateBadgeInput): Promise<Prisma.BatchPayload>;
-  softDeleteBadge(companyId: number, id: number, userId: number): Promise<Prisma.BatchPayload>;
+  listBadgeCategories(companyId: number): Promise<PrismaBadgeCategory[]>;
+  updateBadge(companyId: number, id: number, userId: number, data: UpdateBadgeInput): Promise<Badge>;
+  softDeleteBadge(companyId: number, id: number, userId: number): Promise<Badge>;
 
   createBadgeRule(companyId: number, badgeId: number, userId: number, data: CreateBadgeRuleInput): Promise<BadgeRule>;
   findBadgeRuleById(companyId: number, badgeId: number, ruleId: number): Promise<BadgeRule | null>;
   findBadgeRules(companyId: number, badgeId: number, query: BadgeRuleFilterParams): Promise<PaginatedBadgeRuleResult>;
-  updateBadgeRule(companyId: number, badgeId: number, ruleId: number, userId: number, data: UpdateBadgeRuleInput): Promise<Prisma.BatchPayload>;
-  deleteBadgeRule(companyId: number, badgeId: number, ruleId: number, userId: number): Promise<Prisma.BatchPayload>;
+  updateBadgeRule(companyId: number, badgeId: number, ruleId: number, userId: number, data: UpdateBadgeRuleInput): Promise<BadgeRule>;
+  deleteBadgeRule(companyId: number, badgeId: number, ruleId: number, userId: number): Promise<BadgeRule>;
 }

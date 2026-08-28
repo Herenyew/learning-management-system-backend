@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { EnrollmentConfigurationController } from "./enrollment-configuration.controller.js";
-import { authenticate } from "../../../common/auth/auth.middleware.js";
+import { authenticate } from "../../auth/auth.middleware.js";
 import { requirePermission } from "../../../common/auth/permission.middleware.js";
 import { Permissions } from "../../../common/constants/permission.constant.js";
 
@@ -16,6 +16,7 @@ import {
   createEnrollmentRuleSchema,
   updateEnrollmentRuleSchema,
   enrollmentRuleFilterSchema,
+  enrollmentReferenceOptionsSchema,
   idParamSchema,
 } from "./enrollment-configuration.dto.js";
 
@@ -90,6 +91,20 @@ export function enrollmentConfigurationRoutes(
     requirePermission(Permissions.ENROLLMENT_RULE_DELETE),
     validateParams(idParamSchema),
     controller.deleteEnrollmentRule
+  );
+
+  // ─── 3. Reference Options (dropdown pickers) ─────────────────────────────
+  router.get(
+    "/course-versions",
+    requirePermission(Permissions.ENROLLMENT_RULE_VIEW),
+    validateQuery(enrollmentReferenceOptionsSchema),
+    controller.getCourseVersionOptions
+  );
+  router.get(
+    "/programs",
+    requirePermission(Permissions.ENROLLMENT_RULE_VIEW),
+    validateQuery(enrollmentReferenceOptionsSchema),
+    controller.getLearningProgramOptions
   );
 
   return router;

@@ -17,7 +17,7 @@ import {
   TrainingFormatFilterSchema,
   idParamSchema,
 } from "./tna-configuration.dto.js";
-import { authenticate } from "../../../common/auth/auth.middleware.js";
+import { authenticate } from "../../auth/auth.middleware.js";
 import { requirePermission } from "../../../common/auth/permission.middleware.js";
 import { Permissions } from "../../../common/constants/permission.constant.js";
 

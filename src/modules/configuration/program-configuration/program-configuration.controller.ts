@@ -43,7 +43,7 @@ export class ProgramConfigurationController {
     try {
       const companyId = req.user.companyId;
       const result = await this.service.listProgramTypes(companyId, req.query);
-      res.status(200).json({ success: true, ...result });
+      res.status(200).json({ success: true, data: result.items, pagination: { total: result.total, page: result.page, pageSize: result.pageSize } });
     } catch (error) {
       next(error);
     }
@@ -103,7 +103,7 @@ export class ProgramConfigurationController {
     try {
       const companyId = req.user.companyId;
       const result = await this.service.listProgramCategories(companyId, req.query);
-      res.status(200).json({ success: true, ...result });
+      res.status(200).json({ success: true, data: result.items, pagination: { total: result.total, page: result.page, pageSize: result.pageSize } });
     } catch (error) {
       next(error);
     }
@@ -163,7 +163,7 @@ export class ProgramConfigurationController {
     try {
       const companyId = req.user.companyId;
       const result = await this.service.listTaskTypes(companyId, req.query);
-      res.status(200).json({ success: true, ...result });
+      res.status(200).json({ success: true, data: result.items, pagination: { total: result.total, page: result.page, pageSize: result.pageSize } });
     } catch (error) {
       next(error);
     }
@@ -223,7 +223,7 @@ export class ProgramConfigurationController {
     try {
       const companyId = req.user.companyId;
       const result = await this.service.listTemplates(companyId, req.query);
-      res.status(200).json({ success: true, ...result });
+      res.status(200).json({ success: true, data: result.items, pagination: { total: result.total, page: result.page, pageSize: result.pageSize } });
     } catch (error) {
       next(error);
     }

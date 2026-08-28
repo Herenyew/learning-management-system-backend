@@ -6,6 +6,14 @@ import type { CreateXpRuleInput, UpdateXpRuleInput } from "./xp-rules.types.js";
 export class XpRulesController {
   constructor(private service: XpRulesService) {}
 
+  getLookups = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      const companyId = req.user.companyId;
+      const result = await this.service.getLookups(companyId);
+      res.status(200).json({ success: true, data: result });
+    } catch (err) { next(err); }
+  };
+
   createXpRule = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const companyId = req.user.companyId;

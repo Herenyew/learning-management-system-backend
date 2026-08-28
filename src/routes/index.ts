@@ -1,8 +1,12 @@
+// src/routes/index.ts
 import { Router } from "express";
-import internalRoutes from "../modules/internal/index.js";
 import healthRoutes from "../modules/health/health.route.js";
 
-// Feature Modules
+// ─── Auth Routes ──────────────────────────────────────────────────────────────
+import { createAuthRoutes, AuthController, AuthMiddleware } from "../modules/auth/index.js";
+import { getAuthService } from "../common/bootstrap/auth.bootstrap.js";
+
+// ─── Configuration Modules ───────────────────────────────────────────────────
 import audienceRoutes from "../modules/configuration/audience-configuration/index.js";
 import courseConfigRoutes from "../modules/configuration/course-configuration/index.js";
 import assessmentConfigRoutes from "../modules/configuration/assessment-configuration/index.js";
@@ -17,22 +21,26 @@ import customFieldsConfigRoutes from "../modules/configuration/custom-fields/ind
 import learningLevelConfigRoutes from "../modules/configuration/gamification/learning-levels/index.js";
 import xpRuleConfigRoutes from "../modules/configuration/gamification/xp-rules/index.js";
 import badgeConfigRoutes from "../modules/configuration/gamification/badge-configuration/index.js";
+import systemSettingRoutes from "../modules/configuration/system-settings/index.js";
+import surveyConfigRoutes from "../modules/configuration/survey-configuration/index.js";
 
 const router = Router();
 
-// ==========================================
-// Core / Utility Routes
-// ==========================================
+// ─── Core / Utility Routes ──────────────────────────────────────────────────
 router.use("/health", healthRoutes);
 
-// ==========================================
-// Internal/System Routes (for service-to-service)
-// ==========================================
-router.use("/internal", internalRoutes); 
+// ─── Auth Routes (lazily resolved so bootstrapAuth runs first) ────────────
+// The /auth/* routes are registered lazily: getAuthService() is only called
+// when the first request arrives, at which point bootstrapAuth() has already run.
+router.use("/auth", (req, res, next) => {
+  const authService = getAuthService();
+  const authController = new AuthController(authService);
+  const authMiddleware = new AuthMiddleware(authService);
+  const authRoutes = createAuthRoutes(authController, authMiddleware);
+  authRoutes(req, res, next);
+});
 
-// ==========================================
-// Configuration & Setup Routes
-// ==========================================
+// ─── Configuration & Setup Routes ──────────────────────────────────────────
 router.use("/configuration/audience", audienceRoutes);
 router.use("/configuration/course", courseConfigRoutes);
 router.use("/configuration/assessment", assessmentConfigRoutes);
@@ -45,12 +53,12 @@ router.use("/configuration/training-effectiveness", trainingEffectivenessConfigR
 router.use("/configuration/approval-workflows", approvalWorkflowsConfigRoutes);
 router.use("/configuration/custom-fields", customFieldsConfigRoutes);
 router.use("/configuration/learning-levels", learningLevelConfigRoutes);
-router.use("/configuration/xp-rules", xpRuleConfigRoutes)
-router.use("configuration/badges", badgeConfigRoutes);
+router.use("/configuration/xp-rules", xpRuleConfigRoutes);
+router.use("/configuration/badges", badgeConfigRoutes);
+router.use("/configuration/system-settings", systemSettingRoutes);
+router.use("/configuration/survey", surveyConfigRoutes);
 
-// ==========================================
-// Core Domain Routes (Future)
-// ==========================================
+// ─── Core Domain Routes (Future) ───────────────────────────────────────────
 // router.use("/courses", courseRoutes);
 // router.use("/programs", learningProgramRoutes);
 // router.use("/enrollments", enrollmentRoutes);

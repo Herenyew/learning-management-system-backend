@@ -15,6 +15,11 @@ import type {
   CreateCertificateTemplateSignerInput,
   UpdateCertificateTemplateSignerInput,
 } from "./certificate-configuration.types.js";
+import {
+  ConflictError,
+  ForbiddenError,
+  NotFoundError,
+} from "../../../common/errors/index.js";
 
 export class CertificateConfigurationService {
   constructor(
@@ -34,7 +39,7 @@ export class CertificateConfigurationService {
       dto.name
     );
     if (existingName) {
-      throw new Error(`Certificate type with name "${dto.name}" already exists.`);
+      throw new ConflictError(`Certificate type with name "${dto.name}" already exists.`);
     }
 
     const existingSlug = await this.repository.findCertificateTypeBySlug(
@@ -42,7 +47,7 @@ export class CertificateConfigurationService {
       dto.slug
     );
     if (existingSlug) {
-      throw new Error(`Certificate type with slug "${dto.slug}" already exists.`);
+      throw new ConflictError(`Certificate type with slug "${dto.slug}" already exists.`);
     }
 
     return this.repository.createCertificateType(companyId, dto);
@@ -51,7 +56,7 @@ export class CertificateConfigurationService {
   async getCertificateTypeById(companyId: number, id: number) {
     const certType = await this.repository.findCertificateTypeById(companyId, id);
     if (!certType) {
-      throw new Error(`Certificate type with ID ${id} not found.`);
+      throw new NotFoundError(`Certificate type with ID ${id} not found.`);
     }
     return certType;
   }
@@ -76,7 +81,7 @@ export class CertificateConfigurationService {
         dto.name
       );
       if (existingName && existingName.id !== id) {
-        throw new Error(`Certificate type with name "${dto.name}" already exists.`);
+        throw new ConflictError(`Certificate type with name "${dto.name}" already exists.`);
       }
     }
 
@@ -86,7 +91,7 @@ export class CertificateConfigurationService {
         dto.slug
       );
       if (existingSlug && existingSlug.id !== id) {
-        throw new Error(`Certificate type with slug "${dto.slug}" already exists.`);
+        throw new ConflictError(`Certificate type with slug "${dto.slug}" already exists.`);
       }
     }
 
@@ -96,7 +101,7 @@ export class CertificateConfigurationService {
       dto
     );
     if (result.count === 0) {
-      throw new Error(`Failed to update certificate type with ID ${id}.`);
+      throw new NotFoundError(`Failed to update certificate type with ID ${id}.`);
     }
 
     return this.getCertificateTypeById(companyId, id);
@@ -106,7 +111,7 @@ export class CertificateConfigurationService {
     const certType = await this.getCertificateTypeById(companyId, id);
 
     if (certType.isSystem) {
-      throw new Error(`System certificate types cannot be deleted.`);
+      throw new ForbiddenError(`System certificate types cannot be deleted.`);
     }
 
     const usageCount = await this.repository.countCertificateTypeUsages(
@@ -114,9 +119,7 @@ export class CertificateConfigurationService {
       id
     );
     if (usageCount > 0) {
-      throw new Error(
-        `Cannot delete certificate type because it is associated with ${usageCount} template(s).`
-      );
+      throw new ConflictError(`Cannot delete certificate type because it is associated with ${usageCount} template(s).`);
     }
 
     return this.repository.softDeleteCertificateType(companyId, id);
@@ -135,7 +138,7 @@ export class CertificateConfigurationService {
       dto.name
     );
     if (existingName) {
-      throw new Error(`Credential source with name "${dto.name}" already exists.`);
+      throw new ConflictError(`Credential source with name "${dto.name}" already exists.`);
     }
 
     const existingSlug = await this.repository.findCredentialSourceBySlug(
@@ -143,7 +146,7 @@ export class CertificateConfigurationService {
       dto.slug
     );
     if (existingSlug) {
-      throw new Error(`Credential source with slug "${dto.slug}" already exists.`);
+      throw new ConflictError(`Credential source with slug "${dto.slug}" already exists.`);
     }
 
     return this.repository.createCredentialSource(companyId, dto);
@@ -152,7 +155,7 @@ export class CertificateConfigurationService {
   async getCredentialSourceById(companyId: number, id: number) {
     const source = await this.repository.findCredentialSourceById(companyId, id);
     if (!source) {
-      throw new Error(`Credential source with ID ${id} not found.`);
+      throw new NotFoundError(`Credential source with ID ${id} not found.`);
     }
     return source;
   }
@@ -177,7 +180,7 @@ export class CertificateConfigurationService {
         dto.name
       );
       if (existingName && existingName.id !== id) {
-        throw new Error(`Credential source with name "${dto.name}" already exists.`);
+        throw new ConflictError(`Credential source with name "${dto.name}" already exists.`);
       }
     }
 
@@ -187,7 +190,7 @@ export class CertificateConfigurationService {
         dto.slug
       );
       if (existingSlug && existingSlug.id !== id) {
-        throw new Error(`Credential source with slug "${dto.slug}" already exists.`);
+        throw new ConflictError(`Credential source with slug "${dto.slug}" already exists.`);
       }
     }
 
@@ -197,7 +200,7 @@ export class CertificateConfigurationService {
       dto
     );
     if (result.count === 0) {
-      throw new Error(`Failed to update credential source with ID ${id}.`);
+      throw new NotFoundError(`Failed to update credential source with ID ${id}.`);
     }
 
     return this.getCredentialSourceById(companyId, id);
@@ -207,7 +210,7 @@ export class CertificateConfigurationService {
     const source = await this.getCredentialSourceById(companyId, id);
 
     if (source.isSystem) {
-      throw new Error(`System credential sources cannot be deleted.`);
+      throw new ForbiddenError(`System credential sources cannot be deleted.`);
     }
 
     const usageCount = await this.repository.countCredentialSourceUsages(
@@ -215,9 +218,7 @@ export class CertificateConfigurationService {
       id
     );
     if (usageCount > 0) {
-      throw new Error(
-        `Cannot delete credential source because it is referenced in ${usageCount} external certificate(s).`
-      );
+      throw new ConflictError(`Cannot delete credential source because it is referenced in ${usageCount} external certificate(s).`);
     }
 
     return this.repository.softDeleteCredentialSource(companyId, id);
@@ -233,7 +234,7 @@ export class CertificateConfigurationService {
       dto.name
     );
     if (existingName) {
-      throw new Error(`Provider type with name "${dto.name}" already exists.`);
+      throw new ConflictError(`Provider type with name "${dto.name}" already exists.`);
     }
 
     const existingSlug = await this.repository.findProviderTypeBySlug(
@@ -241,7 +242,7 @@ export class CertificateConfigurationService {
       dto.slug
     );
     if (existingSlug) {
-      throw new Error(`Provider type with slug "${dto.slug}" already exists.`);
+      throw new ConflictError(`Provider type with slug "${dto.slug}" already exists.`);
     }
 
     return this.repository.createProviderType(companyId, dto);
@@ -250,7 +251,7 @@ export class CertificateConfigurationService {
   async getProviderTypeById(companyId: number, id: number) {
     const provider = await this.repository.findProviderTypeById(companyId, id);
     if (!provider) {
-      throw new Error(`Provider type with ID ${id} not found.`);
+      throw new NotFoundError(`Provider type with ID ${id} not found.`);
     }
     return provider;
   }
@@ -272,7 +273,7 @@ export class CertificateConfigurationService {
         dto.name
       );
       if (existingName && existingName.id !== id) {
-        throw new Error(`Provider type with name "${dto.name}" already exists.`);
+        throw new ConflictError(`Provider type with name "${dto.name}" already exists.`);
       }
     }
 
@@ -282,7 +283,7 @@ export class CertificateConfigurationService {
         dto.slug
       );
       if (existingSlug && existingSlug.id !== id) {
-        throw new Error(`Provider type with slug "${dto.slug}" already exists.`);
+        throw new ConflictError(`Provider type with slug "${dto.slug}" already exists.`);
       }
     }
 
@@ -292,7 +293,7 @@ export class CertificateConfigurationService {
       dto
     );
     if (result.count === 0) {
-      throw new Error(`Failed to update provider type with ID ${id}.`);
+      throw new NotFoundError(`Failed to update provider type with ID ${id}.`);
     }
 
     return this.getProviderTypeById(companyId, id);
@@ -302,7 +303,7 @@ export class CertificateConfigurationService {
     const provider = await this.getProviderTypeById(companyId, id);
 
     if (provider.isSystem) {
-      throw new Error(`System provider types cannot be deleted.`);
+      throw new ForbiddenError(`System provider types cannot be deleted.`);
     }
 
     const usageCount = await this.repository.countProviderTypeUsages(
@@ -310,9 +311,7 @@ export class CertificateConfigurationService {
       id
     );
     if (usageCount > 0) {
-      throw new Error(
-        `Cannot delete provider type because it is referenced in ${usageCount} external provider(s).`
-      );
+      throw new ConflictError(`Cannot delete provider type because it is referenced in ${usageCount} external provider(s).`);
     }
 
     return this.repository.softDeleteProviderType(companyId, id);
@@ -332,9 +331,7 @@ export class CertificateConfigurationService {
       dto.certificateTypeId
     );
     if (!certType) {
-      throw new Error(
-        `Certificate type with ID ${dto.certificateTypeId} does not exist.`
-      );
+      throw new NotFoundError(`Certificate type with ID ${dto.certificateTypeId} does not exist.`);
     }
 
     const existingName = await this.repository.findTemplateByName(
@@ -342,7 +339,7 @@ export class CertificateConfigurationService {
       dto.name
     );
     if (existingName) {
-      throw new Error(`Template with name "${dto.name}" already exists.`);
+      throw new ConflictError(`Template with name "${dto.name}" already exists.`);
     }
 
     return this.repository.createTemplate(companyId, userId, dto);
@@ -351,7 +348,7 @@ export class CertificateConfigurationService {
   async getTemplateById(companyId: number, id: number) {
     const template = await this.repository.findTemplateById(companyId, id);
     if (!template) {
-      throw new Error(`Certificate template with ID ${id} not found.`);
+      throw new NotFoundError(`Certificate template with ID ${id} not found.`);
     }
     return template;
   }
@@ -377,9 +374,7 @@ export class CertificateConfigurationService {
         dto.certificateTypeId
       );
       if (!certType) {
-        throw new Error(
-          `Certificate type with ID ${dto.certificateTypeId} does not exist.`
-        );
+        throw new NotFoundError(`Certificate type with ID ${dto.certificateTypeId} does not exist.`);
       }
     }
 
@@ -389,7 +384,7 @@ export class CertificateConfigurationService {
         dto.name
       );
       if (existingName && existingName.id !== id) {
-        throw new Error(`Template with name "${dto.name}" already exists.`);
+        throw new ConflictError(`Template with name "${dto.name}" already exists.`);
       }
     }
 
@@ -400,7 +395,7 @@ export class CertificateConfigurationService {
       dto
     );
     if (result.count === 0) {
-      throw new Error(`Failed to update template with ID ${id}.`);
+      throw new NotFoundError(`Failed to update template with ID ${id}.`);
     }
 
     return this.getTemplateById(companyId, id);
@@ -414,9 +409,7 @@ export class CertificateConfigurationService {
       id
     );
     if (usageCount > 0) {
-      throw new Error(
-        `Cannot delete template because ${usageCount} active certificate(s) have been issued with it.`
-      );
+      throw new ConflictError(`Cannot delete template because ${usageCount} active certificate(s) have been issued with it.`);
     }
 
     return this.repository.softDeleteTemplate(companyId, id);
@@ -439,9 +432,7 @@ export class CertificateConfigurationService {
       dto.employeeId
     );
     if (existingEmployeeSigner) {
-      throw new Error(
-        `Employee ID "${dto.employeeId}" is already assigned as a signer for this template.`
-      );
+      throw new ConflictError(`Employee ID "${dto.employeeId}" is already assigned as a signer for this template.`);
     }
 
     const existingOrderSigner = await this.repository.findSignerByOrder(
@@ -450,9 +441,7 @@ export class CertificateConfigurationService {
       dto.displayOrder
     );
     if (existingOrderSigner) {
-      throw new Error(
-        `Display order ${dto.displayOrder} is already occupied for this template.`
-      );
+      throw new ConflictError(`Display order ${dto.displayOrder} is already occupied for this template.`);
     }
 
     return this.repository.createSigner(companyId, templateId, dto);
@@ -476,7 +465,7 @@ export class CertificateConfigurationService {
       signerId
     );
     if (!existingSigner || existingSigner.templateId !== templateId) {
-      throw new Error(`Signer with ID ${signerId} not found for this template.`);
+      throw new NotFoundError(`Signer with ID ${signerId} not found for this template.`);
     }
 
     if (dto.employeeId && dto.employeeId !== existingSigner.employeeId) {
@@ -486,9 +475,7 @@ export class CertificateConfigurationService {
         dto.employeeId
       );
       if (duplicateEmp) {
-        throw new Error(
-          `Employee ID "${dto.employeeId}" is already assigned as a signer for this template.`
-        );
+        throw new ConflictError(`Employee ID "${dto.employeeId}" is already assigned as a signer for this template.`);
       }
     }
 
@@ -502,9 +489,7 @@ export class CertificateConfigurationService {
         dto.displayOrder
       );
       if (duplicateOrder) {
-        throw new Error(
-          `Display order ${dto.displayOrder} is already occupied for this template.`
-        );
+        throw new ConflictError(`Display order ${dto.displayOrder} is already occupied for this template.`);
       }
     }
 
@@ -514,7 +499,7 @@ export class CertificateConfigurationService {
       dto
     );
     if (result.count === 0) {
-      throw new Error(`Failed to update signer with ID ${signerId}.`);
+      throw new NotFoundError(`Failed to update signer with ID ${signerId}.`);
     }
 
     return this.repository.findSignerById(companyId, signerId);
@@ -532,7 +517,7 @@ export class CertificateConfigurationService {
       signerId
     );
     if (!existingSigner || existingSigner.templateId !== templateId) {
-      throw new Error(`Signer with ID ${signerId} not found for this template.`);
+      throw new NotFoundError(`Signer with ID ${signerId} not found for this template.`);
     }
 
     return this.repository.deleteSigner(companyId, signerId);

@@ -211,4 +211,48 @@ export class AudienceRepository implements IAudienceRepository {
       orderBy: { createdAt: "asc" },
     });
   }
+
+  // ==========================================
+  // Targeting Options
+  // ==========================================
+
+  async findDepartments(companyId: number) {
+    return this.prisma.department.findMany({
+      where: { companyId, isActive: true },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    });
+  }
+
+  async findJobTitles(companyId: number) {
+    return this.prisma.jobTitle.findMany({
+      where: { companyId, isActive: true },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    });
+  }
+
+  async findJobLevels(companyId: number) {
+    return this.prisma.jobLevel.findMany({
+      where: { companyId, isActive: true },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    });
+  }
+
+  async findAppRoles(companyId: number) {
+    return this.prisma.appRole.findMany({
+      where: { companyId, isActive: true },
+      select: { id: true, name: true, description: true },
+      orderBy: { name: "asc" },
+    });
+  }
+
+  async findEmploymentTypes(companyId: number) {
+    return this.prisma.employmentType.findMany({
+      where: { companyId, isActive: true },
+      select: { id: true, name: true, code: true },
+      orderBy: { name: "asc" },
+    });
+  }
 }

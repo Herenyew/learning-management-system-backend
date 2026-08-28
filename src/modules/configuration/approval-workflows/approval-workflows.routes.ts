@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { ApprovalWorkflowsRepository } from "./approval-workflows.repository.js";
 import { ApprovalWorkflowsService } from "./approval-workflows.service.js";
 import { ApprovalWorkflowsController } from "./approval-workflows.controller.js";
-import { authenticate } from "../../../common/auth/auth.middleware.js";
+import { authenticate } from "../../auth/auth.middleware.js";
 import { requirePermission } from "../../../common/auth/permission.middleware.js";
 import { Permissions } from "../../../common/constants/permission.constant.js";
 

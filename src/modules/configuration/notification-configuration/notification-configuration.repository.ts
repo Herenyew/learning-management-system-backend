@@ -195,7 +195,7 @@ export class NotificationConfigurationRepository
     companyId: number,
     query: NotificationEventFilterParams
   ) {
-    const { search, moduleId, isActive, page = 1, limit = 10, sortBy = "createdAt", sortOrder = "desc" } = query;
+    const { search, moduleId, isActive, page = 1, limit = 10, sortBy = "id", sortOrder = "desc" } = query;
     const skip = (page - 1) * limit;
 
     const where: Prisma.NotificationEventWhereInput = {
@@ -211,12 +211,16 @@ export class NotificationConfigurationRepository
       }),
     };
 
+    // NotificationEvent has no createdAt column — guard against invalid sorts
+    const allowedSortFields = ["id", "code", "name"] as string[];
+    const sortField = allowedSortFields.includes(sortBy as string) ? (sortBy as string) : "id";
+
     const [data, total] = await Promise.all([
       this.prisma.notificationEvent.findMany({
         where,
         skip,
         take: limit,
-        orderBy: { [sortBy]: sortOrder },
+        orderBy: { [sortField]: sortOrder },
         include: { module: true },
       }),
       this.prisma.notificationEvent.count({ where }),
@@ -292,6 +296,8 @@ export class NotificationConfigurationRepository
           ? (data.variables as Prisma.InputJsonValue)
           : Prisma.DbNull,
         language: data.language ?? "en",
+        senderName: data.senderName ?? null,
+        replyToEmail: data.replyToEmail ?? null,
       },
     });
   }
@@ -399,6 +405,8 @@ export class NotificationConfigurationRepository
             : Prisma.DbNull,
         }),
         ...(data.language !== undefined && { language: data.language }),
+        ...(data.senderName !== undefined && { senderName: data.senderName }),
+        ...(data.replyToEmail !== undefined && { replyToEmail: data.replyToEmail }),
       },
     });
   }

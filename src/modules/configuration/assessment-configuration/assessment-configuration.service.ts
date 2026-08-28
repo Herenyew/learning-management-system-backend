@@ -160,7 +160,7 @@ export class AssessmentConfigurationService {
       throw new AppError("System question types cannot be modified.", 403, ErrorCode.FORBIDDEN);
     }
 
-    // 🔴 Critical Guard: Prevent changing answerStructure if questions/blueprints exist
+    // Critical Guard: Prevent changing answerStructure if questions/blueprints exist
     if (dto.answerStructure && dto.answerStructure !== existing.answerStructure) {
       const usages = await this.repository.countQuestionTypeUsages(id, companyId);
       if (usages > 0) {
@@ -325,6 +325,7 @@ export class AssessmentConfigurationService {
       lockdownBrowser: dto.lockdownBrowser,
       proctoringEnabled: dto.proctoringEnabled,
       negativeMarking: dto.negativeMarking,
+      questionCount: dto.questionCount ?? 0,
       isActive: dto.isActive,
       company: { connect: { id: companyId } },
       assessmentType: { connect: { id: dto.assessmentTypeId } },

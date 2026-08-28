@@ -5,6 +5,7 @@ import { buildPaginationMeta } from "../../../common/http/pagination.js";
 import type {
   AudienceGroupFilterParams,
   AudienceGroupWithRules,
+  AudienceOptions,
   CreateAudienceGroupInput,
   CreateAudienceGroupRuleInput,
   IAudienceRepository,
@@ -103,6 +104,19 @@ export class AudienceService {
   // ==========================================
   // Audience Group Rules
   // ==========================================
+
+  async getOptions(companyId: number): Promise<AudienceOptions> {
+    const [departments, jobTitles, jobLevels, appRoles, employmentTypes] =
+      await Promise.all([
+        this.audienceRepository.findDepartments(companyId),
+        this.audienceRepository.findJobTitles(companyId),
+        this.audienceRepository.findJobLevels(companyId),
+        this.audienceRepository.findAppRoles(companyId),
+        this.audienceRepository.findEmploymentTypes(companyId),
+      ]);
+
+    return { departments, jobTitles, jobLevels, appRoles, employmentTypes };
+  }
 
   async createRule(
     audienceGroupId: number,

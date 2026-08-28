@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import compression from "compression";
+import cookieParser from "cookie-parser";
 
 import { env } from "./config/env.js";
 import { configureSwagger } from "./config/swagger.js";
@@ -34,6 +35,8 @@ app.use(compression());
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
+
+app.use(cookieParser());
 
 app.use(requestLogger);
 

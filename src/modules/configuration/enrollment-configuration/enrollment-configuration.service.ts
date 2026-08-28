@@ -12,6 +12,7 @@ import type {
   CreateEnrollmentRuleInput,
   UpdateEnrollmentRuleInput,
   EnrollmentRuleFilterQueryInput,
+  EnrollmentReferenceOptionsQueryInput,
 } from "./enrollment-configuration.types.js";
 
 function slugify(text: string): string {
@@ -94,7 +95,9 @@ export class EnrollmentConfigurationService {
       }
     }
 
-    return this.repo.updateEnrollmentRuleType(companyId, id, data);
+    return this.repo.updateEnrollmentRuleType(companyId, id, data).then(async () =>
+      this.getEnrollmentRuleTypeById(companyId, id)
+    );
   }
 
   async deleteEnrollmentRuleType(companyId: number, id: number) {
@@ -215,7 +218,9 @@ export class EnrollmentConfigurationService {
       }
     }
 
-    return this.repo.updateEnrollmentRule(companyId, id, userId, data);
+    return this.repo.updateEnrollmentRule(companyId, id, userId, data).then(async () =>
+      this.getEnrollmentRuleById(companyId, id)
+    );
   }
 
   async deleteEnrollmentRule(companyId: number, id: number) {
@@ -229,5 +234,13 @@ export class EnrollmentConfigurationService {
     }
 
     return this.repo.softDeleteEnrollmentRule(companyId, id);
+  }
+
+  async listCourseVersionOptions(companyId: number, query: EnrollmentReferenceOptionsQueryInput) {
+    return this.repo.findCourseVersionOptions(companyId, query);
+  }
+
+  async listLearningProgramOptions(companyId: number, query: EnrollmentReferenceOptionsQueryInput) {
+    return this.repo.findLearningProgramOptions(companyId, query);
   }
 }
