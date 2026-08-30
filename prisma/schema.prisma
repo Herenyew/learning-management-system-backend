@@ -551,6 +551,7 @@ model Company {
   meetingProviders           MeetingProvider[]
   attendanceMethods          AttendanceMethod[]
   surveyQuestionTypes        SurveyQuestionType[]
+  surveyTemplateQuestions    SurveyTemplateQuestion[]
   fundingTypes               FundingType[]
   trainingFormats            TrainingFormat[]
   tnaEmployees               TnaEmployee[]
@@ -3281,13 +3282,15 @@ model SurveyQuestionType {
   name        String   @db.VarChar(100) // e.g. "Rating Scale"
   slug        String   @db.VarChar(80)
   description String?
+  configJson  Json?
   isSystem    Boolean  @default(false)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  company         Company          @relation(fields: [companyId], references: [id])
-  surveyQuestions SurveyQuestion[]
+  company                 Company                  @relation(fields: [companyId], references: [id])
+  surveyQuestions         SurveyQuestion[]
+  surveyTemplateQuestions SurveyTemplateQuestion[]
 
   @@unique([companyId, name])
   @@unique([companyId, slug])
@@ -4067,10 +4070,37 @@ model SurveyTemplate {
   company          Company          @relation(fields: [companyId], references: [id])
   creator          AppUser          @relation("SurveyTemplateCreator", fields: [createdBy], references: [id])
   updater          AppUser?         @relation("SurveyTemplateUpdater", fields: [updatedBy], references: [id])
+  questions        SurveyTemplateQuestion[]
 
   @@unique([companyId, name])
   @@index([companyId])
   @@map("survey_templates")
+}
+
+/// A question defined inside a survey template (Dynamic Question Builder).
+/// `configJson` holds the admin-provided configuration for the question,
+/// driven by the question type's `configJson` form schema (extensible, no
+/// per-type hardcoding).
+model SurveyTemplateQuestion {
+  id             Int      @id @default(autoincrement())
+  companyId      Int
+  templateId     Int
+  questionTypeId Int
+  questionText   String   @db.Text
+  configJson     Json?
+  displayOrder   Int
+  isRequired     Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  company      Company            @relation(fields: [companyId], references: [id])
+  template     SurveyTemplate     @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  questionType SurveyQuestionType @relation(fields: [questionTypeId], references: [id])
+
+  @@unique([templateId, displayOrder])
+  @@index([companyId])
+  @@index([templateId])
+  @@map("survey_template_questions")
 }
 
 model NotificationTemplate {
