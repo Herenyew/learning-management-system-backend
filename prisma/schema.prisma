@@ -4053,23 +4053,23 @@ model AssessmentTemplate {
 }
 
 model SurveyTemplate {
-  id               Int              @id @default(autoincrement())
+  id               Int                      @id @default(autoincrement())
   companyId        Int
-  name             String           @db.VarChar(255)
-  description      String?          @db.Text
+  name             String                   @db.VarChar(255)
+  description      String?                  @db.Text
   surveyType       SurveyType
   kirkpatrickLevel KirkpatrickLevel
-  isAnonymous      Boolean          @default(false)
+  isAnonymous      Boolean                  @default(false)
   availableDays    Int?
-  isActive         Boolean          @default(true)
+  isActive         Boolean                  @default(true)
   createdBy        Int
   updatedBy        Int?
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
   deletedAt        DateTime?
-  company          Company          @relation(fields: [companyId], references: [id])
-  creator          AppUser          @relation("SurveyTemplateCreator", fields: [createdBy], references: [id])
-  updater          AppUser?         @relation("SurveyTemplateUpdater", fields: [updatedBy], references: [id])
+  company          Company                  @relation(fields: [companyId], references: [id])
+  creator          AppUser                  @relation("SurveyTemplateCreator", fields: [createdBy], references: [id])
+  updater          AppUser?                 @relation("SurveyTemplateUpdater", fields: [updatedBy], references: [id])
   questions        SurveyTemplateQuestion[]
 
   @@unique([companyId, name])
@@ -4104,31 +4104,31 @@ model SurveyTemplateQuestion {
 }
 
 model NotificationTemplate {
-  id                  Int                 @id @default(autoincrement())
-  companyId           Int
-  name                String              @db.VarChar(255)
-  description         String?             @db.Text
-  channel             NotificationChannel
-  eventCode           String              @db.VarChar(100)
-  subject             String?             @db.VarChar(255)
-  body                String              @db.Text
-  variables           Json?
-  language            String?             @db.VarChar(20)
-  isActive            Boolean             @default(true)
+  id          Int                 @id @default(autoincrement())
+  companyId   Int
+  name        String              @db.VarChar(255)
+  description String?             @db.Text
+  channel     NotificationChannel
+  eventCode   String              @db.VarChar(100)
+  subject     String?             @db.VarChar(255)
+  body        String              @db.Text
+  variables   Json?
+  language    String?             @db.VarChar(20)
+  isActive    Boolean             @default(true)
 
-  senderName          String? @db.VarChar(255) // ← ADD THIS
-  replyToEmail        String? @db.VarChar(255) // ← ADD THIS
+  senderName   String? @db.VarChar(255) // ← ADD THIS
+  replyToEmail String? @db.VarChar(255) // ← ADD THIS
 
-  createdBy           Int
-  updatedBy           Int?
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-  deletedAt           DateTime?
+  createdBy Int
+  updatedBy Int?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
-  company             Company             @relation(fields: [companyId], references: [id])
-  creator             AppUser             @relation("NotificationTemplateCreator", fields: [createdBy], references: [id])
-  updater             AppUser?            @relation("NotificationTemplateUpdater", fields: [updatedBy], references: [id])
-  notificationEvent   NotificationEvent?  @relation(fields: [notificationEventId], references: [id])
+  company             Company            @relation(fields: [companyId], references: [id])
+  creator             AppUser            @relation("NotificationTemplateCreator", fields: [createdBy], references: [id])
+  updater             AppUser?           @relation("NotificationTemplateUpdater", fields: [updatedBy], references: [id])
+  notificationEvent   NotificationEvent? @relation(fields: [notificationEventId], references: [id])
   notificationEventId Int?
 
   @@unique([companyId, name])
@@ -4157,14 +4157,14 @@ model NotificationModule {
 }
 
 model NotificationEvent {
-  id          Int     @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   companyId   Int
-  code        String  @db.VarChar(100)
+  code        String   @db.VarChar(100)
   name        String
   description String?
   moduleId    Int // ← Changed to FK
-  createdAt   DateTime  @default(now())
-  isActive Boolean @default(true)
+  createdAt   DateTime @default(now())
+  isActive    Boolean  @default(true)
 
   company   Company                @relation(fields: [companyId], references: [id])
   module    NotificationModule     @relation(fields: [moduleId], references: [id])
