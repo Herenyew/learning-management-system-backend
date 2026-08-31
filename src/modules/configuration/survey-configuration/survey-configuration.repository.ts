@@ -48,9 +48,15 @@ export class SurveyConfigurationRepository implements ISurveyConfigurationReposi
   async findSurveyQuestionTypes(companyId: number, query: SurveyQuestionTypeFilterParams) {
     const { page = 1, pageSize = 25, search, isActive } = query;
     const skip = (page - 1) * pageSize;
+    // Soft-deleted types (isActive=false) are hidden by default. Only show them
+    // when explicitly requested with isActive=false. Express query params arrive
+    // as strings, so coerce both shapes.
+    const rawActive = isActive as unknown;
+    const isActiveBool =
+      rawActive === true || rawActive === 'true' ? true : rawActive === false || rawActive === 'false' ? false : undefined;
     const where: Prisma.SurveyQuestionTypeWhereInput = {
       companyId,
-      ...(isActive !== undefined && { isActive }),
+      ...(isActiveBool !== undefined ? { isActive: isActiveBool } : { isActive: true }),
       ...(search && { name: { contains: search, mode: 'insensitive' } }),
     } as any;
 
@@ -124,13 +130,52 @@ export class SurveyConfigurationRepository implements ISurveyConfigurationReposi
     return this.prisma.surveyTemplate.findFirst({ where: { companyId, name, deletedAt: null } });
   }
 
+  // The unique index on (companyId, name) still covers soft-deleted rows, so a
+  // deleted template with the same name blocks recreation. Look it up explicitly.
+  async findSoftDeletedTemplateByName(companyId: number, name: string) {
+    return this.prisma.surveyTemplate.findFirst({ where: { companyId, name, deletedAt: { not: null } } });
+  }
+
+  // Re-use the row occupied by a soft-deleted template: restore it, refresh its
+  // metadata and replace its questions with the incoming set.
+  async resurrectTemplate(companyId: number, id: number, userId: number, data: CreateSurveyTemplateInput) {
+    const { questions, ...templateData } = data as CreateSurveyTemplateInput & {
+      questions?: CreateSurveyTemplateQuestionInput[];
+    };
+    const questionRows = (questions ?? []).map((question, index) => ({
+      companyId,
+      questionTypeId: question.questionTypeId,
+      questionText: question.questionText,
+      isRequired: question.isRequired ?? true,
+      configJson: toJsonInput(question.configJson),
+      displayOrder: index + 1,
+    }));
+    const updated = await this.prisma.$transaction(async (tx) => {
+      await tx.surveyTemplateQuestion.deleteMany({ where: { templateId: id, companyId } });
+      return tx.surveyTemplate.update({
+        where: { id },
+        data: {
+          ...templateData,
+          deletedAt: null,
+          isActive: true,
+          updatedBy: userId,
+          questions: { create: questionRows },
+        } as Prisma.SurveyTemplateUncheckedUpdateInput,
+        include: TEMPLATE_QUESTIONS_INCLUDE,
+      });
+    });
+    return updated as SurveyTemplateWithQuestions;
+  }
+
   async findTemplates(companyId: number, query: SurveyTemplateFilterParams) {
-    const { page = 1, pageSize = 25, search, isActive } = query;
+        const { page = 1, pageSize = 25, search, isActive } = query;
     const skip = (page - 1) * pageSize;
+    // isActive may arrive from query-string parsing as a string ("true"/"false")
+    const isActiveBool = isActive === true || (typeof isActive === 'string' && isActive === 'true');
     const where: Prisma.SurveyTemplateWhereInput = {
       companyId,
       deletedAt: null,
-      ...(isActive !== undefined && { isActive }),
+      ...(isActive !== undefined && { isActive: isActiveBool }),
       ...(search && { name: { contains: search, mode: 'insensitive' } }),
     } as any;
 

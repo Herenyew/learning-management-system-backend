@@ -91,6 +91,13 @@ export class SurveyConfigurationService {
     if (existingName) {
       throw new ConflictError(`Survey template with name "${data.name}" already exists.`);
     }
+    // The unique index (companyId, name) also covers soft-deleted rows. If a
+    // deleted template holds that name, resurrect it instead of crashing on the
+    // DB unique constraint (previously surfaced as a 500).
+    const softDeleted = await this.repo.findSoftDeletedTemplateByName(companyId, data.name);
+    if (softDeleted) {
+      return this.repo.resurrectTemplate(companyId, softDeleted.id, userId, data);
+    }
     return this.repo.createTemplate(companyId, userId, data);
   }
 
@@ -111,6 +118,14 @@ export class SurveyConfigurationService {
       const duplicate = await this.repo.findTemplateByName(companyId, data.name);
       if (duplicate && duplicate.id !== id) {
         throw new ConflictError(`Survey template with name "${data.name}" already exists.`);
+      }
+      // Renaming onto a name held by a soft-deleted template would hit the DB
+      // unique constraint — surface a clean conflict instead of a 500.
+      const softDeleted = await this.repo.findSoftDeletedTemplateByName(companyId, data.name);
+      if (softDeleted && softDeleted.id !== id) {
+        throw new ConflictError(
+          `Survey template name "${data.name}" is already occupied by a deleted template (id ${softDeleted.id}).`,
+        );
       }
     }
     // Do not modify existing survey instances — ensure template updates only affect the template record
