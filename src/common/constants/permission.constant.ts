@@ -1,5 +1,10 @@
 export const Permissions = {
   // ==========================================================
+  // ACCESS CONTROL CONFIGURATION
+  // ==========================================================
+  ACCESS_CONTROL_MANAGE: "access_control.manage",
+
+  // ==========================================================
   // COURSE CONFIGURATION
   // ==========================================================
 
@@ -266,6 +271,34 @@ export const Permissions = {
   ASSESSMENT_CREATE: "assessment.create",
   ASSESSMENT_VIEW: "assessment.view",
   ASSESSMENT_GRADE: "assessment.grade",
+
+  // ==========================================================
+  // OPERATIONAL / MANAGED DOMAIN PERMISSIONS
+  // ==========================================================
+
+  COURSE_READ: "course.read",
+  COURSE_REVIEW: "course.review",
+
+  TNA_SUBMIT: "tna.submit",
+  TNA_VIEW_ALL: "tna.view_all",
+  TNA_REVIEW: "tna.review",
+  TNA_CONFIG_MANAGE: "tna_config.manage",
+
+  PROGRAM_READ: "program.read",
+  PROGRAM_CREATE: "program.create",
+  PROGRAM_UPDATE: "program.update",
+  PROGRAM_DELETE: "program.delete",
+  PROGRAM_PUBLISH: "program.publish",
+
+  CERTIFICATE_ISSUE: "certificate.issue",
+  CERTIFICATE_CONFIG_MANAGE: "certificate_config.manage",
+  NOTIFICATION_CONFIG_MANAGE: "notification_config.manage",
+  TEMPLATE_MANAGE: "template.manage",
+  ENROLLMENT_CONFIG_MANAGE: "enrollment_config.manage",
+  APPROVAL_WORKFLOW_MANAGE: "approval_workflow.manage",
+  GAMIFICATION_CONFIG_MANAGE: "gamification_config.manage",
+  ANALYTICS_VIEW: "analytics.view",
+  MODERATION_MANAGE: "moderation.manage",
 } as const;
 
 export type PermissionCode =

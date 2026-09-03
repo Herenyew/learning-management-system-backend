@@ -1,4 +1,9 @@
-﻿import { PrismaClient, ContentCategory } from "@prisma/client";
+import { PrismaClient, ContentCategory } from "@prisma/client";
+import {
+  KNOWN_SETTINGS,
+  isSecretSettingKey,
+} from "../src/modules/configuration/system-settings/known-settings.registry.js";
+import { encryptSettingValue } from "../src/modules/configuration/system-settings/system-setting-crypto.js";
 
 const prisma = new PrismaClient();
 
@@ -556,6 +561,47 @@ async function seedEmsTables() {
       jobLevel: "Senior",
       startDate: "2020-01-01",
     },
+    // ─── @adiu.com test users ─────────────────────────────────
+    {
+      id: "EMP-LEARNER-ADIU",
+      fullName: "Learner Adiu",
+      department: "Technology",
+      jobTitle: "Software Engineer",
+      jobLevel: "Junior",
+      startDate: "2024-01-01",
+    },
+    {
+      id: "EMP-INSTRUCTOR-ADIU",
+      fullName: "Instructor Adiu",
+      department: "Technology",
+      jobTitle: "Senior Software Engineer",
+      jobLevel: "Senior",
+      startDate: "2024-01-01",
+    },
+    {
+      id: "EMP-CREATOR-ADIU",
+      fullName: "Creator Adiu",
+      department: "Technology",
+      jobTitle: "Tech Lead",
+      jobLevel: "Lead",
+      startDate: "2024-01-01",
+    },
+    {
+      id: "EMP-MANAGER-ADIU",
+      fullName: "Manager Adiu",
+      department: "Technology",
+      jobTitle: "Engineering Manager",
+      jobLevel: "Manager",
+      startDate: "2024-01-01",
+    },
+    {
+      id: "EMP-ADMIN-ADIU",
+      fullName: "Admin Adiu",
+      department: "Human Resource",
+      jobTitle: "Admin",
+      jobLevel: "Manager",
+      startDate: "2024-01-01",
+    },
     // Add any other employee IDs from your EMS that need LMS access
   ];
 
@@ -610,6 +656,43 @@ async function seedEmsTables() {
       email: "learner@acme.com",
       employeeId: "EMP005",
       role: "LEARNER",
+    },
+    {
+      id: 1006,
+      email: "tsegasolomon635@gmail.com",
+      employeeId: "EMP-ADMIN",
+      role: "ADMIN",
+    },
+    // ─── @adiu.com test users ──────────────────────────────────
+    {
+      id: 1007,
+      email: "learner@adiu.com",
+      employeeId: "EMP-LEARNER-ADIU",
+      role: "LEARNER",
+    },
+    {
+      id: 1008,
+      email: "instructor@adiu.com",
+      employeeId: "EMP-INSTRUCTOR-ADIU",
+      role: "INSTRUCTOR",
+    },
+    {
+      id: 1009,
+      email: "creator@adiu.com",
+      employeeId: "EMP-CREATOR-ADIU",
+      role: "INSTRUCTOR",
+    },
+    {
+      id: 1010,
+      email: "manager@adiu.com",
+      employeeId: "EMP-MANAGER-ADIU",
+      role: "MANAGER",
+    },
+    {
+      id: 1011,
+      email: "admin@adiu.com",
+      employeeId: "EMP-ADMIN-ADIU",
+      role: "ADMIN",
     },
   ];
 
@@ -2098,6 +2181,63 @@ async function seedLmsPermissions(
       description: "Export reports",
       module: "reports",
     },
+
+    // ==========================================================
+    // ANALYTICS DOMAIN
+    // ==========================================================
+
+    {
+      code: "analytics.view",
+      description: "View LMS analytics and reports within the user's data scope.",
+      module: "analytics",
+    },
+
+    // ==========================================================
+    // GAMIFICATION — XP RULES
+    // ==========================================================
+
+    { code: "xp_rule.view",   description: "View XP rules.",   module: "gamification" },
+    { code: "xp_rule.create", description: "Create XP rules.", module: "gamification" },
+    { code: "xp_rule.update", description: "Update XP rules.", module: "gamification" },
+    { code: "xp_rule.delete", description: "Delete XP rules.", module: "gamification" },
+
+    // ==========================================================
+    // GAMIFICATION — LEARNING LEVELS
+    // ==========================================================
+
+    { code: "learning_level.view",   description: "View learning levels.",   module: "gamification" },
+    { code: "learning_level.create", description: "Create learning levels.", module: "gamification" },
+    { code: "learning_level.update", description: "Update learning levels.", module: "gamification" },
+    { code: "learning_level.delete", description: "Delete learning levels.", module: "gamification" },
+
+    // ==========================================================
+    // GAMIFICATION — BADGES
+    // ==========================================================
+
+    { code: "badge.view",   description: "View badges.",   module: "gamification" },
+    { code: "badge.create", description: "Create badges.", module: "gamification" },
+    { code: "badge.update", description: "Update badges.", module: "gamification" },
+    { code: "badge.delete", description: "Delete badges.", module: "gamification" },
+
+    { code: "badge_rule.view",   description: "View badge rules.",   module: "gamification" },
+    { code: "badge_rule.create", description: "Create badge rules.", module: "gamification" },
+    { code: "badge_rule.update", description: "Update badge rules.", module: "gamification" },
+    { code: "badge_rule.delete", description: "Delete badge rules.", module: "gamification" },
+
+    // ==========================================================
+    // CUSTOM FIELDS
+    // ==========================================================
+
+    { code: "custom_field.view",   description: "View custom field definitions.",   module: "custom_fields" },
+    { code: "custom_field.create", description: "Create custom field definitions.", module: "custom_fields" },
+    { code: "custom_field.update", description: "Update custom field definitions.", module: "custom_fields" },
+    { code: "custom_field.delete", description: "Delete custom field definitions.", module: "custom_fields" },
+
+    // ==========================================================
+    // GAMIFICATION — RUNTIME (gamification_config.manage guards page entry)
+    // ==========================================================
+
+    { code: "gamification_config.manage", description: "Manage gamification configuration.", module: "gamification" },
   ];
 
   const permissionMap = new Map<string, any>();
@@ -2348,6 +2488,35 @@ async function seedLmsPermissions(
 
       "reports.view",
       "reports.export",
+
+      // Gamification Configuration
+      "xp_rule.view",
+      "xp_rule.create",
+      "xp_rule.update",
+      "xp_rule.delete",
+
+      "learning_level.view",
+      "learning_level.create",
+      "learning_level.update",
+      "learning_level.delete",
+
+      "badge.view",
+      "badge.create",
+      "badge.update",
+      "badge.delete",
+
+      "badge_rule.view",
+      "badge_rule.create",
+      "badge_rule.update",
+      "badge_rule.delete",
+
+      "gamification_config.manage",
+
+      // Custom Fields
+      "custom_field.view",
+      "custom_field.create",
+      "custom_field.update",
+      "custom_field.delete",
     ],
 
     // ----------------------------------------------------------
@@ -2385,6 +2554,12 @@ async function seedLmsPermissions(
       "survey_template.view",
 
       "reports.view",
+
+      // Gamification (view only for instructors)
+      "xp_rule.view",
+      "learning_level.view",
+      "badge.view",
+      "badge_rule.view",
     ],
 
     // ----------------------------------------------------------
@@ -2412,6 +2587,11 @@ async function seedLmsPermissions(
 
       "reports.view",
       "reports.export",
+      "analytics.view",
+
+      // Gamification (view only for managers)
+      "learning_level.view",
+      "badge.view",
     ],
 
     // ----------------------------------------------------------
@@ -2480,11 +2660,47 @@ async function seedLmsPermissions(
   );
 }
 
+async function seedSystemSettings(companyId: number, actorId: number) {
+  console.log(`  Seeding system settings for companyId: ${companyId}`);
+
+  const existing = await prisma.systemSetting.findMany({
+    where: { companyId },
+    select: { settingKey: true },
+  });
+  const existingKeys = new Set(existing.map((r) => r.settingKey));
+
+  let created = 0;
+  for (const def of KNOWN_SETTINGS) {
+    if (existingKeys.has(def.key)) continue;
+
+    await prisma.systemSetting.create({
+      data: {
+        companyId,
+        category: def.category,
+        settingKey: def.key,
+        settingValue:
+          isSecretSettingKey(def.key) && def.defaultValue != null
+            ? encryptSettingValue(String(def.defaultValue))
+            : ((def.defaultValue ?? null) as object),
+        valueType: def.valueType,
+        description: def.description,
+        isActive: true,
+        createdBy: actorId,
+        updatedBy: actorId,
+      },
+    });
+    created += 1;
+  }
+
+  console.log(`  ${created} system settings seeded`);
+}
+
 async function main() {
   await seedSystemLookupTables();
 
   const { company, roleMap } = await seedEmsTables();
   await seedLmsPermissions(company.id, roleMap);
+  await seedSystemSettings(company.id, 1001); // superadmin@acme.com
 }
 
 main().catch((e) => {

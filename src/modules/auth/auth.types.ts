@@ -37,10 +37,14 @@ export interface CurrentUser {
   // LMS-specific (optional — only populated when AppUser record exists in LMS DB)
   appUserId?: number;
   employeeId?: string;
+  appRoleId?: number;    // LMS AppRole.id — the resolved integer role id from the DB
 }
 
 export interface AuthenticatedRequest extends Request {
-  user: CurrentUser;
+  user: Omit<CurrentUser, "appUserId" | "appRoleId"> & {
+    appUserId: number;
+    appRoleId: number | undefined;
+  };
   sessionId?: string;
 }
 

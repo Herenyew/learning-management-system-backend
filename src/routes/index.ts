@@ -23,6 +23,11 @@ import xpRuleConfigRoutes from "../modules/configuration/gamification/xp-rules/i
 import badgeConfigRoutes from "../modules/configuration/gamification/badge-configuration/index.js";
 import systemSettingRoutes from "../modules/configuration/system-settings/index.js";
 import surveyConfigRoutes from "../modules/configuration/survey-configuration/index.js";
+import accessControlConfigRoutes from "../modules/configuration/access-control-configuration/index.js";
+import { notificationsRouter } from "../modules/notifications/index.js";
+import { certificatesRouter } from "../modules/certificates/index.js";
+import { enrollmentsRouter } from "../modules/enrollments/index.js";
+import { coursePublishingRouter } from "../modules/course/course-publishing.routes.js";
 
 const router = Router();
 
@@ -41,6 +46,7 @@ router.use("/auth", (req, res, next) => {
 });
 
 // ─── Configuration & Setup Routes ──────────────────────────────────────────
+router.use("/configuration/access-control", accessControlConfigRoutes);
 router.use("/configuration/audience", audienceRoutes);
 router.use("/configuration/course", courseConfigRoutes);
 router.use("/configuration/assessment", assessmentConfigRoutes);
@@ -57,6 +63,10 @@ router.use("/configuration/xp-rules", xpRuleConfigRoutes);
 router.use("/configuration/badges", badgeConfigRoutes);
 router.use("/configuration/system-settings", systemSettingRoutes);
 router.use("/configuration/survey", surveyConfigRoutes);
+router.use("/notifications", notificationsRouter);
+router.use("/certificates", certificatesRouter);
+router.use("/enrollments", enrollmentsRouter);
+router.use("/courses", coursePublishingRouter);
 
 // ─── Core Domain Routes (Future) ───────────────────────────────────────────
 // router.use("/courses", courseRoutes);
