@@ -284,10 +284,43 @@ async function enrichFromAppUser(user: CurrentUser): Promise<void> {
 
     // ── 5. Populate CurrentUser from resolved AppUser ────────────────────
     if (appUser) {
-      user.appUserId   = appUser.id;
-      user.appRoleId   = appUser.roleId ?? undefined;
-      user.employeeId  = appUser.employeeId ?? undefined;
-      user.permissions = appUser.role?.lmsPermissions.map(rp => rp.permission.code) ?? [];
+      user.appUserId  = appUser.id;
+      user.appRoleId  = appUser.roleId ?? undefined;
+      user.employeeId = appUser.employeeId ?? undefined;
+
+      // Build permission set — union of primary role + all active UserRoleAssignments
+      const primaryPerms = appUser.role?.lmsPermissions.map(rp => rp.permission.code) ?? [];
+      let extraPerms: string[] = [];
+
+      try {
+        const assignments = await prisma.userRoleAssignment.findMany({
+          where: {
+            userId:   appUser.id,
+            isActive: true,
+            OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+          },
+          select: {
+            appRole: {
+              select: {
+                lmsPermissions: {
+                  where: { companyId: user.companyId },
+                  select: { permission: { select: { code: true } } },
+                },
+              },
+            },
+          },
+        });
+        extraPerms = assignments.flatMap(a =>
+          a.appRole.lmsPermissions.map(rp => rp.permission.code)
+        );
+      } catch {
+        // Non-fatal — extra role lookup failure only means extra perms are missing
+        logger.warn('[AuthMiddleware] Failed to load UserRoleAssignment permissions');
+      }
+
+      const allCodes = new Set([...primaryPerms, ...extraPerms]);
+      user.permissions = Array.from(allCodes).sort();
+
       if (appUser.role?.name) {
         user.roleName = appUser.role.name;
         user.role     = appUser.role.name;

@@ -50,17 +50,122 @@ export const coursePublishingRepository = {
     });
   },
 
+  // ── Draft creation (creator saves a new course from the builder) ─────────
+
+  /**
+   * Resolves a DifficultyLevel for a new course version. Prefers BEGINNER,
+   * falls back to the first available level.
+   */
+  async resolveDifficultyLevelId(tx: PublishingTransaction): Promise<number | null> {
+    const beginner = await tx.difficultyLevel.findFirst({
+      where: { code: { equals: "BEGINNER", mode: "insensitive" } },
+      select: { id: true },
+    });
+    if (beginner) return beginner.id;
+    const any = await tx.difficultyLevel.findFirst({
+      orderBy: { displayOrder: "asc" },
+      select: { id: true },
+    });
+    return any?.id ?? null;
+  },
+
+  /**
+   * Resolves a CourseCategory for a new course. Uses the company's first
+   * category, creating a "General" fallback when none exists.
+   */
+  async resolveCategoryId(
+    tx: PublishingTransaction,
+    companyId: number,
+  ): Promise<number> {
+    const existing = await tx.courseCategory.findFirst({
+      where: { companyId },
+      orderBy: { displayOrder: "asc" },
+      select: { id: true },
+    });
+    if (existing) return existing.id;
+    const created = await tx.courseCategory.create({
+      data: {
+        companyId,
+        name: "General",
+        slug: `general-${companyId}`,
+        description: "Default category created for courses saved without one.",
+      },
+      select: { id: true },
+    });
+    return created.id;
+  },
+
+  /**
+   * Creates a minimal Course + initial CourseVersion (v1.0, DRAFT).
+   * Used by the creator flow when a course is saved from the builder.
+   */
+  async createCourseDraft(
+    tx: PublishingTransaction,
+    data: {
+      companyId: number;
+      createdBy: number;
+      title: string;
+      description?: string;
+      categoryId: number;
+      difficultyLevelId: number;
+    },
+  ) {
+    const course = await tx.course.create({
+      data: {
+        companyId: data.companyId,
+        title: data.title,
+        description: data.description ?? null,
+        categoryId: data.categoryId,
+        visibility: "COMPANY",
+        enrollmentPolicy: "OPEN",
+        status: "DRAFT",
+        learningObjectives: [],
+        keywords: [],
+        createdBy: data.createdBy,
+      },
+      select: { id: true, title: true },
+    });
+
+    const version = await tx.courseVersion.create({
+      data: {
+        companyId: data.companyId,
+        courseId: course.id,
+        majorVersion: 1,
+        minorVersion: 0,
+        difficultyLevelId: data.difficultyLevelId,
+        status: "DRAFT",
+        approvalStatus: "PENDING",
+        requiredAssessmentScore: 0,
+        completionThreshold: 100,
+        allowDownload: false,
+        previewAvailable: false,
+        isCurrent: true,
+        createdBy: data.createdBy,
+      },
+      select: { id: true, status: true, approvalStatus: true },
+    });
+
+    return { course, version };
+  },
+
   // ── ApprovalWorkflow ─────────────────────────────────────────────────────
 
-  findDefaultWorkflowForCourse(tx: PublishingTransaction, companyId: number) {
+    findDefaultWorkflowForCourse(tx: PublishingTransaction, companyId: number) {
     return tx.approvalWorkflow.findFirst({
       where: {
         companyId,
-        entityType: "COURSE_VERSION",
+        // Companies configure workflows as COURSE or COURSE_VERSION — accept both.
+        entityType: { in: ["COURSE_VERSION", "COURSE"] },
         isActive: true,
-        isDefault: true,
         deletedAt: null,
       },
+      // Prefer a marked default; otherwise pick any active workflow so a
+      // workflow configured via the UI (even if not explicitly defaulted)
+      // still drives submission.
+      orderBy: [
+        { isDefault: "desc" },
+        { createdAt: "desc" },
+      ],
       include: {
         steps: {
           orderBy: { approvalOrder: "asc" },
@@ -116,10 +221,10 @@ export const coursePublishingRepository = {
     });
   },
 
-  updateInstanceStatus(
+    updateInstanceStatus(
     tx: PublishingTransaction,
     instanceId: number,
-    status: "APPROVED" | "REJECTED" | "CHANGES_REQUESTED" | "CANCELLED",
+    status: "PENDING" | "APPROVED" | "REJECTED" | "CHANGES_REQUESTED" | "CANCELLED",
     comment?: string,
   ) {
     return tx.approvalWorkflowInstance.update({
@@ -186,10 +291,76 @@ export const coursePublishingRepository = {
 
   // ── Reviewer resolution ──────────────────────────────────────────────────
 
+    /**
+   * Resolves every active AppUser that holds `roleId`, regardless of whether
+   * the assignment lives on the legacy `AppUser.roleId` column or on the newer
+   * `UserRoleAssignment` table (which the RBAC UI uses). Without this union,
+   * approvers created via the role-assignment screen would silently resolve to
+   * zero users and never receive a review notification.
+   */
   findUsersByRole(tx: PublishingTransaction, companyId: number, roleId: number) {
     return tx.appUser.findMany({
-      where: { companyId, roleId, isActive: true },
+      where: {
+        companyId,
+        isActive: true,
+        OR: [
+          // Legacy single-role column (still used by some seeded users).
+          { roleId },
+          // New multi-role assignment table.
+          {
+            roleAssignments: {
+              some: {
+                appRoleId: roleId,
+                isActive: true,
+                OR: [
+                  { expiresAt: null },
+                  { expiresAt: { gt: new Date() } },
+                ],
+              },
+            },
+          },
+        ],
+      },
       select: { id: true },
+    });
+  },
+
+  /**
+   * Resolves the concrete recipient users for a single workflow step, handling
+   * both role-based and individual-employee approvers (or auto-approve).
+   * Used to fan out notifications to the approvers of whichever step is
+   * currently pending.
+   */
+  async resolveStepReviewers(
+    tx: PublishingTransaction,
+    companyId: number,
+    step: { id: number; approverRoleId: number | null; approverEmployeeId: string | null; autoApprove: boolean } | null,
+  ): Promise<number[]> {
+    if (!step || step.autoApprove) return [];
+    let reviewerIds: number[] = [];
+    if (step.approverRoleId) {
+      const users = await this.findUsersByRole(tx, companyId, step.approverRoleId);
+      reviewerIds = users.map((u) => u.id);
+    }
+        if (step.approverEmployeeId) {
+      const user = await tx.appUser.findFirst({
+        where: {
+          companyId,
+          employeeId: step.approverEmployeeId,
+          isActive: true,
+        },
+        select: { id: true },
+      });
+      if (user && !reviewerIds.includes(user.id)) reviewerIds.push(user.id);
+    }
+    return reviewerIds;
+  },
+
+  /** All decisions recorded against an instance (used to find the current step). */
+  findDecisions(tx: PublishingTransaction, instanceId: number) {
+    return tx.approvalDecision.findMany({
+      where: { instanceId },
+      select: { workflowStepId: true, status: true },
     });
   },
 

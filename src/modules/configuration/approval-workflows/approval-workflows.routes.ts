@@ -17,6 +17,7 @@ import {
   approvalWorkflowFilterSchema,
   createApprovalWorkflowStepSchema,
   updateApprovalWorkflowStepSchema,
+  employeeOptionsQuerySchema,
 } from "./approval-workflows.dto.js";
 
 export function ApprovalWorkflowsRouter(prisma: PrismaClient): Router {
@@ -27,6 +28,24 @@ export function ApprovalWorkflowsRouter(prisma: PrismaClient): Router {
   const controller = new ApprovalWorkflowsController(service);
 
   router.use(authenticate);
+
+  // ──────────────────────────────────────────────────────────────
+  // Options Lookup (dropdowns for the step form)
+  // NOTE: registered BEFORE `/:id` so the path is not swallowed.
+  // ──────────────────────────────────────────────────────────────
+
+  router.get(
+    "/options/roles",
+    requirePermission(Permissions.APPROVAL_WORKFLOW_VIEW),
+    controller.getRoleOptions
+  );
+
+  router.get(
+    "/options/employees",
+    requirePermission(Permissions.APPROVAL_WORKFLOW_VIEW),
+    validateQuery(employeeOptionsQuerySchema),
+    controller.searchEmployees
+  );
 
   // ──────────────────────────────────────────────────────────────
   // Approval Workflow Routes

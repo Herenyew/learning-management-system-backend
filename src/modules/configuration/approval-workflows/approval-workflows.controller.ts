@@ -185,6 +185,40 @@ export class ApprovalWorkflowsController {
     }
   };
 
+  // ==========================================
+  // Options Lookup (dropdowns for the step form)
+  // ==========================================
+
+  getRoleOptions = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const companyId = req.user.companyId;
+      const result = await this.service.getRoleOptions(companyId);
+      res.status(200).json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  searchEmployees = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const companyId = req.user.companyId;
+      const q = typeof req.query.q === "string" ? req.query.q : undefined;
+      const limit = req.query.limit ? Number(req.query.limit) : 10;
+      const result = await this.service.searchEmployees(companyId, q, limit);
+      res.status(200).json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   updateWorkflowStep = async (
     req: AuthRequest,
     res: Response,

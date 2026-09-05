@@ -425,13 +425,13 @@ async function seedEmsTables() {
     { id: 8, name: "HR", description: "HR role" },
 
     // LMS-specific roles (new IDs not used by EMS)
-    { id: 9, name: "INSTRUCTOR", description: "Can create and manage courses" },
-    {
-      id: 10,
-      name: "MANAGER",
-      description: "Can approve TNA and view reports",
-    },
-    { id: 11, name: "LEARNER", description: "Can take courses" },
+    { id: 9,  name: "INSTRUCTOR",      description: "Can create and manage courses" },
+    { id: 10, name: "MANAGER",         description: "Can approve TNA and view reports" },
+    { id: 11, name: "LEARNER",         description: "Can take courses" },
+    // Extended roles — manually assigned by HR inside LMS
+    { id: 12, name: "COURSE_CREATOR",  description: "Content development — create, edit, publish courses" },
+    { id: 13, name: "CEO",             description: "Strategic oversight — approve, company reports" },
+    { id: 14, name: "FINANCE",         description: "Budget management — ROI and cost reports" },
   ];
 
   const roleMap = new Map();
@@ -602,6 +602,14 @@ async function seedEmsTables() {
       jobLevel: "Manager",
       startDate: "2024-01-01",
     },
+    {
+      id: "EMP-HR-ADIU",
+      fullName: "HR Adiu",
+      department: "Human Resource",
+      jobTitle: "HR Specialist",
+      jobLevel: "Senior",
+      startDate: "2024-01-01",
+    },
     // Add any other employee IDs from your EMS that need LMS access
   ];
 
@@ -677,12 +685,6 @@ async function seedEmsTables() {
       role: "INSTRUCTOR",
     },
     {
-      id: 1009,
-      email: "creator@adiu.com",
-      employeeId: "EMP-CREATOR-ADIU",
-      role: "INSTRUCTOR",
-    },
-    {
       id: 1010,
       email: "manager@adiu.com",
       employeeId: "EMP-MANAGER-ADIU",
@@ -693,6 +695,19 @@ async function seedEmsTables() {
       email: "admin@adiu.com",
       employeeId: "EMP-ADMIN-ADIU",
       role: "ADMIN",
+    },
+    {
+      id: 1012,
+      email: "hr@adiu.com",
+      employeeId: "EMP-HR-ADIU",
+      role: "HR",
+    },
+    // creator now correctly uses COURSE_CREATOR (not INSTRUCTOR)
+    {
+      id: 1009,
+      email: "creator@adiu.com",
+      employeeId: "EMP-CREATOR-ADIU",
+      role: "COURSE_CREATOR",
     },
   ];
 
@@ -709,7 +724,6 @@ async function seedEmsTables() {
         isActive: true,
         lastSyncedAt: new Date(),
       },
-      create: {
         id: user.id,
         companyId: company.id,
         email: user.email,
@@ -721,6 +735,62 @@ async function seedEmsTables() {
     });
   }
   console.log(`  ${users.length} App Users created`);
+
+  // ─── 2.9 EMS Role Mappings ──────────────────────────────────────────────
+  const emsMappings = [
+    { emsRoleName: "employee",         roleName: "EMPLOYEE",      autoAssign: true,  priority: 10 },
+    { emsRoleName: "learner",          roleName: "LEARNER",       autoAssign: true,  priority: 10 },
+    { emsRoleName: "instructor",       roleName: "INSTRUCTOR",    autoAssign: true,  priority: 35 },
+    { emsRoleName: "creator",          roleName: "COURSE_CREATOR",autoAssign: false, priority: 35 },
+    { emsRoleName: "manager",          roleName: "MANAGER",       autoAssign: true,  priority: 30 },
+    { emsRoleName: "hr",               roleName: "HR",            autoAssign: true,  priority: 50 },
+    { emsRoleName: "hr_manager",       roleName: "HR",            autoAssign: true,  priority: 50 },
+    { emsRoleName: "admin",            roleName: "ADMIN",         autoAssign: true,  priority: 90 },
+    { emsRoleName: "super_admin",      roleName: "SUPER_ADMIN",   autoAssign: true,  priority: 100 },
+    { emsRoleName: "ceo",              roleName: "CEO",           autoAssign: true,  priority: 95 },
+    { emsRoleName: "finance",          roleName: "FINANCE",       autoAssign: true,  priority: 40 },
+  ];
+
+  for (const m of emsMappings) {
+    const mappedRole = roleMap.get(m.roleName);
+    if (!mappedRole) {
+      console.warn(`  Skipping EMS mapping "${m.emsRoleName}" → role "${m.roleName}" not found`);
+      continue;
+    }
+    await prisma.eMSRoleMapping.upsert({
+      where: { companyId_emsRoleName: { companyId: company.id, emsRoleName: m.emsRoleName } },
+      update:  { appRoleId: mappedRole.id, autoAssign: m.autoAssign, priority: m.priority, isActive: true },
+      create:  { companyId: company.id, emsRoleName: m.emsRoleName, appRoleId: mappedRole.id, autoAssign: m.autoAssign, priority: m.priority },
+    });
+  }
+  console.log(`  ${emsMappings.length} EMS Role Mappings seeded`);
+
+  // ─── 2.10 Permission Groups ─────────────────────────────────────────────
+  const permissionGroups = [
+    { name: "Course Management",   module: "course",        description: "Course creation, editing, publishing and review" },
+    { name: "Program Management",  module: "program",       description: "Learning program management and enrollment" },
+    { name: "User Management",     module: "user",          description: "User accounts, roles and access" },
+    { name: "Reporting",           module: "analytics",     description: "Reports and analytics dashboards" },
+    { name: "TNA Management",      module: "tna",           description: "Training needs analysis" },
+    { name: "Certification",       module: "certificate",   description: "Certificate templates and issuance" },
+    { name: "Gamification",        module: "gamification",  description: "XP rules, badges and leaderboards" },
+    { name: "System Settings",     module: "system",        description: "System-wide configuration" },
+    { name: "Notifications",       module: "notification",  description: "Notification templates and delivery" },
+    { name: "Assessment Config",   module: "assessment",    description: "Assessment types and grading" },
+    { name: "Enrollment Rules",    module: "enrollment",    description: "Auto-enrollment rules" },
+    { name: "Approval Workflows",  module: "workflow",      description: "Multi-step approval workflows" },
+    { name: "Audience Management", module: "audience",      description: "Audience groups and targeting" },
+    { name: "Custom Fields",       module: "custom_fields", description: "Custom field definitions" },
+  ];
+
+  for (const g of permissionGroups) {
+    await prisma.permissionGroup.upsert({
+      where:  { companyId_name: { companyId: company.id, name: g.name } },
+      update:  { module: g.module, description: g.description, isActive: true },
+      create:  { companyId: company.id, ...g, isActive: true },
+    });
+  }
+  console.log(`  ${permissionGroups.length} Permission Groups seeded`);
 
   // 2.8 Company-Specific Lookup Tables
   console.log("  Seeding company-specific lookup tables...");
@@ -1311,6 +1381,11 @@ async function seedLmsPermissions(
     {
       code: "course.enroll",
       description: "Enroll learners in courses",
+      module: "course",
+    },
+    {
+      code: "course.review",
+      description: "Approve, reject, or request revisions for courses.",
       module: "course",
     },
 
@@ -2238,6 +2313,31 @@ async function seedLmsPermissions(
     // ==========================================================
 
     { code: "gamification_config.manage", description: "Manage gamification configuration.", module: "gamification" },
+
+    // ==========================================================
+    // OPERATIONAL DOMAIN PERMISSIONS (used by runtime features)
+    // ==========================================================
+
+    { code: "course.read",       description: "View courses and the learning catalog.", module: "course" },
+    { code: "course.review",     description: "Approve, reject, or request revisions for courses.", module: "course" },
+    { code: "program.read",      description: "View learning programs.", module: "program" },
+    { code: "program.create",    description: "Create learning programs.", module: "program" },
+    { code: "program.update",    description: "Edit learning programs.", module: "program" },
+    { code: "program.delete",    description: "Archive or delete learning programs.", module: "program" },
+    { code: "program.publish",   description: "Publish or approve learning programs.", module: "program" },
+    { code: "tna.submit",        description: "Submit training needs requests.", module: "tna" },
+    { code: "tna.view_all",      description: "View all training needs requests.", module: "tna" },
+    { code: "tna.review",        description: "Approve or reject training needs requests.", module: "tna" },
+    { code: "tna_config.manage", description: "Configure TNA request types and workflows.", module: "tna" },
+    { code: "certificate.issue", description: "Issue certificates.", module: "certificate" },
+    { code: "certificate_config.manage", description: "Manage certificate templates and settings.", module: "certificate" },
+    { code: "notification_config.manage", description: "Manage notification channels.", module: "notification" },
+    { code: "template.manage",           description: "Manage reusable LMS templates.", module: "template" },
+    { code: "enrollment_config.manage",  description: "Manage enrollment policies.", module: "enrollment" },
+    { code: "approval_workflow.manage",  description: "Manage approval workflows.", module: "workflow" },
+    { code: "moderation.manage",         description: "Manage content moderation.", module: "moderation" },
+    { code: "access_control.manage",     description: "Configure LMS permissions.", module: "access_control" },
+    { code: "system_config.manage",      description: "Manage system-level LMS configuration.", module: "system" },
   ];
 
   const permissionMap = new Map<string, any>();
@@ -2295,6 +2395,7 @@ async function seedLmsPermissions(
       "course.update",
       "course.delete",
       "course.publish",
+      "course.review",
 
       // Audience
       "audience.create",
@@ -2567,6 +2668,7 @@ async function seedLmsPermissions(
     // ----------------------------------------------------------
     MANAGER: [
       "course.view",
+      "course.review",
       "audience.view",
 
       "assessment.view",
@@ -2609,6 +2711,84 @@ async function seedLmsPermissions(
     LEARNER: [
       "course.view",
       "assessment.view",
+    ],
+
+    // ----------------------------------------------------------
+    // COURSE_CREATOR — content development, full course lifecycle
+    // ----------------------------------------------------------
+    COURSE_CREATOR: [
+      "course.create",
+      "course.view",
+      "course.read",
+      "course.update",
+      "course.publish",
+
+      "course_category.view",
+      "difficulty_level.view",
+      "content_type.view",
+      "content_file_type.view",
+      "course_template.view",
+
+      "audience.view",
+
+      "assessment.create",
+      "assessment.view",
+      "assessment.grade",
+
+      "assessment_type.view",
+      "question_type.view",
+      "grading_method.view",
+      "assessment_template.view",
+
+      "program_type.view",
+      "program_category.view",
+      "task_type.view",
+      "program_template.view",
+
+      "program.create",
+      "program.update",
+      "program.read",
+
+      "certificate.view",
+
+      "survey_question_type.view",
+      "survey_template.view",
+
+      "reports.view",
+      "analytics.view",
+
+      "xp_rule.view",
+      "learning_level.view",
+      "badge.view",
+      "badge_rule.view",
+    ],
+
+    // ----------------------------------------------------------
+    // CEO — strategic oversight, company-wide reports + approvals
+    // ----------------------------------------------------------
+    CEO: [
+      "course.view",
+      "course.read",
+      "course.review",
+      "program.read",
+      "analytics.view",
+      "reports.view",
+      "reports.export",
+      "tna.view_all",
+      "tna.review",
+      "certificate.view",
+    ],
+
+    // ----------------------------------------------------------
+    // FINANCE — budget/ROI views
+    // ----------------------------------------------------------
+    FINANCE: [
+      "course.view",
+      "course.read",
+      "analytics.view",
+      "reports.view",
+      "reports.export",
+      "certificate.view",
     ],
   };
 
@@ -2695,10 +2875,134 @@ async function seedSystemSettings(companyId: number, actorId: number) {
   console.log(`  ${created} system settings seeded`);
 }
 
+// ──────────────────────────────────────────────────────────────
+// Helper: Seed a default COURSE publishing approval workflow.
+// This is REQUIRED for the course-publishing review flow to fire
+// (creator submits → approvers notified → approve → published).
+// Without at least one active COURSE/COURSE_VERSION workflow in the
+// DB, submission silently returns workflowConfigured:false and NO
+// notifications are ever sent to approvers — which was the reported
+// "creator saves but approvers never get notified" bug.
+// ──────────────────────────────────────────────────────────────
+async function seedApprovalWorkflows(
+  company: { id: number },
+  roleMap: Map<string, { id: number }>,
+) {
+  console.log(`\n  Seeding approval workflows for companyId: ${company.id}...`);
+
+  const hrRole = roleMap.get("HR");
+  const managerRole = roleMap.get("MANAGER");
+
+  // Two-step sequential approval: HR (step 1) → Manager (step 2).
+  // The creator CANNOT self-publish; only an approver on the final step
+  // moves the course to Published.
+  const actorId = 1001; // superadmin@acme.com — matches seedSystemSettings caller.
+  const createdBy =
+    (await prisma.appUser.findFirst({ where: { id: actorId } }))
+      ? actorId
+      : (await prisma.appUser.findFirst({ select: { id: true } }))?.id ?? actorId;
+
+  await prisma.approvalWorkflow.upsert({
+    where: {
+      companyId_name: { companyId: company.id, name: "Default Course Approval" },
+    },
+    update: {
+      entityType: "COURSE_VERSION",
+      isActive: true,
+      isDefault: true,
+      isSystem: false,
+      description: "Standard two-step review for course publishing.",
+    },
+    create: {
+      companyId: company.id,
+      name: "Default Course Approval",
+      description:
+        "Standard two-step review for course publishing (HR → Manager).",
+      entityType: "COURSE_VERSION",
+      isDefault: true,
+      isSystem: false,
+      isActive: true,
+      createdBy,
+      steps: {
+        create: [
+          ...(hrRole
+            ? [
+                {
+                  companyId: company.id,
+                  approvalOrder: 1,
+                  approverRoleId: hrRole.id,
+                  isRequired: true,
+                },
+              ]
+            : []),
+          ...(managerRole
+            ? [
+                {
+                  companyId: company.id,
+                  approvalOrder: hrRole ? 2 : 1,
+                  approverRoleId: managerRole.id,
+                  isRequired: true,
+                },
+              ]
+            : []),
+        ],
+      },
+    },
+  });
+
+  console.log(
+    `  Default approval workflow "Default Course Approval" ensured (HR step 1 → Manager step 2)`,
+  );
+
+  // ── LEARNING_PROGRAM workflow ──────────────────────────────────────────────
+  // Programs also need approval before they go live. Single-step: HR approves.
+  await prisma.approvalWorkflow.upsert({
+    where: {
+      companyId_name: { companyId: company.id, name: "Default Program Approval" },
+    },
+    update: {
+      entityType: "LEARNING_PROGRAM",
+      isActive: true,
+      isDefault: true,
+      isSystem: false,
+      description: "Standard single-step review for program publishing.",
+    },
+    create: {
+      companyId: company.id,
+      name: "Default Program Approval",
+      description: "Standard single-step review for program publishing (HR approves).",
+      entityType: "LEARNING_PROGRAM",
+      isDefault: true,
+      isSystem: false,
+      isActive: true,
+      createdBy,
+      steps: {
+        create: [
+          ...(hrRole
+            ? [
+                {
+                  companyId: company.id,
+                  approvalOrder: 1,
+                  approverRoleId: hrRole.id,
+                  isRequired: true,
+                },
+              ]
+            : []),
+        ],
+      },
+    },
+  });
+
+  console.log(
+    `  Default approval workflow "Default Program Approval" ensured (HR step 1)`,
+  );
+}
+
 async function main() {
   await seedSystemLookupTables();
 
   const { company, roleMap } = await seedEmsTables();
+  await seedApprovalWorkflows(company, roleMap);
   await seedLmsPermissions(company.id, roleMap);
   await seedSystemSettings(company.id, 1001); // superadmin@acme.com
 }

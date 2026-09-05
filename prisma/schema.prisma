@@ -586,6 +586,9 @@ model Company {
   notifications              Notification[]
   notificationSettings       NotificationSetting[]
   companyNotificationSettings CompanyNotificationSetting[]
+  permissionGroups            PermissionGroup[]
+  userRoleAssignments         UserRoleAssignment[]
+  emsMappings                 EMSRoleMapping[]
 
   @@map("company")
 }
@@ -739,8 +742,15 @@ model AppUser {
   notifications               Notification[]
   notificationSettings        NotificationSetting[]
 
+  primaryEmRoleId Int?  @map("primary_em_role_id")
+  emsRoles        Json? @map("ems_roles")
+
+  primaryEmRole   AppRole?             @relation("AppUserPrimaryEmRole", fields: [primaryEmRoleId], references: [id])
+  roleAssignments UserRoleAssignment[]
+
   @@index([companyId])
   @@index([roleId])
+  @@index([primaryEmRoleId])
   @@map("app_user")
 }
 
@@ -810,10 +820,76 @@ model AppRole {
   audienceGroupRules    AudienceGroupRule[]
   targetAudiences       TargetAudience[]
   approvalWorkflowSteps ApprovalWorkflowStep[]
+  userRoleAssignments   UserRoleAssignment[]
+  emsMappings           EMSRoleMapping[]
+  primaryEmUsers        AppUser[]              @relation("AppUserPrimaryEmRole")
 
   @@unique([companyId, name])
   @@index([companyId])
   @@map("app_role")
+}
+
+// === PERMISSION GROUP — UI-level grouping for the permissions matrix ===
+model PermissionGroup {
+  id          Int      @id @default(autoincrement())
+  companyId   Int      @map("company_id")
+  name        String   @db.VarChar(100)
+  description String?  @db.Text
+  module      String   @db.VarChar(50)
+  isActive    Boolean  @default(true)  @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt      @map("updated_at")
+
+  company     Company         @relation(fields: [companyId], references: [id])
+  permissions LmsPermission[]
+
+  @@unique([companyId, name])
+  @@index([companyId])
+  @@map("permission_groups")
+}
+
+// === USER TO ROLE ASSIGNMENT — Manual HR overrides / additional roles ===
+model UserRoleAssignment {
+  id         Int       @id @default(autoincrement())
+  companyId  Int       @map("company_id")
+  userId     Int       @map("user_id")
+  appRoleId  Int       @map("app_role_id")
+  assignedBy Int       @map("assigned_by")
+  assignedAt DateTime  @default(now()) @map("assigned_at")
+  isManual   Boolean   @default(false) @map("is_manual")
+  isActive   Boolean   @default(true)  @map("is_active")
+  expiresAt  DateTime?                 @map("expires_at")
+  notes      String?   @db.Text
+
+  company Company @relation(fields: [companyId], references: [id])
+  user    AppUser @relation(fields: [userId],    references: [id])
+  appRole AppRole @relation(fields: [appRoleId], references: [id])
+
+  @@unique([userId, appRoleId])
+  @@index([companyId])
+  @@index([userId, isActive])
+  @@index([appRoleId])
+  @@map("user_role_assignments")
+}
+
+// === EMS ROLE MAPPING — Configurable EMS role name → LMS AppRole ===
+model EMSRoleMapping {
+  id          Int      @id @default(autoincrement())
+  companyId   Int      @map("company_id")
+  emsRoleName String   @db.VarChar(100) @map("ems_role_name")
+  appRoleId   Int      @map("app_role_id")
+  isActive    Boolean  @default(true)   @map("is_active")
+  autoAssign  Boolean  @default(true)   @map("auto_assign")
+  priority    Int      @default(0)
+  createdAt   DateTime @default(now())  @map("created_at")
+  updatedAt   DateTime @updatedAt       @map("updated_at")
+
+  company Company @relation(fields: [companyId], references: [id])
+  appRole AppRole @relation(fields: [appRoleId], references: [id])
+
+  @@unique([companyId, emsRoleName])
+  @@index([companyId])
+  @@map("ems_role_mappings")
 }
 
 // This model is for LMS-specific permissions not stored in EMS database
@@ -827,12 +903,16 @@ model LmsPermission {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  company         Company             @relation(fields: [companyId], references: [id])
+  groupId     Int?    @map("group_id")
+
+  company         Company          @relation(fields: [companyId], references: [id])
+  group           PermissionGroup? @relation(fields: [groupId], references: [id])
   rolePermissions LmsRolePermission[]
 
   @@unique([companyId, code])
   @@index([companyId])
   @@index([module])
+  @@index([groupId])
   @@map("lms_permissions")
 }
 

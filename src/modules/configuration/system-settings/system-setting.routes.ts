@@ -23,6 +23,8 @@ export default function routes(controller: SystemSettingController) {
   // Managed reads — any user with the view permission.
   router.get('/', requirePermission(Permissions.SYSTEM_SETTING_VIEW), validateQuery(QueryListSchema), controller.findMany.bind(controller));
   router.get('/category/:category', requirePermission(Permissions.SYSTEM_SETTING_VIEW), validateParams(categoryParamSchema), controller.listByCategory.bind(controller));
+  // Live branding palette — any authenticated user (registered before '/:id').
+  router.get('/branding', controller.getBranding.bind(controller));
   router.get('/:id', requirePermission(Permissions.SYSTEM_SETTING_VIEW), validateParams(idParamSchema), controller.findById.bind(controller));
   router.get('/key/:key', requirePermission(Permissions.SYSTEM_SETTING_VIEW), validateParams(keyParamSchema), controller.findByKey.bind(controller));
 

@@ -51,6 +51,10 @@ export class ApprovalWorkflowsRepository
       include: {
         steps: {
           orderBy: { approvalOrder: "asc" },
+          include: {
+            approverRole: { select: { name: true } },
+            approver: { select: { fullName: true } },
+          },
         },
       },
     });
@@ -72,7 +76,7 @@ export class ApprovalWorkflowsRepository
   async findWorkflows(
     companyId: number,
     filter: ApprovalWorkflowFilterParams
-  ): Promise<ApprovalWorkflow[]> {
+  ): Promise<ApprovalWorkflowWithSteps[]> {
     const { search, entityType, isActive, isSystem, page = 1, limit = 10 } = filter;
     const skip = (page - 1) * limit;
 
@@ -95,6 +99,15 @@ export class ApprovalWorkflowsRepository
       skip,
       take: limit,
       orderBy: { createdAt: "desc" },
+      include: {
+        steps: {
+          orderBy: { approvalOrder: "asc" },
+          include: {
+            approverRole: { select: { name: true } },
+            approver: { select: { fullName: true } },
+          },
+        },
+      },
     });
   }
 
@@ -271,5 +284,120 @@ export class ApprovalWorkflowsRepository
       where: { id: employeeId, companyId },
     });
     return !!employee;
+  }
+
+  // ==========================================
+  // 4. Options Lookup (dropdowns for the step form)
+  // ==========================================
+
+  async listRoleOptions(
+    companyId: number
+  ): Promise<Array<{ id: number; name: string }>> {
+    return this.prisma.appRole.findMany({
+      where: { companyId, isActive: true },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    });
+  }
+
+  async searchEmployees(
+    companyId: number,
+    q?: string,
+    limit = 10
+  ): Promise<Array<{ id: string; fullName: string; departmentName?: string | null }>> {
+    const where: Prisma.EmployeeWhereInput = {
+      companyId,
+      isActive: true,
+      ...(q && {
+        OR: [
+          { id: { contains: q, mode: "insensitive" } },
+          { fullName: { contains: q, mode: "insensitive" } },
+        ],
+      }),
+    };
+
+    return this.prisma.employee.findMany({
+      where,
+      take: limit,
+      orderBy: { fullName: "asc" },
+      select: {
+        id: true,
+        fullName: true,
+        department: { select: { name: true } },
+      },
+    }).then((rows) =>
+      rows.map((r) => ({
+        id: r.id,
+        fullName: r.fullName,
+        departmentName: r.department?.name ?? null,
+      }))
+    );
+  }
+
+  // ==========================================
+  // 5. Transactional helpers (workflow + steps)
+  // ==========================================
+
+  async createWorkflowWithSteps(
+    companyId: number,
+    userId: number,
+    dto: CreateApprovalWorkflowInput,
+    prismaTx?: Prisma.TransactionClient
+  ): Promise<ApprovalWorkflow> {
+    const client = prismaTx || this.prisma;
+    const workflow = await client.approvalWorkflow.create({
+      data: {
+        companyId,
+        createdBy: userId,
+        name: dto.name,
+        entityType: dto.entityType,
+        description: dto.description,
+        isDefault: dto.isDefault ?? false,
+        isActive: dto.isActive ?? true,
+      },
+    });
+
+    if (dto.steps && dto.steps.length > 0) {
+      await client.approvalWorkflowStep.createMany({
+        data: dto.steps.map((step) => ({
+          companyId,
+          workflowId: workflow.id,
+          approvalOrder: step.approvalOrder,
+          approverRoleId: step.approverRoleId ?? null,
+          approverEmployeeId: step.approverEmployeeId ?? null,
+          isRequired: step.isRequired ?? true,
+          autoApprove: step.autoApprove ?? false,
+          timeoutDays: step.timeoutDays ?? null,
+        })),
+      });
+    }
+
+    return workflow;
+  }
+
+  async replaceWorkflowSteps(
+    companyId: number,
+    workflowId: number,
+    steps: CreateApprovalWorkflowStepInput[],
+    prismaTx?: Prisma.TransactionClient
+  ): Promise<void> {
+    const client = prismaTx || this.prisma;
+    await client.approvalWorkflowStep.deleteMany({
+      where: { workflowId, companyId },
+    });
+    if (steps.length > 0) {
+      await client.approvalWorkflowStep.createMany({
+        data: steps.map((step) => ({
+          companyId,
+          workflowId,
+          approvalOrder: step.approvalOrder,
+          approverRoleId: step.approverRoleId ?? null,
+          approverEmployeeId: step.approverEmployeeId ?? null,
+          isRequired: step.isRequired ?? true,
+          autoApprove: step.autoApprove ?? false,
+          timeoutDays: step.timeoutDays ?? null,
+        })),
+      });
+    }
   }
 }

@@ -13,3 +13,11 @@ enrollmentsRouter.post("/course", (req, res, next) => {
 enrollmentsRouter.post("/program", (req, res, next) => {
   enrollmentsController.enrollProgram(req, res).catch(next);
 });
+
+// Mark a course enrollment as complete and automatically:
+//   - create a CourseCompletion record
+//   - issue a certificate if certificateTemplateId is provided
+//   - auto-complete any related program enrollments where all courses are done
+enrollmentsRouter.post("/course/:enrollmentId/complete", (req, res, next) => {
+  enrollmentsController.completeCourse(req, res).catch(next);
+});

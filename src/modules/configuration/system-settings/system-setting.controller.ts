@@ -66,6 +66,16 @@ export class SystemSettingController {
     }
   };
 
+  /** Live branding palette — available to any authenticated user. */
+  getBranding = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      const branding = await this.svc.getBranding(this.actor(req).companyId);
+      res.json({ success: true, data: branding });
+    } catch (err) {
+      next(err);
+    }
+  };
+
   update = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const id = Number(req.params.id);

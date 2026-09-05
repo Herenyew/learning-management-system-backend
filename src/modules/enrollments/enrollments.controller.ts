@@ -11,6 +11,12 @@ const programEnrollSchema = z.object({
   programId: z.coerce.number().int().positive(),
 });
 
+const completeCourseSchema = z.object({
+  finalScore:            z.coerce.number().min(0).max(100).optional(),
+  passed:                z.boolean().optional(),
+  certificateTemplateId: z.coerce.number().int().positive().nullable().optional(),
+});
+
 const contextFrom = (req: Request) => {
   const reqAny = req as any;
   const user = reqAny.user || reqAny.currentUser;
@@ -33,5 +39,18 @@ export const enrollmentsController = {
     const { programId } = programEnrollSchema.parse(req.body);
     const enrollment = await enrollmentsService.enrollProgram(context, programId);
     return res.status(201).json({ success: true, data: enrollment });
+  },
+
+  completeCourse: async (req: Request, res: Response) => {
+    const context = contextFrom(req);
+    const enrollmentId = z.coerce.number().int().positive().parse(req.params.enrollmentId);
+    const input = completeCourseSchema.parse(req.body);
+    const result = await enrollmentsService.completeCourse(context, {
+      enrollmentId,
+      finalScore:            input.finalScore,
+      passed:                input.passed,
+      certificateTemplateId: input.certificateTemplateId,
+    });
+    return res.status(200).json({ success: true, data: result });
   },
 };

@@ -84,6 +84,11 @@ const envSchema = z.object({
     // CORS
     ///////////////////////////////////////////////////////////
     CLIENT_URL: z.string().url(),
+
+    ///////////////////////////////////////////////////////////
+    // REDIS
+    ///////////////////////////////////////////////////////////
+    REDIS_URL: z.string().optional().default("redis://localhost:6379"),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -155,6 +160,9 @@ export const env = {
 
     cors: {
         clientUrl: config.CLIENT_URL,
+    },
+    redis: {
+        url: config.REDIS_URL,
     },
 // inside exported env object
     pagination: {

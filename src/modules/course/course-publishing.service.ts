@@ -128,6 +128,130 @@ export const coursePublishingService = {
   },
 
   /**
+   * Creator saves a NEW course from the builder and it is immediately
+   * submitted for review:
+   * - Creates a minimal Course + initial CourseVersion (v1.0, DRAFT).
+   * - Finds the default COURSE / COURSE_VERSION approval workflow.
+   * - Creates an ApprovalWorkflowInstance with status PENDING.
+   * - Notifies all users who hold the first-step approver role (or the
+   *   specific approver employee) based on the created workflow steps.
+   */
+  async createAndSubmitDraft(
+    context: { companyId: number; userId: number },
+    input: { title: string; description?: string },
+  ) {
+    const result = await coursePublishingRepository.transaction(async (tx) => {
+      const title = input.title.trim();
+      if (!title) {
+        throw new AppError("Course title is required.", 400, ErrorCode.VALIDATION_ERROR);
+      }
+
+      // 1. Resolve fallbacks for required reference fields
+      const difficultyLevelId =
+        await coursePublishingRepository.resolveDifficultyLevelId(tx);
+      if (!difficultyLevelId) {
+        throw new AppError(
+          "No difficulty levels are configured. Please seed difficulty levels first.",
+          422,
+          ErrorCode.BUSINESS_RULE_VIOLATION,
+        );
+      }
+      const categoryId = await coursePublishingRepository.resolveCategoryId(
+        tx,
+        context.companyId,
+      );
+
+      // 2. Create the course draft (Course + CourseVersion v1.0 DRAFT/PENDING)
+      const { course, version } = await coursePublishingRepository.createCourseDraft(tx, {
+        companyId: context.companyId,
+        createdBy: context.userId,
+        title,
+        description: input.description,
+        categoryId,
+        difficultyLevelId,
+      });
+
+      // 3. Find default workflow (COURSE_VERSION or COURSE)
+      const workflow = await coursePublishingRepository.findDefaultWorkflowForCourse(
+        tx,
+        context.companyId,
+      );
+      if (!workflow) {
+        // The draft persists even without a workflow — no review is started.
+        return { course, version, instance: null, dispatch: { emails: [], inAppCount: 0 }, reviewerIds: [] as number[] };
+      }
+
+      // 4. Create workflow instance
+      const instance = await coursePublishingRepository.createInstance(tx, {
+        companyId: context.companyId,
+        workflowId: workflow.id,
+        courseVersionId: version.id,
+        submittedBy: context.userId,
+      });
+
+      // 5. Resolve reviewers from the first workflow step
+      let reviewerIds: number[] = [];
+      const firstStep = workflow.steps[0];
+      if (firstStep) {
+        if (firstStep.approverRoleId) {
+          const users = await coursePublishingRepository.findUsersByRole(
+            tx,
+            context.companyId,
+            firstStep.approverRoleId,
+          );
+          reviewerIds = users.map((u) => u.id);
+        }
+        if (firstStep.approverEmployeeId) {
+          const user = await tx.appUser.findFirst({
+            where: {
+              companyId: context.companyId,
+              employeeId: firstStep.approverEmployeeId,
+              isActive: true,
+            },
+            select: { id: true },
+          });
+          if (user && !reviewerIds.includes(user.id)) {
+            reviewerIds.push(user.id);
+          }
+        }
+      }
+
+      // 6. Notify reviewers based on the created workflow steps
+      const dispatch =
+        reviewerIds.length > 0
+          ? await notificationDispatcher.dispatch(tx, {
+              companyId: context.companyId,
+              eventCode: "COURSE_PUBLISHING_REVIEW_REQUESTED",
+              recipientUserIds: reviewerIds,
+              entityType: "COURSE_VERSION",
+              entityId: String(version.id),
+              occurrenceKey: `review-requested-${instance.id}`,
+              actionUrl: `/?screen=hr-publishing&courseVersionId=${version.id}`,
+              variables: {
+                courseTitle: course.title,
+                reviewDueText: "",
+              },
+            })
+          : { emails: [], inAppCount: 0 };
+
+      return { course, version, instance, dispatch, reviewerIds };
+    });
+
+    await notificationDispatcher.deliverAfterCommit(result.dispatch);
+
+    return {
+      courseId: result.course.id,
+      courseVersionId: result.version.id,
+      instanceId: result.instance?.id ?? null,
+      notifiedReviewerCount: result.reviewerIds.length,
+      workflowConfigured: result.instance != null,
+      message: result.instance
+        ? "Course created and submitted for review. Reviewers have been notified."
+        : "Course created. No default approval workflow is configured, so no review was started.",
+    };
+  },
+
+  /**
    * Reviewer approves a course.
    * - Records the ApprovalDecision.
    * - Marks the instance APPROVED.
@@ -156,8 +280,8 @@ export const coursePublishingService = {
         );
       }
 
-      const firstStep = instance.workflow.steps[0];
-      if (!firstStep) {
+                  const workflowSteps = instance.workflow.steps;
+      if (workflowSteps.length === 0) {
         throw new AppError(
           "Approval workflow has no steps configured.",
           422,
@@ -165,25 +289,74 @@ export const coursePublishingService = {
         );
       }
 
-      // Record decision
+      // Determine which step is currently pending a decision: the lowest-ordered
+      // step that does not yet have an APPROVED decision recorded against it.
+      const decisions = await coursePublishingRepository.findDecisions(tx, instanceId);
+      const currentStep = workflowSteps.find(
+        (s) => !decisions.some((d) => d.workflowStepId === s.id && d.status === "APPROVED"),
+      );
+      if (!currentStep) {
+        throw new AppError(
+          "Cannot advance this request: all approval steps already have a decision.",
+          422,
+          ErrorCode.BUSINESS_RULE_VIOLATION,
+        );
+      }
+
+      // Record this approver's decision on the current step.
       await coursePublishingRepository.createDecision(tx, {
         companyId: context.companyId,
         instanceId,
-        workflowStepId: firstStep.id,
+        workflowStepId: currentStep.id,
         status: "APPROVED",
         decidedBy: context.userId,
         comment,
       });
 
-      // Update instance
-      await coursePublishingRepository.updateInstanceStatus(
-        tx,
-        instanceId,
-        "APPROVED",
-        comment,
-      );
+      // Look for the next step in the workflow. If one exists, forward the
+      // instance and notify ITS reviewers. Only when the final step is
+      // approved do we publish.
+      const nextStep =
+        workflowSteps
+          .filter((s) => s.approvalOrder > currentStep.approvalOrder)
+          .sort((a, b) => a.approvalOrder - b.approvalOrder)[0] ?? null;
 
-      // Publish the course version
+      if (nextStep) {
+        const nextReviewers = await coursePublishingRepository.resolveStepReviewers(
+          tx,
+          context.companyId,
+          nextStep,
+        );
+        // Instance remains PENDING — ownership passes to the next approver.
+        await coursePublishingRepository.updateInstanceStatus(tx, instanceId, "PENDING", comment);
+        const courseTitle = instance.courseVersion?.course.title ?? "Course";
+        const dispatch =
+          nextReviewers.length > 0
+            ? await notificationDispatcher.dispatch(tx, {
+                companyId: context.companyId,
+                eventCode: "COURSE_PUBLISHING_REVIEW_REQUESTED",
+                recipientUserIds: nextReviewers,
+                entityType: "COURSE_VERSION",
+                entityId: String(instance.courseVersionId),
+                occurrenceKey: `review-forwarded-${instanceId}-step${nextStep.approvalOrder}`,
+                actionUrl: `/?screen=hr-publishing&courseVersionId=${instance.courseVersionId}`,
+                variables: {
+                  courseTitle,
+                  nextStepNote: `Forwarded to step ${nextStep.approvalOrder} of ${workflowSteps.length}. ${comment ? `Approver note: ${comment}` : ""}`,
+                },
+              })
+            : { emails: [], inAppCount: 0 };
+        return {
+          instanceId,
+          status: "PENDING",
+          nextStep: nextStep.approvalOrder,
+          message: `Step ${currentStep.approvalOrder} approved. Forwarding to step ${nextStep.approvalOrder}.`,
+          dispatch,
+        };
+      }
+
+      // Final step approved — complete the instance and publish the course.
+      await coursePublishingRepository.updateInstanceStatus(tx, instanceId, "APPROVED", comment);
       const now = new Date();
       await coursePublishingRepository.updateCourseVersionStatus(
         tx,
@@ -218,12 +391,18 @@ export const coursePublishingService = {
           })
         : { emails: [], inAppCount: 0 };
 
-      return { courseTitle, dispatch };
+      return { instanceId, status: "APPROVED", message: "Course approved and published.", courseTitle, dispatch };
     });
 
     await notificationDispatcher.deliverAfterCommit(result.dispatch);
 
-    return { instanceId, status: "APPROVED", message: "Course approved and published." };
+    return {
+      instanceId,
+      status: result.status,
+      nextStep: (result as any).nextStep,
+      message: result.message,
+      courseTitle: (result as any).courseTitle,
+    };
   },
 
   /**

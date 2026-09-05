@@ -1,4 +1,8 @@
 import type { IApprovalWorkflowsRepository } from "./approval-workflows.types.js";
+import {
+  MIN_APPROVAL_STEPS,
+  MAX_APPROVAL_STEPS,
+} from "./approval-workflows.dto.js";
 import type {
   CreateApprovalWorkflowInput,
   UpdateApprovalWorkflowInput,
@@ -38,6 +42,10 @@ export class ApprovalWorkflowsService {
       );
     }
 
+    if (dto.steps && dto.steps.length > 0) {
+      await this.validateStepApprovers(companyId, dto.steps);
+    }
+
     if (dto.isDefault) {
       return this.prismaInstance.$transaction(async (tx: any) => {
         await this.repository.unsetPreviousDefaults(
@@ -45,11 +53,11 @@ export class ApprovalWorkflowsService {
           dto.entityType,
           tx
         );
-        return this.repository.createWorkflow(companyId, userId, dto);
+        return this.repository.createWorkflowWithSteps(companyId, userId, dto, tx);
       });
     }
 
-    return this.repository.createWorkflow(companyId, userId, dto);
+    return this.repository.createWorkflowWithSteps(companyId, userId, dto);
   }
 
   async getWorkflows(companyId: number, filter: ApprovalWorkflowFilterInput) {
@@ -105,18 +113,30 @@ export class ApprovalWorkflowsService {
 
     const targetEntityType = dto.entityType || existing.entityType;
 
-    if (dto.isDefault === true) {
+    const { steps, ...workflowDto } = dto;
+
+    if (steps) {
+      await this.validateStepApprovers(companyId, steps);
+    }
+
+    if (dto.isDefault === true || steps) {
       return this.prismaInstance.$transaction(async (tx: any) => {
-        await this.repository.unsetPreviousDefaults(
-          companyId,
-          targetEntityType,
-          tx
-        );
-        return this.repository.updateWorkflow(companyId, id, userId, dto);
+        if (dto.isDefault === true) {
+          await this.repository.unsetPreviousDefaults(
+            companyId,
+            targetEntityType,
+            tx
+          );
+        }
+        const updated = await this.repository.updateWorkflow(companyId, id, userId, workflowDto as UpdateApprovalWorkflowInput);
+        if (steps) {
+          await this.repository.replaceWorkflowSteps(companyId, id, steps, tx);
+        }
+        return updated;
       });
     }
 
-    return this.repository.updateWorkflow(companyId, id, userId, dto);
+    return this.repository.updateWorkflow(companyId, id, userId, workflowDto as UpdateApprovalWorkflowInput);
   }
 
   async deleteWorkflow(companyId: number, id: number, userId: number) {
@@ -150,6 +170,17 @@ export class ApprovalWorkflowsService {
     if (workflow.isSystem) {
       throw new ForbiddenError(
         "Steps cannot be added to system approval workflows."
+      );
+    }
+
+    // Enforce the maximum number of approval steps per workflow.
+    const existingSteps = await this.repository.findWorkflowSteps(
+      companyId,
+      workflowId
+    );
+    if (existingSteps.length >= MAX_APPROVAL_STEPS) {
+      throw new ConflictError(
+        `A workflow can have at most ${MAX_APPROVAL_STEPS} approval steps.`
       );
     }
 
@@ -256,6 +287,17 @@ export class ApprovalWorkflowsService {
       );
     }
 
+    // Enforce the minimum number of approval steps per workflow.
+    const existingSteps = await this.repository.findWorkflowSteps(
+      companyId,
+      workflowId
+    );
+    if (existingSteps.length <= MIN_APPROVAL_STEPS) {
+      throw new ConflictError(
+        `A workflow needs at least ${MIN_APPROVAL_STEPS} approval step(s). It cannot be deleted.`
+      );
+    }
+
     return this.repository.deleteWorkflowStep(companyId, stepId);
   }
 
@@ -281,5 +323,34 @@ export class ApprovalWorkflowsService {
         );
       }
     }
+  }
+
+  private async validateStepApprovers(
+    companyId: number,
+    steps: CreateApprovalWorkflowStepInput[]
+  ) {
+    for (const step of steps) {
+      await this.validateApproverBelongsToCompany(
+        companyId,
+        step.approverRoleId,
+        step.approverEmployeeId
+      );
+    }
+  }
+
+  // ==========================================
+  // 3. Options Lookup Services (dropdowns for the step form)
+  // ==========================================
+
+  async getRoleOptions(companyId: number) {
+    return this.repository.listRoleOptions(companyId);
+  }
+
+  async searchEmployees(
+    companyId: number,
+    q?: string,
+    limit = 10
+  ) {
+    return this.repository.searchEmployees(companyId, q, limit);
   }
 }

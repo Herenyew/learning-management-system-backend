@@ -18,6 +18,14 @@ export const enrollmentsService = {
             courseId,
           },
         );
+
+        // Fetch the actual course title for the notification
+        const courseVersion = await transaction.courseVersion.findUnique({
+          where: { id: enrollment.courseVersionId },
+          select: { course: { select: { title: true } } },
+        });
+        const courseTitle = courseVersion?.course.title ?? "Course";
+
         const dispatch = await notificationDispatcher.dispatch(transaction, {
           companyId: context.companyId,
           eventCode: "COURSE_ENROLLMENT_CONFIRMED",
@@ -26,7 +34,7 @@ export const enrollmentsService = {
           entityId: String(enrollment.id),
           occurrenceKey: "enrolled",
           actionUrl: `/?screen=my-courses&courseId=${courseId}`,
-          variables: { courseTitle: "Course" },
+          variables: { courseTitle },
         });
         return { enrollment, dispatch };
       },
@@ -49,6 +57,14 @@ export const enrollmentsService = {
             programId,
           },
         );
+
+        // Fetch the actual program name for the notification
+        const program = await transaction.learningProgram.findUnique({
+          where: { id: enrollment.programId },
+          select: { name: true },
+        });
+        const programTitle = program?.name ?? "Program";
+
         const dispatch = await notificationDispatcher.dispatch(transaction, {
           companyId: context.companyId,
           eventCode: "PROGRAM_ENROLLMENT_CONFIRMED",
@@ -57,7 +73,7 @@ export const enrollmentsService = {
           entityId: String(enrollment.id),
           occurrenceKey: "enrolled",
           actionUrl: `/?screen=my-programs&programId=${programId}`,
-          variables: { programTitle: "Program" },
+          variables: { programTitle },
         });
         return { enrollment, dispatch };
       },

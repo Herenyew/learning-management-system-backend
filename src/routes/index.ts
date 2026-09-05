@@ -28,6 +28,7 @@ import { notificationsRouter } from "../modules/notifications/index.js";
 import { certificatesRouter } from "../modules/certificates/index.js";
 import { enrollmentsRouter } from "../modules/enrollments/index.js";
 import { coursePublishingRouter } from "../modules/course/course-publishing.routes.js";
+import { programPublishingRouter } from "../modules/program/program-publishing.routes.js";
 
 const router = Router();
 
@@ -67,6 +68,7 @@ router.use("/notifications", notificationsRouter);
 router.use("/certificates", certificatesRouter);
 router.use("/enrollments", enrollmentsRouter);
 router.use("/courses", coursePublishingRouter);
+router.use("/programs", programPublishingRouter);
 
 // ─── Core Domain Routes (Future) ───────────────────────────────────────────
 // router.use("/courses", courseRoutes);

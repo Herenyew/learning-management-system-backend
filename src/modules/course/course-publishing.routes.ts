@@ -15,10 +15,19 @@ coursePublishingRouter.use(authenticate);
 
 // ── Creator routes ───────────────────────────────────────────────────────────
 
+// Create a new course draft from the builder and submit it for review.
+// Creators hold course.create; publishers hold course.publish — either may
+// submit for approval (the workflow, not the creator, grants Published).
+coursePublishingRouter.post(
+  "/versions/submit-new-draft",
+  requirePermission([Permissions.COURSE_CREATE, Permissions.COURSE_PUBLISH], "ANY"),
+  asyncHandler(coursePublishingController.createAndSubmitDraft),
+);
+
 // Submit a course version for review (creator/instructor)
 coursePublishingRouter.post(
   "/versions/:courseVersionId/submit-for-review",
-  requirePermission(Permissions.COURSE_PUBLISH),
+  requirePermission([Permissions.COURSE_CREATE, Permissions.COURSE_PUBLISH], "ANY"),
   asyncHandler(coursePublishingController.submitForReview),
 );
 

@@ -289,6 +289,7 @@ export const Permissions = {
   PROGRAM_UPDATE: "program.update",
   PROGRAM_DELETE: "program.delete",
   PROGRAM_PUBLISH: "program.publish",
+  PROGRAM_REVIEW: "program.review",
 
   CERTIFICATE_ISSUE: "certificate.issue",
   CERTIFICATE_CONFIG_MANAGE: "certificate_config.manage",

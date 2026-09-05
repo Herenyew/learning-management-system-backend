@@ -199,6 +199,12 @@ const operationalPermissions: AccessControlPermissionDefinition[] = [
     defaultProfiles: configurationManagers,
   },
   {
+    code: Permissions.PROGRAM_REVIEW,
+    description: "Approve or reject learning program submissions.",
+    module: "program",
+    defaultProfiles: configurationManagers,
+  },
+  {
     code: Permissions.PROGRAM_PUBLISH,
     description: "Publish or approve learning programs.",
     module: "program",

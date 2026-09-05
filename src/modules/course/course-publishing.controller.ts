@@ -8,6 +8,20 @@ const contextFrom = (req: AuthenticatedRequest) => ({
 });
 
 export const coursePublishingController = {
+  // POST /courses/versions/submit-new-draft
+  createAndSubmitDraft: async (req: AuthenticatedRequest, res: Response) => {
+    const { title, description } = req.body as { title?: string; description?: string };
+    if (!title?.trim()) {
+      res.status(400).json({ success: false, error: "A course title is required." });
+      return;
+    }
+    const result = await coursePublishingService.createAndSubmitDraft(contextFrom(req), {
+      title,
+      description,
+    });
+    res.status(201).json({ success: true, data: result });
+  },
+
   // POST /courses/versions/:courseVersionId/submit-for-review
   submitForReview: async (req: AuthenticatedRequest, res: Response) => {
     const courseVersionId = Number(req.params.courseVersionId);

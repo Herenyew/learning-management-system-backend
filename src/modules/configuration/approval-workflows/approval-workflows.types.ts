@@ -28,15 +28,29 @@ export type UpdateApprovalWorkflowStepInput = z.infer<typeof updateApprovalWorkf
 
 import type { Prisma, ApprovalWorkflow, ApprovalWorkflowStep } from "@prisma/client";
 
+export type ApprovalWorkflowStepWithApprover = Prisma.ApprovalWorkflowStepGetPayload<{
+  include: {
+    approverRole: { select: { name: true } };
+    approver: { select: { fullName: true } };
+  };
+}>;
+
 export type ApprovalWorkflowWithSteps = Prisma.ApprovalWorkflowGetPayload<{
-  include: { steps: true };
+  include: {
+    steps: {
+      include: {
+        approverRole: { select: { name: true } };
+        approver: { select: { fullName: true } };
+      };
+    };
+  };
 }>;
 
 export interface IApprovalWorkflowsRepository {
   createWorkflow(companyId: number, userId: number, dto: CreateApprovalWorkflowInput): Promise<ApprovalWorkflow>;
   findWorkflowById(companyId: number, id: number): Promise<ApprovalWorkflowWithSteps | null>;
   findWorkflowByName(companyId: number, name: string): Promise<ApprovalWorkflow | null>;
-  findWorkflows(companyId: number, filter: ApprovalWorkflowFilterParams): Promise<ApprovalWorkflow[]>;
+  findWorkflows(companyId: number, filter: ApprovalWorkflowFilterParams): Promise<ApprovalWorkflowWithSteps[]>;
   countWorkflows(companyId: number, filter: ApprovalWorkflowFilterParams): Promise<number>;
   updateWorkflow(companyId: number, id: number, userId: number, dto: UpdateApprovalWorkflowInput): Promise<ApprovalWorkflow>;
   softDeleteWorkflow(companyId: number, id: number, userId: number): Promise<ApprovalWorkflow>;
@@ -52,4 +66,29 @@ export interface IApprovalWorkflowsRepository {
 
   findAppRole(companyId: number, roleId: number): Promise<boolean>;
   findEmployee(companyId: number, employeeId: string): Promise<boolean>;
+
+  /** Options-lookup methods used by the step form dropdowns. */
+  listRoleOptions(companyId: number): Promise<Array<{ id: number; name: string }>>;
+  searchEmployees(
+    companyId: number,
+    q?: string,
+    limit?: number
+  ): Promise<Array<{ id: string; fullName: string; departmentName?: string | null }>>;
+
+  createWorkflowWithSteps(
+    companyId: number,
+    userId: number,
+    dto: CreateApprovalWorkflowInput,
+    prismaTx?: Prisma.TransactionClient
+  ): Promise<ApprovalWorkflow>;
+  replaceWorkflowSteps(
+    companyId: number,
+    workflowId: number,
+    steps: CreateApprovalWorkflowStepInput[],
+    prismaTx?: Prisma.TransactionClient
+  ): Promise<void>;
 }
+
+export type EmployeeOption = Awaited<
+  ReturnType<IApprovalWorkflowsRepository["searchEmployees"]>
+>[number];

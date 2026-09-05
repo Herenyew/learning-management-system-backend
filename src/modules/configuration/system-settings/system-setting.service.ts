@@ -339,4 +339,29 @@ export class SystemSettingService {
     }
     return value as T;
   }
+
+  /**
+   * Live branding palette for the authenticated company. Available to any
+   * authenticated user (no special permission) so every client can apply the
+   * company theme on startup.
+   */
+  async getBranding(companyId: number) {
+    const [primaryColor, secondaryColor, accentColor, defaultTheme] = await Promise.all([
+      this.getValue<string>(companyId, "primary_color"),
+      this.getValue<string>(companyId, "secondary_color"),
+      this.getValue<string>(companyId, "accent_color"),
+      this.getValue<string>(companyId, "default_theme"),
+    ]);
+
+    // Fall back to the known-settings registry defaults when unset.
+    const fallback = (key: string) =>
+      KNOWN_SETTINGS.find((s) => s.key === key)?.defaultValue;
+
+    return {
+      primaryColor: primaryColor ?? (fallback("primary_color") as string),
+      secondaryColor: secondaryColor ?? (fallback("secondary_color") as string),
+      accentColor: accentColor ?? (fallback("accent_color") as string),
+      defaultTheme: defaultTheme ?? (fallback("default_theme") as string),
+    };
+  }
 }
