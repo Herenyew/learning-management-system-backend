@@ -11,8 +11,6 @@ import type {
   CreateProviderTypeInput,
   UpdateProviderTypeInput,
   ProviderTypeFilterInput,
-  CreateCertificateTemplateSignerInput,
-  UpdateCertificateTemplateSignerInput,
 } from "./certificate-configuration.types.js";
 
 export class CertificateConfigurationController {
@@ -266,83 +264,6 @@ export class CertificateConfigurationController {
       const companyId = req.user.companyId;
       const id = Number(req.params.id);
       const result = await this.service.deleteProviderType(companyId, id);
-      res.status(200).json({ success: true, ...result });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  // ==========================================
-  // 5. CertificateTemplateSigner Handlers
-  // ==========================================
-
-  addSigner = async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
-    try {
-      const companyId = req.user.companyId;
-      const templateId = Number(req.params.templateId);
-      const dto: CreateCertificateTemplateSignerInput = req.body;
-      const result = await this.service.addSigner(companyId, templateId, dto);
-      res.status(201).json({ success: true, data: result });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  listSigners = async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
-    try {
-      const companyId = req.user.companyId;
-      const templateId = Number(req.params.templateId);
-      const result = await this.service.getSigners(companyId, templateId);
-      res.status(200).json({ success: true, data: result });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  updateSigner = async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
-    try {
-      const companyId = req.user.companyId;
-      const templateId = Number(req.params.templateId);
-      const signerId = Number(req.params.signerId);
-      const dto: UpdateCertificateTemplateSignerInput = req.body;
-      const result = await this.service.updateSigner(
-        companyId,
-        templateId,
-        signerId,
-        dto
-      );
-      res.status(200).json({ success: true, data: result });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  deleteSigner = async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
-    try {
-      const companyId = req.user.companyId;
-      const templateId = Number(req.params.templateId);
-      const signerId = Number(req.params.signerId);
-      const result = await this.service.deleteSigner(
-        companyId,
-        templateId,
-        signerId
-      );
       res.status(200).json({ success: true, ...result });
     } catch (error) {
       next(error);

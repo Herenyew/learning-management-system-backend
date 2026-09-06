@@ -16,8 +16,6 @@ import type {
   CreateProviderTypeInput,
   UpdateProviderTypeInput,
   ProviderTypeFilterParams,
-  CreateCertificateTemplateSignerInput,
-  UpdateCertificateTemplateSignerInput,
 } from "./certificate-configuration.types.js";
 
 import type { ICertificateConfigurationRepository } from "./certificate-configuration.types.js";
@@ -462,90 +460,5 @@ export class CertificateConfigurationRepository implements ICertificateConfigura
       select: { id: true },
     });
     return found !== null;
-  }
-
-  // ==========================================
-  // 5. CertificateTemplateSigner Methods
-  // ==========================================
-
-  async createSigner(
-    companyId: number,
-    templateId: number,
-    data: CreateCertificateTemplateSignerInput,
-  ): Promise<CertificateTemplateSigner> {
-    return this.prisma.certificateTemplateSigner.create({
-      data: {
-        companyId,
-        templateId,
-        employeeId: data.employeeId,
-        displayOrder: data.displayOrder,
-      },
-    });
-  }
-
-  async findSignerById(
-    companyId: number,
-    id: number,
-  ): Promise<CertificateTemplateSigner | null> {
-    return this.prisma.certificateTemplateSigner.findFirst({
-      where: { id, companyId },
-      include: { employee: true },
-    });
-  }
-
-  async findSignerByOrder(
-    companyId: number,
-    templateId: number,
-    displayOrder: number,
-  ): Promise<CertificateTemplateSigner | null> {
-    return this.prisma.certificateTemplateSigner.findFirst({
-      where: { companyId, templateId, displayOrder },
-    });
-  }
-
-  async findSignerByEmployee(
-    companyId: number,
-    templateId: number,
-    employeeId: string,
-  ): Promise<CertificateTemplateSigner | null> {
-    return this.prisma.certificateTemplateSigner.findFirst({
-      where: { companyId, templateId, employeeId },
-    });
-  }
-
-  async findSigners(
-    companyId: number,
-    templateId: number,
-  ): Promise<CertificateTemplateSigner[]> {
-    return this.prisma.certificateTemplateSigner.findMany({
-      where: { companyId, templateId },
-      include: { employee: true },
-      orderBy: { displayOrder: "asc" },
-    });
-  }
-
-  async updateSigner(
-    companyId: number,
-    id: number,
-    data: UpdateCertificateTemplateSignerInput,
-  ): Promise<Prisma.BatchPayload> {
-    return this.prisma.certificateTemplateSigner.updateMany({
-      where: { id, companyId },
-      data: {
-        ...(data.employeeId !== undefined && { employeeId: data.employeeId }),
-        ...(data.displayOrder !== undefined && {
-          displayOrder: data.displayOrder,
-        }),
-      },
-    });
-  }
-
-  async deleteSigner(
-    companyId: number,
-    id: number,
-  ): Promise<Prisma.BatchPayload> {
-    return this.prisma.certificateTemplateSigner.deleteMany({
-      where: { id, companyId },
-    });
   }
 }

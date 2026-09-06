@@ -10,8 +10,6 @@ import {
   CreateProviderTypeSchema,
   UpdateProviderTypeSchema,
   ProviderTypeFilterSchema,
-  CreateCertificateTemplateSignerSchema,
-  UpdateCertificateTemplateSignerSchema,
 } from "./certificate-configuration.dto.js";
 
 import type {
@@ -51,12 +49,6 @@ export interface ProviderTypeFilterParams extends PaginationQuery {
   isSystem?: boolean;
 }
 
-// TEMPLATE TYPES REMOVED — moved to template-management module
-// (signer input types retained for certificate signer methods)
-
-export type CreateCertificateTemplateSignerInput = z.infer<typeof CreateCertificateTemplateSignerSchema>;
-export type UpdateCertificateTemplateSignerInput = z.infer<typeof UpdateCertificateTemplateSignerSchema>;
-
 // ─── Repository Interface ──────────────────────────────────
 export interface ICertificateConfigurationRepository {
   // 1. CertificateType Methods
@@ -95,13 +87,4 @@ export interface ICertificateConfigurationRepository {
   // TEMPLATE METHODS REMOVED — moved to template-management module
   // (templateExists retained for signer validation)
   templateExists(companyId: number, id: number): Promise<boolean>;
-
-  // 5. CertificateTemplateSigner Methods
-  createSigner(companyId: number, templateId: number, data: CreateCertificateTemplateSignerInput): Promise<CertificateTemplateSigner>;
-  findSignerById(companyId: number, id: number): Promise<CertificateTemplateSigner | null>;
-  findSignerByOrder(companyId: number, templateId: number, displayOrder: number): Promise<CertificateTemplateSigner | null>;
-  findSignerByEmployee(companyId: number, templateId: number, employeeId: string): Promise<CertificateTemplateSigner | null>;
-  findSigners(companyId: number, templateId: number): Promise<CertificateTemplateSigner[]>;
-  updateSigner(companyId: number, id: number, data: UpdateCertificateTemplateSignerInput): Promise<Prisma.BatchPayload>;
-  deleteSigner(companyId: number, id: number): Promise<Prisma.BatchPayload>;
 }
