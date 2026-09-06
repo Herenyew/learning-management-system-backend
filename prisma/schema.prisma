@@ -46,6 +46,13 @@ enum EnrollmentPolicy {
   PAYMENT_REQUIRED
 }
 
+// How course completion is determined (document §1.3: Completion Method)
+enum CourseCompletionMethod {
+  VIEW_ALL_CONTENT
+  COMPLETE_QUIZ
+  HYBRID
+}
+
 enum WorkflowInstanceStatus {
   DRAFT
   PENDING
@@ -624,6 +631,7 @@ model Employee {
   programEnrollments         ProgramEnrollment[]
   submissions                Submission[]
   certificateTemplateSigners CertificateTemplateSigner[]
+  programTemplateOwners      ProgramTemplate[]            @relation("ProgramTemplateOwner")
   certificateVerifications   CertificateVerification[]
   externalCertificates       ExternalCertificate[]
   liveSessionInstructors     LiveSessionInstructor[]
@@ -717,6 +725,8 @@ model AppUser {
   updatedLearningPathTemplate LearningPathTemplate[]      @relation("LearningPathTemplateUpdater")
   createdSurveyTemplate       SurveyTemplate[]            @relation("SurveyTemplateCreator")
   updatedSurveyTemplate       SurveyTemplate[]            @relation("SurveyTemplateUpdater")
+  courseTemplateOwners        CourseTemplate[]            @relation("CourseTemplateOwner")
+  courseTemplateResponsibles  CourseTemplate[]            @relation("CourseTemplateResponsible")
   createdAudienceGroup        AudienceGroup[]             @relation("AudienceGroupCreatedBy")
   updatedAudienceGroup        AudienceGroup[]             @relation("AudienceGroupUpdatedBy")
   submittedApprovalInstances  ApprovalWorkflowInstance[]  @relation("ApprovalInstanceSubmittedBy")
@@ -2665,6 +2675,8 @@ model QuestionBank {
 
   questions Question[]
 
+  assessmentTemplates AssessmentTemplate[]
+
   @@unique([companyId, name])
   @@index([companyId])
   @@index([categoryId])
@@ -4034,6 +4046,10 @@ model CourseTemplate {
   categoryId        Int
   difficultyLevelId Int
 
+  // Ownership (document §1.1: Course Owner + Responsible Person — both required)
+  ownerId             Int // person responsible for content; must be an active user
+  responsiblePersonId Int // support contact for learners; can differ from owner
+
   language                 String? @db.VarChar(20)
   thumbnailUrl             String?
   estimatedDurationMinutes Int?
@@ -4042,15 +4058,22 @@ model CourseTemplate {
   enrollmentPolicy EnrollmentPolicy @default(OPEN) // OPEN, INVITATION, PAYMENT (or make enum)
 
   // Completion & Assessment defaults
-  passingScore        Decimal  @db.Decimal(5, 2)
-  completionThreshold Decimal  @db.Decimal(5, 2) // % of content
-  attendanceRequired  Boolean  @default(false)
-  minimumAttendance   Decimal? @db.Decimal(5, 2)
-  certificateRequired Boolean  @default(true)
+  completionMethod    CourseCompletionMethod @default(HYBRID) // VIEW_ALL_CONTENT / COMPLETE_QUIZ / HYBRID (document §1.3)
+  passingScore        Decimal                @db.Decimal(5, 2)
+  completionThreshold Decimal                @db.Decimal(5, 2) // % of content
+  minTimeSpentMinutes Int? // anti-fraud minimum time per content item, 0-480 min (document §1.3)
+  attendanceRequired  Boolean                @default(false)
+  minimumAttendance   Decimal?               @db.Decimal(5, 2)
+  certificateRequired Boolean                @default(true)
 
   // XP defaults
   baseXpOnCompletion  Int @default(100)
   perfectScoreBonusXp Int @default(50)
+
+  // Default structure (document §1.2 + LMS-FR-107: template includes chapters/content items)
+  // Shape: [{ "title": "...", "description": "...", "displayOrder": 1, "estimatedMinutes": 30, "isRequired": true,
+  //          "contents": [{ "contentTypeId": 1, "title": "...", "url": "..." }] }]
+  defaultChapters Json?
 
   isActive   Boolean @default(true)
   isTemplate Boolean @default(true)
@@ -4062,11 +4085,13 @@ model CourseTemplate {
   deletedAt DateTime?
 
   // Relations
-  company         Company         @relation(fields: [companyId], references: [id])
-  category        CourseCategory  @relation(fields: [categoryId], references: [id])
-  difficultyLevel DifficultyLevel @relation(fields: [difficultyLevelId], references: [id])
-  creator         AppUser         @relation("CourseTemplateCreator", fields: [createdBy], references: [id])
-  updater         AppUser?        @relation("CourseTemplateUpdater", fields: [updatedBy], references: [id])
+  company           Company         @relation(fields: [companyId], references: [id])
+  category          CourseCategory  @relation(fields: [categoryId], references: [id])
+  difficultyLevel   DifficultyLevel @relation(fields: [difficultyLevelId], references: [id])
+  owner             AppUser         @relation("CourseTemplateOwner", fields: [ownerId], references: [id])
+  responsiblePerson AppUser         @relation("CourseTemplateResponsible", fields: [responsiblePersonId], references: [id])
+  creator           AppUser         @relation("CourseTemplateCreator", fields: [createdBy], references: [id])
+  updater           AppUser?        @relation("CourseTemplateUpdater", fields: [updatedBy], references: [id])
 
   @@unique([companyId, name])
   @@index([companyId])
@@ -4087,6 +4112,9 @@ model ProgramTemplate {
   durationWeeks Int?
   visibility    VisibilityType @default(COMPANY)
 
+  // Ownership (document §2.2: Program Owner, HR/Admin — mirrors LearningProgram.ownerEmployeeId)
+  ownerEmployeeId String @db.VarChar(20)
+
   isMandatory         Boolean @default(false)
   autoEnroll          Boolean @default(false)
   allowSelfEnrollment Boolean @default(true)
@@ -4096,8 +4124,13 @@ model ProgramTemplate {
   certificateEnabled Boolean @default(true)
   xpEnabled          Boolean @default(true)
 
-  // Default milestone configuration can be stored as JSON or separate table later
+  // Default configuration (LMS-FR-110 / LMS-FR-122: templates include task lists, course lists, milestones)
+  // defaultMilestones shape: [{ "title": "...", "targetDay": 30, "actionIfLate": "REMIND" | "ESCALATE" | "REMOVE", "notifyLearner": true }]
   defaultMilestones Json?
+  // defaultCourses shape: [{ "courseVersionId": 1, "displayOrder": 1, "isRequired": true }]
+  defaultCourses    Json?
+  // defaultTasks shape: [{ "week": 1, "taskTypeId": 1, "title": "...", "durationDays": 2, "isMandatory": true, "validationRule": "SUBMIT" | "QUIZ_PASS" | "ATTENDANCE" }]
+  defaultTasks      Json?
 
   isActive Boolean @default(true)
 
@@ -4109,12 +4142,14 @@ model ProgramTemplate {
 
   company  Company          @relation(fields: [companyId], references: [id])
   category ProgramCategory? @relation(fields: [categoryId], references: [id])
+  owner    Employee         @relation("ProgramTemplateOwner", fields: [ownerEmployeeId], references: [id])
   creator  AppUser          @relation("ProgramTemplateCreator", fields: [createdBy], references: [id])
   updater  AppUser?         @relation("ProgramTemplateUpdater", fields: [updatedBy], references: [id])
 
   @@unique([companyId, name])
   @@index([companyId])
   @@index([categoryId])
+  @@index([ownerEmployeeId])
   @@map("program_templates")
 }
 
@@ -4127,10 +4162,11 @@ model AssessmentTemplate {
   assessmentTypeId Int
   gradingMethodId  Int
 
-  questionCount    Int     @default(0) // ← ADD THIS
+  questionCount    Int     @default(0)
   passingScore     Decimal @db.Decimal(5, 2)
   maxAttempts      Int     @default(2)
   timeLimitMinutes Int?
+  questionBankId   Int? // LMS-FR-108: question bank selection for template-based generation
 
   randomizeQuestions    Boolean                  @default(false)
   randomizeOptions      Boolean                  @default(false)
@@ -4138,8 +4174,9 @@ model AssessmentTemplate {
   allowReview           Boolean                  @default(true)
   showCorrectAnswers    ShowCorrectAnswersTiming
 
-  lockdownBrowser   Boolean @default(false)
-  proctoringEnabled Boolean @default(false)
+  lockdownBrowser    Boolean @default(false)
+  proctoringEnabled  Boolean @default(false)
+  tabSwitchDetection Boolean @default(false) // document §3.3 anti-cheating: tab switch detection
 
   // Scoring rules
   negativeMarking Decimal? @db.Decimal(3, 2)
@@ -4155,6 +4192,7 @@ model AssessmentTemplate {
   company        Company        @relation(fields: [companyId], references: [id])
   assessmentType AssessmentType @relation(fields: [assessmentTypeId], references: [id])
   gradingMethod  GradingMethod  @relation(fields: [gradingMethodId], references: [id])
+  questionBank   QuestionBank?  @relation(fields: [questionBankId], references: [id])
   creator        AppUser        @relation("AssessmentTemplateCreator", fields: [createdBy], references: [id])
   updater        AppUser?       @relation("AssessmentTemplateUpdater", fields: [updatedBy], references: [id])
 
@@ -4162,6 +4200,7 @@ model AssessmentTemplate {
 
   @@unique([companyId, name])
   @@index([companyId])
+  @@index([questionBankId])
   @@map("assessment_templates")
 }
 
@@ -4318,8 +4357,10 @@ model CertificateTemplate {
   learningProgramId Int?
   name              String @db.VarChar(255)
 
-  certificateTypeId Int // ← Changed to FK
+  certificateTypeId Int
 
+  titleText             String?                @db.VarChar(255) // displayed title, e.g. "CERTIFICATE OF COMPLETION" (document §4.1)
+  credentialText        String?                @db.Text // dynamic bindings: {{LEARNER_NAME}}, {{COMPLETION_DATE}}, {{COURSE_NAME}} (document §4.1)
   templateFile          String?
   certificateIdPattern  String                 @db.VarChar(100)
   validityMonths        Int?

@@ -3,7 +3,6 @@ import type { AuthRequest } from "../auth-request.js";
 import { ProgramConfigurationService } from "./program-configuration.service.js";
 import type {
   ProgramCategoryQueryInput,
-  ProgramTemplateQueryInput,
   ProgramTypeQueryInput,
   TaskTypeQueryInput,
 } from "./program-configuration.types.js";
@@ -188,66 +187,6 @@ export class ProgramConfigurationController {
 
       await this.service.deleteTaskType(companyId, id);
       res.status(200).json({ success: true, message: "Task type deleted successfully." });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  // ==========================================
-  // 4. ProgramTemplate Handlers
-  // ==========================================
-
-  createTemplate = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try {
-      const { companyId, appUserId: userId } = req.user;
-      const result = await this.service.createTemplate(companyId, userId, req.body);
-      res.status(201).json({ success: true, data: result });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  getTemplateById = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try {
-      const companyId = req.user.companyId;
-      const id = Number(req.params.id);
-
-      const result = await this.service.getTemplateById(companyId, id);
-      res.status(200).json({ success: true, data: result });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  listTemplates = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try {
-      const companyId = req.user.companyId;
-      const result = await this.service.listTemplates(companyId, req.query);
-      res.status(200).json({ success: true, data: result.items, pagination: { total: result.total, page: result.page, pageSize: result.pageSize } });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  updateTemplate = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try {
-      const { companyId, appUserId: userId } = req.user;
-      const id = Number(req.params.id);
-
-      const result = await this.service.updateTemplate(companyId, id, userId, req.body);
-      res.status(200).json({ success: true, data: result });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  deleteTemplate = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try {
-      const companyId = req.user.companyId;
-      const id = Number(req.params.id);
-
-      await this.service.deleteTemplate(companyId, id);
-      res.status(200).json({ success: true, message: "Program template deleted successfully." });
     } catch (error) {
       next(error);
     }

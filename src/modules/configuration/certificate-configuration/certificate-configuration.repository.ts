@@ -4,7 +4,6 @@ import type {
   CertificateType,
   CredentialSource,
   ProviderType,
-  CertificateTemplate,
   CertificateTemplateSigner,
 } from "@prisma/client";
 import type {
@@ -17,9 +16,6 @@ import type {
   CreateProviderTypeInput,
   UpdateProviderTypeInput,
   ProviderTypeFilterParams,
-  CreateCertificateTemplateInput,
-  UpdateCertificateTemplateInput,
-  CertificateTemplateFilterParams,
   CreateCertificateTemplateSignerInput,
   UpdateCertificateTemplateSignerInput,
 } from "./certificate-configuration.types.js";
@@ -458,178 +454,14 @@ export class CertificateConfigurationRepository implements ICertificateConfigura
     });
   }
 
-  // ==========================================
-  // 4. CertificateTemplate Methods
-  // ==========================================
-
-  async createTemplate(
-    companyId: number,
-    userId: number,
-    data: CreateCertificateTemplateInput,
-  ): Promise<CertificateTemplate> {
-    return this.prisma.certificateTemplate.create({
-      data: {
-        companyId,
-        createdBy: userId,
-        name: data.name,
-        certificateTypeId: data.certificateTypeId,
-        courseVersionId: data.courseVersionId ?? null,
-        learningProgramId: data.learningProgramId ?? null,
-        templateFile: data.templateFile ?? null,
-        certificateIdPattern: data.certificateIdPattern,
-        validityMonths: data.validityMonths ?? null,
-        sealImage: data.sealImage ?? null,
-        qrVerificationEnabled: data.qrVerificationEnabled ?? true,
-        backgroundImage: data.backgroundImage ?? null,
-        status: data.status,
-      },
-    });
-  }
-
-  async findTemplateById(
-    companyId: number,
-    id: number,
-  ): Promise<CertificateTemplate | null> {
-    return this.prisma.certificateTemplate.findFirst({
+  // TEMPLATE METHODS REMOVED — moved to template-management module
+  // (templateExists retained for signer validation)
+  async templateExists(companyId: number, id: number): Promise<boolean> {
+    const found = await this.prisma.certificateTemplate.findFirst({
       where: { id, companyId, deletedAt: null },
-      include: {
-        certificateType: true,
-        signers: {
-          include: { employee: true },
-          orderBy: { displayOrder: "asc" },
-        },
-      },
+      select: { id: true },
     });
-  }
-
-  async findTemplateByName(
-    companyId: number,
-    name: string,
-  ): Promise<CertificateTemplate | null> {
-    return this.prisma.certificateTemplate.findFirst({
-      where: {
-        companyId,
-        name: { equals: name, mode: "insensitive" },
-        deletedAt: null,
-      },
-    });
-  }
-
-  async findTemplates(companyId: number, query: CertificateTemplateFilterParams) {
-    const {
-      search,
-      certificateTypeId,
-      courseVersionId,
-      learningProgramId,
-      status,
-      page = 1,
-      limit = 10,
-      sortBy = "createdAt",
-      sortOrder = "desc",
-    } = query;
-    const skip = (page - 1) * limit;
-
-    const where: Prisma.CertificateTemplateWhereInput = {
-      companyId,
-      deletedAt: null,
-      ...(certificateTypeId && { certificateTypeId }),
-      ...(courseVersionId && { courseVersionId }),
-      ...(learningProgramId && { learningProgramId }),
-      ...(status && { status }),
-      ...(search && {
-        OR: [
-          { name: { contains: search, mode: "insensitive" } },
-          { certificateIdPattern: { contains: search, mode: "insensitive" } },
-        ],
-      }),
-    };
-
-    const [data, total] = await Promise.all([
-      this.prisma.certificateTemplate.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { [sortBy]: sortOrder },
-        include: { certificateType: true },
-      }),
-      this.prisma.certificateTemplate.count({ where }),
-    ]);
-
-    return {
-      data,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
-  }
-
-  async countTemplates(
-    companyId: number,
-    query?: Prisma.CertificateTemplateWhereInput,
-  ): Promise<number> {
-    return this.prisma.certificateTemplate.count({
-      where: { companyId, deletedAt: null, ...query },
-    });
-  }
-
-  async updateTemplate(
-    companyId: number,
-    id: number,
-    userId: number,
-    data: UpdateCertificateTemplateInput,
-  ): Promise<Prisma.BatchPayload> {
-    return this.prisma.certificateTemplate.updateMany({
-      where: { id, companyId, deletedAt: null },
-      data: {
-        updatedBy: userId,
-        ...(data.name !== undefined && { name: data.name }),
-        ...(data.certificateTypeId !== undefined && {
-          certificateTypeId: data.certificateTypeId,
-        }),
-        ...(data.courseVersionId !== undefined && {
-          courseVersionId: data.courseVersionId,
-        }),
-        ...(data.learningProgramId !== undefined && {
-          learningProgramId: data.learningProgramId,
-        }),
-        ...(data.templateFile !== undefined && {
-          templateFile: data.templateFile,
-        }),
-        ...(data.certificateIdPattern !== undefined && {
-          certificateIdPattern: data.certificateIdPattern,
-        }),
-        ...(data.validityMonths !== undefined && {
-          validityMonths: data.validityMonths,
-        }),
-        ...(data.sealImage !== undefined && { sealImage: data.sealImage }),
-        ...(data.qrVerificationEnabled !== undefined && {
-          qrVerificationEnabled: data.qrVerificationEnabled,
-        }),
-        ...(data.backgroundImage !== undefined && {
-          backgroundImage: data.backgroundImage,
-        }),
-        ...(data.status !== undefined && { status: data.status }),
-      },
-    });
-  }
-
-  async softDeleteTemplate(
-    companyId: number,
-    id: number,
-  ): Promise<Prisma.BatchPayload> {
-    return this.prisma.certificateTemplate.updateMany({
-      where: { id, companyId, deletedAt: null },
-      data: { deletedAt: new Date() },
-    });
-  }
-
-  async countTemplateUsages(companyId: number, id: number): Promise<number> {
-    return this.prisma.certificate.count({
-      where: { companyId, templateId: id },
-    });
+    return found !== null;
   }
 
   // ==========================================

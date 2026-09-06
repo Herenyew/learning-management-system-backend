@@ -12,9 +12,6 @@ import {
   createNotificationEventSchema,
   updateNotificationEventSchema,
   notificationEventFilterSchema,
-  createNotificationTemplateSchema,
-  updateNotificationTemplateSchema,
-  notificationTemplateFilterSchema,
 } from "./notification-configuration.dto.js";
 
 export function notificationConfigurationRouter(
@@ -94,42 +91,6 @@ export function notificationConfigurationRouter(
     "/events/:id/deactivate",
     requirePermission(Permissions.NOTIFICATION_EVENT_UPDATE),
     controller.deactivateNotificationEvent
-  );
-
-  // ==========================================
-  // 3. NotificationTemplate Routes
-  // ==========================================
-  router.post(
-    "/templates",
-    requirePermission(Permissions.NOTIFICATION_TEMPLATE_CREATE),
-    validateBody(createNotificationTemplateSchema),
-    controller.createTemplate
-  );
-
-  router.get(
-    "/templates",
-    requirePermission(Permissions.NOTIFICATION_TEMPLATE_VIEW),
-    validateQuery(notificationTemplateFilterSchema),
-    controller.listTemplates
-  );
-
-  router.get(
-    "/templates/:id",
-    requirePermission(Permissions.NOTIFICATION_TEMPLATE_VIEW),
-    controller.getTemplateById
-  );
-
-  router.patch(
-    "/templates/:id",
-    requirePermission(Permissions.NOTIFICATION_TEMPLATE_UPDATE),
-    validateBody(updateNotificationTemplateSchema),
-    controller.updateTemplate
-  );
-
-  router.delete(
-    "/templates/:id",
-    requirePermission(Permissions.NOTIFICATION_TEMPLATE_DELETE),
-    controller.deleteTemplate
   );
 
   return router;

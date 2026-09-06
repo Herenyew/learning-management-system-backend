@@ -724,6 +724,7 @@ async function seedEmsTables() {
         isActive: true,
         lastSyncedAt: new Date(),
       },
+      create: {
         id: user.id,
         companyId: company.id,
         email: user.email,
@@ -2953,6 +2954,36 @@ async function seedApprovalWorkflows(
   console.log(
     `  Default approval workflow "Default Course Approval" ensured (HR step 1 → Manager step 2)`,
   );
+
+  // Ensure both steps exist (they may have been deleted via the UI)
+  const courseWf = await prisma.approvalWorkflow.findFirst({
+    where: { companyId: company.id, name: "Default Course Approval" },
+    select: { id: true, steps: { select: { id: true, approvalOrder: true, approverRoleId: true } } },
+  });
+  if (courseWf) {
+    const existingOrders = new Set(courseWf.steps.map(s => s.approvalOrder));
+    // Upsert step 1 (HR) — create if missing, update role if wrong
+    const step1 = courseWf.steps.find((s: any) => s.approvalOrder === 1);
+    if (hrRole && !existingOrders.has(1)) {
+      await prisma.approvalWorkflowStep.create({
+        data: { companyId: company.id, workflowId: courseWf.id, approvalOrder: 1, approverRoleId: hrRole.id, isRequired: true },
+      });
+      console.log("  Restored HR step 1 for Default Course Approval");
+    } else if (hrRole && step1 && (step1 as any).approverRoleId !== hrRole.id) {
+      await prisma.approvalWorkflowStep.update({
+        where: { id: (step1 as any).id },
+        data: { approverRoleId: hrRole.id },
+      });
+      console.log("  Corrected HR step 1 role for Default Course Approval");
+    }
+    // Upsert step 2 (Manager) — create if missing
+    if (managerRole && !existingOrders.has(2)) {
+      await prisma.approvalWorkflowStep.create({
+        data: { companyId: company.id, workflowId: courseWf.id, approvalOrder: 2, approverRoleId: managerRole.id, isRequired: true },
+      });
+      console.log("  Restored Manager step 2 for Default Course Approval");
+    }
+  }
 
   // ── LEARNING_PROGRAM workflow ──────────────────────────────────────────────
   // Programs also need approval before they go live. Single-step: HR approves.

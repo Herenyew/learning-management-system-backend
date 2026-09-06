@@ -18,9 +18,6 @@ import {
   createTaskTypeSchema,
   updateTaskTypeSchema,
   taskTypeQuerySchema,
-  createProgramTemplateSchema,
-  updateProgramTemplateSchema,
-  programTemplateQuerySchema,
   idParamSchema,
 } from "./program-configuration.dto.js";
 
@@ -128,39 +125,5 @@ export function programConfigurationRoutes(controller: ProgramConfigurationContr
     validateParams(idParamSchema),
     controller.deleteTaskType.bind(controller)
   );
-
-  // ─── 4. Program Templates ───────────────────────────────────────────────
-  router.post(
-    "/templates",
-    requirePermission(Permissions.PROGRAM_TEMPLATE_CREATE),
-    validateBody(createProgramTemplateSchema),
-    controller.createTemplate.bind(controller)
-  );
-  router.get(
-    "/templates",
-    requirePermission(Permissions.PROGRAM_TEMPLATE_VIEW),
-    validateQuery(programTemplateQuerySchema),
-    controller.listTemplates.bind(controller)
-  );
-  router.get(
-    "/templates/:id",
-    requirePermission(Permissions.PROGRAM_TEMPLATE_VIEW),
-    validateParams(idParamSchema),
-    controller.getTemplateById.bind(controller)
-  );
-  router.put(
-    "/templates/:id",
-    requirePermission(Permissions.PROGRAM_TEMPLATE_UPDATE),
-    validateParams(idParamSchema),
-    validateBody(updateProgramTemplateSchema),
-    controller.updateTemplate.bind(controller)
-  );
-  router.delete(
-    "/templates/:id",
-    requirePermission(Permissions.PROGRAM_TEMPLATE_DELETE),
-    validateParams(idParamSchema),
-    controller.deleteTemplate.bind(controller)
-  );
-
   return router;
 }

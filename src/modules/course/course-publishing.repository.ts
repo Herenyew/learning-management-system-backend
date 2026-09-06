@@ -150,18 +150,14 @@ export const coursePublishingRepository = {
 
   // ── ApprovalWorkflow ─────────────────────────────────────────────────────
 
-    findDefaultWorkflowForCourse(tx: PublishingTransaction, companyId: number) {
+  findDefaultWorkflowForCourse(tx: PublishingTransaction, companyId: number) {
     return tx.approvalWorkflow.findFirst({
       where: {
         companyId,
-        // Companies configure workflows as COURSE or COURSE_VERSION — accept both.
         entityType: { in: ["COURSE_VERSION", "COURSE"] },
         isActive: true,
         deletedAt: null,
       },
-      // Prefer a marked default; otherwise pick any active workflow so a
-      // workflow configured via the UI (even if not explicitly defaulted)
-      // still drives submission.
       orderBy: [
         { isDefault: "desc" },
         { createdAt: "desc" },
@@ -175,6 +171,60 @@ export const coursePublishingRepository = {
             approverRoleId: true,
             approverEmployeeId: true,
             autoApprove: true,
+          },
+        },
+      },
+    });
+  },
+
+  /** Find a specific workflow by id — used when the creator picks one explicitly. */
+  findWorkflowById(tx: PublishingTransaction, companyId: number, workflowId: number) {
+    return tx.approvalWorkflow.findFirst({
+      where: {
+        id: workflowId,
+        companyId,
+        entityType: { in: ["COURSE_VERSION", "COURSE"] },
+        isActive: true,
+        deletedAt: null,
+      },
+      include: {
+        steps: {
+          orderBy: { approvalOrder: "asc" },
+          select: {
+            id: true,
+            approvalOrder: true,
+            approverRoleId: true,
+            approverEmployeeId: true,
+            autoApprove: true,
+          },
+        },
+      },
+    });
+  },
+
+  /** List all active course-publishing workflows for the selector dropdown. */
+  listCourseWorkflows(tx: PublishingTransaction, companyId: number) {
+    return tx.approvalWorkflow.findMany({
+      where: {
+        companyId,
+        entityType: { in: ["COURSE_VERSION", "COURSE"] },
+        isActive: true,
+        deletedAt: null,
+      },
+      orderBy: [{ isDefault: "desc" }, { name: "asc" }],
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        isDefault: true,
+        entityType: true,
+        steps: {
+          orderBy: { approvalOrder: "asc" },
+          select: {
+            id: true,
+            approvalOrder: true,
+            approverRole: { select: { name: true } },
+            approverEmployeeId: true,
           },
         },
       },

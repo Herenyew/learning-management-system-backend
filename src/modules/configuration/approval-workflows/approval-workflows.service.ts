@@ -298,6 +298,19 @@ export class ApprovalWorkflowsService {
       );
     }
 
+    // Guard: if any ApprovalDecision references this step, delete those
+    // records first to satisfy the FK constraint.
+    // The audit trail is preserved at the ApprovalWorkflowInstance level
+    // (via latestComment and status), so clearing step-level decisions is safe.
+    const decisionCount = await this.prismaInstance.approvalDecision.count({
+      where: { workflowStepId: stepId },
+    });
+    if (decisionCount > 0) {
+      await this.prismaInstance.approvalDecision.deleteMany({
+        where: { workflowStepId: stepId },
+      });
+    }
+
     return this.repository.deleteWorkflowStep(companyId, stepId);
   }
 

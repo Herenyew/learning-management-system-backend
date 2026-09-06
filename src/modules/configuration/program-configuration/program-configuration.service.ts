@@ -14,9 +14,6 @@ import type {
   CreateTaskTypeInput,
   UpdateTaskTypeInput,
   TaskTypeQueryInput,
-  CreateProgramTemplateInput,
-  UpdateProgramTemplateInput,
-  ProgramTemplateQueryInput,
 } from "./program-configuration.types.js";
 
 // Utility helper for slug generation
@@ -229,91 +226,4 @@ export class ProgramConfigurationService {
     return this.repo.softDeleteTaskType(companyId, id);
   }
 
-  // ==========================================
-  // 4. ProgramTemplate Service Methods
-  // ==========================================
-
-  async createTemplate(
-    companyId: number,
-    userId: number,
-    data: CreateProgramTemplateInput
-  ) {
-    const existingName = await this.repo.findTemplateByName(companyId, data.name);
-    if (existingName) {
-      throw new ConflictError(`Program template with name '${data.name}' already exists.`);
-    }
-
-    if (data.categoryId) {
-      const category = await this.repo.findProgramCategoryById(companyId, data.categoryId);
-      if (!category) {
-        throw new NotFoundError(`Category with ID ${data.categoryId} not found.`);
-      }
-    }
-
-    if (data.programTypeId) {
-      const type = await this.repo.findProgramTypeById(companyId, data.programTypeId);
-      if (!type) {
-        throw new NotFoundError(`Program type with ID ${data.programTypeId} not found.`);
-      }
-    }
-
-    return this.repo.createTemplate(companyId, userId, data);
-  }
-
-  async getTemplateById(companyId: number, id: number) {
-    const template = await this.repo.findTemplateById(companyId, id);
-    if (!template) {
-      throw new NotFoundError(`Program template with ID ${id} not found.`);
-    }
-    return template;
-  }
-
-  async listTemplates(companyId: number, query: ProgramTemplateQueryInput) {
-    return this.repo.findTemplates(companyId, query);
-  }
-
-  async updateTemplate(
-    companyId: number,
-    id: number,
-    userId: number,
-    data: UpdateProgramTemplateInput
-  ) {
-    await this.getTemplateById(companyId, id);
-
-    if (data.name) {
-      const existingName = await this.repo.findTemplateByName(companyId, data.name);
-      if (existingName && existingName.id !== id) {
-        throw new ConflictError(`Program template with name '${data.name}' already exists.`);
-      }
-    }
-
-    if (data.categoryId) {
-      const category = await this.repo.findProgramCategoryById(companyId, data.categoryId);
-      if (!category) {
-        throw new NotFoundError(`Category with ID ${data.categoryId} not found.`);
-      }
-    }
-
-    if (data.programTypeId) {
-      const type = await this.repo.findProgramTypeById(companyId, data.programTypeId);
-      if (!type) {
-        throw new NotFoundError(`Program type with ID ${data.programTypeId} not found.`);
-      }
-    }
-
-    return this.repo.updateTemplate(companyId, id, userId, data);
-  }
-
-  async deleteTemplate(companyId: number, id: number) {
-    await this.getTemplateById(companyId, id);
-
-    const usageCount = await this.repo.countTemplateUsages(companyId, id);
-    if (usageCount > 0) {
-      throw new ValidationError(
-        `Cannot delete program template. It has been used to instantiate ${usageCount} learning program(s).`
-      );
-    }
-
-    return this.repo.softDeleteTemplate(companyId, id);
-  }
 }

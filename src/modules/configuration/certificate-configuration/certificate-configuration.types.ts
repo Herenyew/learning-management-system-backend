@@ -10,9 +10,6 @@ import {
   CreateProviderTypeSchema,
   UpdateProviderTypeSchema,
   ProviderTypeFilterSchema,
-  CreateCertificateTemplateSchema,
-  UpdateCertificateTemplateSchema,
-  CertificateTemplateFilterSchema,
   CreateCertificateTemplateSignerSchema,
   UpdateCertificateTemplateSignerSchema,
 } from "./certificate-configuration.dto.js";
@@ -22,9 +19,7 @@ import type {
   CertificateType,
   CredentialSource,
   ProviderType,
-  CertificateTemplate,
   CertificateTemplateSigner,
-  ContentLifecycleStatus
 } from "@prisma/client";
 
 export type PaginationQuery = z.infer<typeof PaginationQuerySchema>;
@@ -56,20 +51,8 @@ export interface ProviderTypeFilterParams extends PaginationQuery {
   isSystem?: boolean;
 }
 
-export type CreateCertificateTemplateInput = z.infer<typeof CreateCertificateTemplateSchema>;
-export type UpdateCertificateTemplateInput = z.infer<typeof UpdateCertificateTemplateSchema>;
-export type CertificateTemplateFilterInput = z.infer<typeof CertificateTemplateFilterSchema>;
-export interface CertificateTemplateFilterParams extends PaginationQuery {
-  search?: string;
-  certificateTypeId?: number;
-  credentialSourceId?: number;
-  courseVersionId?: number;
-  learningProgramId?: number;
-  providerTypeId?: number;
-  status?: ContentLifecycleStatus;
-  isActive?: boolean;
-  isDefault?: boolean;
-}
+// TEMPLATE TYPES REMOVED — moved to template-management module
+// (signer input types retained for certificate signer methods)
 
 export type CreateCertificateTemplateSignerInput = z.infer<typeof CreateCertificateTemplateSignerSchema>;
 export type UpdateCertificateTemplateSignerInput = z.infer<typeof UpdateCertificateTemplateSignerSchema>;
@@ -109,15 +92,9 @@ export interface ICertificateConfigurationRepository {
   softDeleteProviderType(companyId: number, id: number): Promise<Prisma.BatchPayload>;
   countProviderTypeUsages(companyId: number, id: number): Promise<number>;
 
-  // 4. CertificateTemplate Methods
-  createTemplate(companyId: number, userId: number, data: CreateCertificateTemplateInput): Promise<CertificateTemplate>;
-  findTemplateById(companyId: number, id: number): Promise<CertificateTemplate | null>;
-  findTemplateByName(companyId: number, name: string): Promise<CertificateTemplate | null>;
-  findTemplates(companyId: number, query: CertificateTemplateFilterParams): Promise<{ data: CertificateTemplate[]; meta: { total: number; page: number; limit: number; totalPages: number } }>;
-  countTemplates(companyId: number, query?: Prisma.CertificateTemplateWhereInput): Promise<number>;
-  updateTemplate(companyId: number, id: number, userId: number, data: UpdateCertificateTemplateInput): Promise<Prisma.BatchPayload>;
-  softDeleteTemplate(companyId: number, id: number): Promise<Prisma.BatchPayload>;
-  countTemplateUsages(companyId: number, id: number): Promise<number>;
+  // TEMPLATE METHODS REMOVED — moved to template-management module
+  // (templateExists retained for signer validation)
+  templateExists(companyId: number, id: number): Promise<boolean>;
 
   // 5. CertificateTemplateSigner Methods
   createSigner(companyId: number, templateId: number, data: CreateCertificateTemplateSignerInput): Promise<CertificateTemplateSigner>;

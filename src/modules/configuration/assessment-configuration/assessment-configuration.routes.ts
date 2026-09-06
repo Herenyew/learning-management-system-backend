@@ -19,9 +19,6 @@ import {
   createGradingMethodSchema,
   updateGradingMethodSchema,
   gradingMethodFilterSchema,
-  createAssessmentTemplateSchema,
-  updateAssessmentTemplateSchema,
-  assessmentTemplateFilterSchema,
 } from "./assessment-configuration.dto.js";
 
 // Common Id Param Schema
@@ -136,38 +133,6 @@ export function assessmentConfigurationRoutes(
     controller.deleteGradingMethod
   );
 
-  // ─── 4. Assessment Templates ─────────────────────────────────────────────
-  router.post(
-    "/templates",
-    requirePermission(Permissions.ASSESSMENT_TEMPLATE_CREATE),
-    validateBody(createAssessmentTemplateSchema),
-    controller.createTemplate
-  );
-  router.get(
-    "/templates",
-    requirePermission(Permissions.ASSESSMENT_TEMPLATE_VIEW),
-    validateQuery(assessmentTemplateFilterSchema),
-    controller.getTemplates
-  );
-  router.get(
-    "/templates/:id",
-    requirePermission(Permissions.ASSESSMENT_TEMPLATE_VIEW),
-    validateParams(idParamSchema),
-    controller.getTemplateById
-  );
-  router.put(
-    "/templates/:id",
-    requirePermission(Permissions.ASSESSMENT_TEMPLATE_UPDATE),
-    validateParams(idParamSchema),
-    validateBody(updateAssessmentTemplateSchema),
-    controller.updateTemplate
-  );
-  router.delete(
-    "/templates/:id",
-    requirePermission(Permissions.ASSESSMENT_TEMPLATE_DELETE),
-    validateParams(idParamSchema),
-    controller.deleteTemplate
-  );
 
   return router;
 }

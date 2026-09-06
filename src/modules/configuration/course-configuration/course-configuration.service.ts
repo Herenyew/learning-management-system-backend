@@ -4,7 +4,6 @@ import type {
   DifficultyLevelFilter,
   ContentTypeFilter,
   ContentFileTypeFilter,
-  CourseTemplateFilter,
 } from "./course-configuration.types.js";
 import type {
   CreateCourseCategoryInput,
@@ -15,8 +14,6 @@ import type {
   UpdateContentTypeInput,
   CreateContentFileTypeInput,
   UpdateContentFileTypeInput,
-  CreateCourseTemplateInput,
-  UpdateCourseTemplateInput,
 } from "./course-configuration.types.js";
 import {
   NotFoundError,
@@ -381,98 +378,4 @@ async createCategory(dto: CreateCourseCategoryInput, companyId: number, createdB
     return this.repository.softDeleteContentFileType(id);
   }
 
-  // ==========================================
-  // 5. Course Template Logic
-  // ==========================================
-
-  async createTemplate(dto: CreateCourseTemplateInput, companyId: number, createdById: number) {
-    const existing = await this.repository.findTemplateByName(companyId, dto.name);
-    if (existing) {
-      throw new ConflictError(`Course template with name '${dto.name}' already exists.`);
-    }
-
-    // Validate relations exist
-    await this.getCategoryById(dto.categoryId, companyId);
-    await this.getDifficultyLevelById(dto.difficultyLevelId, companyId);
-
-    const data: Prisma.CourseTemplateCreateInput = {
-      name: dto.name,
-      description: dto.description,
-      shortSummary: dto.shortSummary,
-      passingScore: dto.passingScore ?? 0,
-      completionThreshold: dto.completionThreshold ?? 0,
-      isActive: dto.isActive,
-      company: { connect: { id: companyId } },
-      creator: { connect: { id: createdById } },
-      category: { connect: { id: dto.categoryId } },
-      difficultyLevel: { connect: { id: dto.difficultyLevelId } },
-    };
-
-    return this.repository.createTemplate(data);
-  }
-
-  async getTemplates(filter: CourseTemplateFilter, page: number, pageSize: number) {
-    const [items, total] = await Promise.all([
-      this.repository.findTemplates(filter, page, pageSize),
-      this.repository.countTemplates(filter),
-    ]);
-
-    return { items, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
-  }
-
-  async getTemplateById(id: number, companyId: number) {
-    const template = await this.repository.findTemplateById(id, companyId);
-    if (!template) {
-      throw new NotFoundError("Course template");
-    }
-    return template;
-  }
-
-  async updateTemplate(id: number, companyId: number, dto: UpdateCourseTemplateInput) {
-    const template = await this.getTemplateById(id, companyId);
-
-    if (dto.name && dto.name !== template.name) {
-      const existing = await this.repository.findTemplateByName(companyId, dto.name);
-      if (existing) {
-        throw new ConflictError(`Course template with name '${dto.name}' already exists.`);
-      }
-    }
-
-    if (dto.categoryId) {
-      await this.getCategoryById(dto.categoryId, companyId);
-    }
-
-    if (dto.difficultyLevelId) {
-      await this.getDifficultyLevelById(dto.difficultyLevelId, companyId);
-    }
-
-              const data: Prisma.CourseTemplateUpdateInput = {
-      ...(dto.name && { name: dto.name }),
-      ...(dto.description !== undefined && { description: dto.description }),
-      ...(dto.shortSummary !== undefined && { shortSummary: dto.shortSummary }),
-      ...(dto.passingScore !== undefined && { passingScore: dto.passingScore }),
-      ...(dto.completionThreshold !== undefined && { completionThreshold: dto.completionThreshold }),
-      ...(dto.isActive !== undefined && { isActive: dto.isActive }),
-      ...(dto.categoryId && { category: { connect: { id: dto.categoryId } } }),
-      ...(dto.difficultyLevelId && { difficultyLevel: { connect: { id: dto.difficultyLevelId } } }),
-      // `targetAudiences` is intentionally omitted: the `CourseTemplate` Prisma model
-      // has no such relation (only a scalar `targetAudienceText` column), so a nested
-      // write here throws "Unknown argument `targetAudiences`" (HTTP 500).
-    };
-
-    return this.repository.updateTemplate(id, companyId, data);
-  }
-
-  async deleteTemplate(id: number, companyId: number) {
-    await this.getTemplateById(id, companyId);
-
-    const usages = await this.repository.countTemplateUsages(id, companyId);
-    if (usages > 0) {
-      throw new BusinessRuleError(
-        `Cannot delete template. It is referenced by ${usages} course(s).`
-      );
-    }
-
-    return this.repository.softDeleteTemplate(id, companyId);
-  }
 }

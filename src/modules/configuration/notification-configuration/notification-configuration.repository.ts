@@ -3,7 +3,6 @@ import type {
   PrismaClient,
   NotificationModule,
   NotificationEvent,
-  NotificationTemplate,
 } from "@prisma/client";
 import type {
   CreateNotificationModuleInput,
@@ -12,9 +11,6 @@ import type {
   CreateNotificationEventInput,
   UpdateNotificationEventInput,
   NotificationEventFilterParams,
-  CreateNotificationTemplateInput,
-  UpdateNotificationTemplateInput,
-  NotificationTemplateFilterParams,
 } from "./notification-configuration.types.js";
 
 import type { INotificationConfigurationRepository } from "./notification-configuration.types.js";
@@ -270,163 +266,5 @@ export class NotificationConfigurationRepository
     return this.prisma.notificationTemplate.count({
       where: { companyId, notificationEventId: id, deletedAt: null },
     });
-  }
-
-  // ==========================================
-  // 3. NotificationTemplate Methods
-  // ==========================================
-
-  async createTemplate(
-    companyId: number,
-    userId: number,
-    data: CreateNotificationTemplateInput
-  ): Promise<NotificationTemplate> {
-    return this.prisma.notificationTemplate.create({
-      data: {
-        companyId,
-        createdBy: userId,
-        name: data.name,
-        description: data.description ?? null,
-        channel: data.channel,
-        eventCode: data.eventCode,
-        notificationEventId: data.notificationEventId ?? null,
-        subject: data.subject ?? null,
-        body: data.body,
-        variables: data.variables
-          ? (data.variables as Prisma.InputJsonValue)
-          : Prisma.DbNull,
-        language: data.language ?? "en",
-        senderName: data.senderName ?? null,
-        replyToEmail: data.replyToEmail ?? null,
-      },
-    });
-  }
-
-  async findTemplateById(
-    companyId: number,
-    id: number
-  ): Promise<NotificationTemplate | null> {
-    return this.prisma.notificationTemplate.findFirst({
-      where: { id, companyId, deletedAt: null },
-      include: { notificationEvent: true },
-    });
-  }
-
-  async findTemplateByName(
-    companyId: number,
-    name: string
-  ): Promise<NotificationTemplate | null> {
-    return this.prisma.notificationTemplate.findFirst({
-      where: {
-        companyId,
-        name: { equals: name, mode: "insensitive" },
-        deletedAt: null,
-      },
-    });
-  }
-
-  async findTemplates(
-    companyId: number,
-    query: NotificationTemplateFilterParams
-  ) {
-    const {
-      search,
-      channel,
-      eventCode,
-      notificationEventId,
-      isActive,
-      page = 1,
-      limit = 10,
-      sortBy = "createdAt",
-      sortOrder = "desc",
-    } = query;
-    const skip = (page - 1) * limit;
-
-    const where: Prisma.NotificationTemplateWhereInput = {
-      companyId,
-      deletedAt: null,
-      ...(channel && { channel }),
-      ...(eventCode && { eventCode }),
-      ...(notificationEventId && { notificationEventId }),
-      ...(isActive !== undefined && { isActive }),
-      ...(search && {
-        OR: [
-          { name: { contains: search, mode: "insensitive" } },
-          { subject: { contains: search, mode: "insensitive" } },
-          { body: { contains: search, mode: "insensitive" } },
-        ],
-      }),
-    };
-
-    const [data, total] = await Promise.all([
-      this.prisma.notificationTemplate.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { [sortBy]: sortOrder },
-        include: { notificationEvent: true },
-      }),
-      this.prisma.notificationTemplate.count({ where }),
-    ]);
-
-    return {
-      data,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
-  }
-
-  async updateTemplate(
-    companyId: number,
-    id: number,
-    userId: number,
-    data: UpdateNotificationTemplateInput
-  ): Promise<Prisma.BatchPayload> {
-    return this.prisma.notificationTemplate.updateMany({
-      where: { id, companyId, deletedAt: null },
-      data: {
-        updatedBy: userId,
-        ...(data.name !== undefined && { name: data.name }),
-        ...(data.description !== undefined && { description: data.description }),
-        ...(data.channel !== undefined && { channel: data.channel }),
-        ...(data.eventCode !== undefined && { eventCode: data.eventCode }),
-        ...(data.notificationEventId !== undefined && {
-          notificationEventId: data.notificationEventId,
-        }),
-        ...(data.subject !== undefined && { subject: data.subject }),
-        ...(data.body !== undefined && { body: data.body }),
-        ...(data.variables !== undefined && {
-          variables: data.variables
-            ? (data.variables as Prisma.InputJsonValue)
-            : Prisma.DbNull,
-        }),
-        ...(data.language !== undefined && { language: data.language }),
-        ...(data.senderName !== undefined && { senderName: data.senderName }),
-        ...(data.replyToEmail !== undefined && { replyToEmail: data.replyToEmail }),
-      },
-    });
-  }
-
-  async softDeleteTemplate(
-    companyId: number,
-    id: number
-  ): Promise<Prisma.BatchPayload> {
-    return this.prisma.notificationTemplate.updateMany({
-      where: { id, companyId, deletedAt: null },
-      data: { deletedAt: new Date() },
-    });
-  }
-
-  async countTemplateUsages(
-    companyId: number,
-    id: number
-  ): Promise<number> {
-    // Ownership boundary check: EMS owns actual Notification dispatch records.
-    // Return 0 if no direct LMS child relations exist.
-    return 0;
   }
 }

@@ -76,34 +76,3 @@ export const taskTypeQuerySchema = paginationQuerySchema.extend({
     .optional(),
 });
 
-// ==========================================
-// 4. ProgramTemplate Schemas
-// ==========================================
-
-export const createProgramTemplateSchema = z.object({
-  name: z.string().min(1, "Name is required").max(255),
-  description: z.string().optional().nullable(),
-  categoryId: z.number().int().positive().optional().nullable(),
-  programTypeId: z.number().int().positive().optional().nullable(),
-  durationWeeks: z.number().int().nonnegative().optional().nullable(),
-  visibility: VisibilityTypeEnum.optional().default($Enums.VisibilityType.COMPANY),
-  isMandatory: z.boolean().optional().default(false),
-  autoEnroll: z.boolean().optional().default(false),
-  allowSelfEnrollment: z.boolean().optional().default(true),
-  rollingEnrollment: z.boolean().optional().default(false),
-  capacity: z.number().int().positive().optional().nullable(),
-  certificateEnabled: z.boolean().optional().default(true),
-  xpEnabled: z.boolean().optional().default(true),
-  // Milestones represented as an array of free-form objects with string keys
-  defaultMilestones: z.array(z.record(z.string(), z.unknown())).optional().nullable(),
-  isActive: z.boolean().optional().default(true),
-});
-
-export const updateProgramTemplateSchema = createProgramTemplateSchema.partial();
-
-export const programTemplateQuerySchema = paginationQuerySchema.extend({
-  categoryId: z.coerce.number().int().positive().optional(),
-  programTypeId: z.coerce.number().int().positive().optional(),
-});
-
-// DTO schemas only — types moved to program-configuration.types.ts

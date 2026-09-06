@@ -3,7 +3,6 @@ import type {
   ProgramType,
   ProgramCategory,
   TaskType,
-  ProgramTemplate,
 } from "@prisma/client";
 import { z } from "zod";
 import {
@@ -18,9 +17,6 @@ import {
   createTaskTypeSchema,
   updateTaskTypeSchema,
   taskTypeQuerySchema,
-  createProgramTemplateSchema,
-  updateProgramTemplateSchema,
-  programTemplateQuerySchema,
 } from "./program-configuration.dto.js";
 
 // -----------------------------------------------------------------------------
@@ -41,9 +37,6 @@ export type CreateTaskTypeInput = z.infer<typeof createTaskTypeSchema>;
 export type UpdateTaskTypeInput = z.infer<typeof updateTaskTypeSchema>;
 export type TaskTypeQueryInput = z.infer<typeof taskTypeQuerySchema>;
 
-export type CreateProgramTemplateInput = z.infer<typeof createProgramTemplateSchema>;
-export type UpdateProgramTemplateInput = z.infer<typeof updateProgramTemplateSchema>;
-export type ProgramTemplateQueryInput = z.infer<typeof programTemplateQuerySchema>;
 
 // -----------------------------------------------------------------------------
 // Explicit Filter Interfaces
@@ -69,17 +62,6 @@ export interface ProgramCategoryFilterParams {
 export interface TaskTypeFilterParams {
   search?: string;
   slug?: string;
-  isActive?: boolean;
-  page?: number;
-  pageSize?: number;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
-}
-
-export interface ProgramTemplateFilterParams {
-  search?: string;
-  programTypeId?: number;
-  programCategoryId?: number;
   isActive?: boolean;
   page?: number;
   pageSize?: number;
@@ -136,21 +118,4 @@ export interface IProgramConfigurationRepository {
   softDeleteTaskType(companyId: number, id: number): Promise<TaskType>;
   countTaskTypeUsages(companyId: number, id: number): Promise<number>;
 
-  // Program Template
-  createTemplate(companyId: number, userId: number, data: CreateProgramTemplateInput): Promise<ProgramTemplate>;
-  findTemplateById(companyId: number, id: number): Promise<ProgramTemplate | null>;
-  findTemplateByName(companyId: number, name: string): Promise<ProgramTemplate | null>;
-  findTemplates(
-    companyId: number,
-    filter: ProgramTemplateFilterParams
-  ): Promise<{ items: ProgramTemplate[]; total: number; page: number; pageSize: number }>;
-  countTemplates(companyId: number): Promise<number>;
-  updateTemplate(
-    companyId: number,
-    id: number,
-    userId: number,
-    data: UpdateProgramTemplateInput
-  ): Promise<ProgramTemplate>;
-  softDeleteTemplate(companyId: number, id: number): Promise<ProgramTemplate>;
-  countTemplateUsages(companyId: number, id: number): Promise<number>;
 }

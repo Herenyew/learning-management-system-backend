@@ -5,14 +5,11 @@ import type {
   DifficultyLevel,
   ContentType,
   ContentFileType,
-  CourseTemplate,
 } from "@prisma/client";
 import type {
   ContentFileTypeFilter,
   ContentTypeFilter,
   CourseCategoryFilter,
-  CourseTemplateFilter,
-  CourseTemplateListItem,
   DifficultyLevelFilter,
   ICourseConfigurationRepository,
 } from "./course-configuration.types.js";
@@ -117,20 +114,16 @@ export class CourseConfigurationRepository implements ICourseConfigurationReposi
   }
 
   async countCategoryUsages(id: number, companyId: number): Promise<number> {
-    const [coursesCount, templatesCount, questionBanksCount] = await Promise.all([
+    const [coursesCount, questionBanksCount] = await Promise.all([
       this.prisma.course.count({
-        where: { categoryId: id, companyId, deletedAt: null },
-      }),
-      this.prisma.courseTemplate.count({
         where: { categoryId: id, companyId, deletedAt: null },
       }),
       this.prisma.questionBank.count({
         where: { categoryId: id, companyId, deletedAt: null },
       }),
     ]);
-    return coursesCount + templatesCount + questionBanksCount;
+    return coursesCount + questionBanksCount;
   }
-
   // ------------------------------------------
   // 2. Difficulty Level
   // ------------------------------------------
@@ -222,12 +215,9 @@ async countDifficultyLevels(filter: DifficultyLevelFilter): Promise<number> {
   }
 
   async countDifficultyLevelUsages(id: number, companyId: number): Promise<number> {
-    const [versionsCount, templatesCount, blueprintsCount, questionsCount] = await Promise.all([
+    const [versionsCount, blueprintsCount, questionsCount] = await Promise.all([
       this.prisma.courseVersion.count({
         where: { difficultyLevelId: id, course: { companyId }, deletedAt: null },
-      }),
-      this.prisma.courseTemplate.count({
-        where: { difficultyLevelId: id, companyId, deletedAt: null },
       }),
       this.prisma.assessmentBlueprint.count({
         where: { difficultyLevelId: id, companyId, deletedAt: null },
@@ -236,10 +226,10 @@ async countDifficultyLevels(filter: DifficultyLevelFilter): Promise<number> {
         where: { difficultyLevelId: id, companyId, deletedAt: null },
       }),
     ]);
-    return versionsCount + templatesCount + blueprintsCount + questionsCount;
-  }
+    return versionsCount + blueprintsCount + questionsCount;
 
   // ------------------------------------------
+  }
   // 3. Content Type (Global System Table)
   // ------------------------------------------
 
@@ -376,108 +366,6 @@ async countDifficultyLevels(filter: DifficultyLevelFilter): Promise<number> {
   async countContentFileTypeUsages(id: number): Promise<number> {
     return this.prisma.storedFile.count({
       where: { fileTypeId: id, deletedAt: null },
-    });
-  }
-
-  // ------------------------------------------
-  // 5. Course Template (Tenant Scoped)
-  // ------------------------------------------
-
-  async createTemplate(data: Prisma.CourseTemplateCreateInput): Promise<CourseTemplate> {
-    return this.prisma.courseTemplate.create({ data });
-  }
-
-  async findTemplateById(id: number, companyId: number): Promise<CourseTemplate | null> {
-    return this.prisma.courseTemplate.findFirst({
-      where: { id, companyId, deletedAt: null },
-      include: {
-        category: { select: { id: true, name: true } },
-        difficultyLevel: { select: { id: true, name: true, code: true } },
-      },
-    });
-  }
-
-  async findTemplateByName(companyId: number, name: string): Promise<CourseTemplate | null> {
-    return this.prisma.courseTemplate.findFirst({
-      where: {
-        companyId,
-        name: { equals: name, mode: "insensitive" },
-        deletedAt: null,
-      },
-    });
-  }
-
-  async findTemplates(filter: CourseTemplateFilter, page: number, pageSize: number): Promise<CourseTemplateListItem[]> {
-    return this.prisma.courseTemplate.findMany({
-      where: {
-        companyId: filter.companyId,
-        deletedAt: null,
-        ...(filter.isActive !== undefined && { isActive: filter.isActive }),
-        ...(filter.categoryId && { categoryId: filter.categoryId }),
-        ...(filter.difficultyLevelId && { difficultyLevelId: filter.difficultyLevelId }),
-        ...(filter.search && {
-          name: { contains: filter.search, mode: "insensitive" },
-        }),
-      },
-      skip: (page - 1) * pageSize,
-      take: pageSize,
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        shortSummary: true,
-        isActive: true,
-        createdAt: true,
-        category: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        difficultyLevel: {
-          select: {
-            id: true,
-            name: true,
-            code: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-  }
-
-  async countTemplates(filter: CourseTemplateFilter): Promise<number> {
-    return this.prisma.courseTemplate.count({
-      where: {
-        companyId: filter.companyId,
-        deletedAt: null,
-        ...(filter.isActive !== undefined && { isActive: filter.isActive }),
-        ...(filter.categoryId && { categoryId: filter.categoryId }),
-        ...(filter.difficultyLevelId && { difficultyLevelId: filter.difficultyLevelId }),
-        ...(filter.search && {
-          name: { contains: filter.search, mode: "insensitive" },
-        }),
-      },
-    });
-  }
-
-  async updateTemplate(id: number, companyId: number, data: Prisma.CourseTemplateUpdateInput): Promise<CourseTemplate> {
-    return this.prisma.courseTemplate.update({
-      where: { id, companyId },
-      data,
-    });
-  }
-
-  async softDeleteTemplate(id: number, companyId: number): Promise<CourseTemplate> {
-    return this.prisma.courseTemplate.update({
-      where: { id, companyId },
-      data: { deletedAt: new Date(), isActive: false },
-    });
-  }
-
-  async countTemplateUsages(id: number, companyId: number): Promise<number> {
-    return this.prisma.course.count({
-      where: { sourceTemplateId: id, companyId, deletedAt: null },
     });
   }
 }

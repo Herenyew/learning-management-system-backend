@@ -76,11 +76,21 @@ async function resolveAppRole(
     }
   }
 
-  // Step 2 — look up by JWT role NAME within this company
+  // Step 2 — look up by JWT role NAME within this company.
+  // Also handle aliases where the auth service role name differs from the
+  // LMS AppRole name (e.g. JWT "creator" → LMS "COURSE_CREATOR").
   if (jwtRoleName) {
+    const aliases: Record<string, string> = {
+      creator:              "COURSE_CREATOR",
+      "course creator":     "COURSE_CREATOR",
+      "course_creator":     "COURSE_CREATOR",
+      "external instructor":"INSTRUCTOR",
+    };
+    const resolvedName = aliases[jwtRoleName.toLowerCase()] ?? jwtRoleName;
+
     const byName = await prisma.appRole.findFirst({
       where: {
-        name: { equals: jwtRoleName, mode: 'insensitive' },
+        name: { equals: resolvedName, mode: 'insensitive' },
         companyId,
       },
       select: { id: true },
@@ -89,7 +99,7 @@ async function resolveAppRole(
 
     // Also try without company scope (system-wide roles)
     const byNameGlobal = await prisma.appRole.findFirst({
-      where: { name: { equals: jwtRoleName, mode: 'insensitive' } },
+      where: { name: { equals: resolvedName, mode: 'insensitive' } },
       select: { id: true },
     });
     if (byNameGlobal) return byNameGlobal.id;

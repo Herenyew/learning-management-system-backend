@@ -14,9 +14,6 @@ import {
   createContentFileTypeSchema,
   updateContentFileTypeSchema,
   contentFileTypeFilterQuerySchema,
-  createCourseTemplateSchema,
-  updateCourseTemplateSchema,
-  courseTemplateFilterQuerySchema,
 } from "./course-configuration.dto.js";
 
 export class CourseConfigurationController {
@@ -392,105 +389,6 @@ export class CourseConfigurationController {
       return res.status(200).json({
         success: true,
         message: "Content file type deleted successfully",
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  // ==========================================
-  // 5. Course Template Handlers
-  // ==========================================
-
-  createTemplate = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try {
-      const companyId = req.user.companyId;
-      const userId = req.user.appUserId;
-      const dto = createCourseTemplateSchema.parse(req.body);
-
-      const result = await this.service.createTemplate(dto, companyId, userId);
-
-      return res.status(201).json({
-        success: true,
-        message: "Course template created successfully",
-        data: result,
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  getTemplates = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try {
-      const companyId = req.user.companyId;
-      const query = req.query as any; // already validated & transformed by validateQuery middleware
-
-      const { page, pageSize, ...filter } = query;
-      const result = await this.service.getTemplates(
-        { ...filter, companyId },
-        page,
-        pageSize
-      );
-
-      return res.status(200).json({
-        success: true,
-        data: result.items,
-        pagination: {
-          total: result.total,
-          page: result.page,
-          pageSize: result.pageSize,
-          totalPages: result.totalPages,
-        },
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  getTemplateById = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try {
-      const companyId = req.user.companyId;
-      const id = Number(req.params.id);
-
-      const result = await this.service.getTemplateById(id, companyId);
-
-      return res.status(200).json({
-        success: true,
-        data: result,
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  updateTemplate = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try {
-      const companyId = req.user.companyId;
-      const id = Number(req.params.id);
-      const dto = updateCourseTemplateSchema.parse(req.body);
-
-      const result = await this.service.updateTemplate(id, companyId, dto);
-
-      return res.status(200).json({
-        success: true,
-        message: "Course template updated successfully",
-        data: result,
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  deleteTemplate = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try {
-      const companyId = req.user.companyId;
-      const id = Number(req.params.id);
-
-      await this.service.deleteTemplate(id, companyId);
-
-      return res.status(200).json({
-        success: true,
-        message: "Course template deleted successfully",
       });
     } catch (error) {
       next(error);

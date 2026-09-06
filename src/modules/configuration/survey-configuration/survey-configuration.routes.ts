@@ -13,20 +13,9 @@ import { z } from 'zod';
 import {
   CreateSurveyQuestionTypeSchema,
   UpdateSurveyQuestionTypeSchema,
-  CreateSurveyTemplateSchema,
-  UpdateSurveyTemplateSchema,
-  CreateSurveyTemplateQuestionSchema,
-  UpdateSurveyTemplateQuestionSchema,
-  ReorderSurveyTemplateQuestionsSchema,
 } from './survey-configuration.dto.js';
 
 const idParamSchema = z.object({ id: z.string().transform((v) => parseInt(v, 10)) });
-
-const templateIdParamSchema = z.object({ templateId: z.string().transform((v) => parseInt(v, 10)) });
-const questionParamSchema = z.object({
-  templateId: z.string().transform((v) => parseInt(v, 10)),
-  id: z.string().transform((v) => parseInt(v, 10)),
-});
 
 export default function routes(controller: SurveyConfigurationController) {
   const router = Router();
@@ -71,91 +60,7 @@ export default function routes(controller: SurveyConfigurationController) {
     controller.deleteSurveyQuestionType.bind(controller)
   );
 
-  // Survey Templates
-  // Survey Templates
-  router.post(
-    '/templates',
-    requirePermission(Permissions.SURVEY_TEMPLATE_CREATE),
-    validateBody(CreateSurveyTemplateSchema),
-    controller.createTemplate.bind(controller)
-  );
-
-  router.get(
-    '/templates',
-    requirePermission(Permissions.SURVEY_TEMPLATE_VIEW),
-    controller.findTemplates.bind(controller)
-  );
-
-  router.get(
-    '/templates/:id',
-    requirePermission(Permissions.SURVEY_TEMPLATE_VIEW),
-    validateParams(idParamSchema),
-    controller.findTemplateById.bind(controller)
-  );
-
-  router.put(
-    '/templates/:id',
-    requirePermission(Permissions.SURVEY_TEMPLATE_UPDATE),
-    validateParams(idParamSchema),
-    validateBody(UpdateSurveyTemplateSchema),
-    controller.updateTemplate.bind(controller)
-  );
-
-  router.delete(
-    '/templates/:id',
-    requirePermission(Permissions.SURVEY_TEMPLATE_DELETE),
-    validateParams(idParamSchema),
-    controller.deleteTemplate.bind(controller)
-  );
-
-
-  // Survey Template Questions (Dynamic Question Builder)
-  // Template questions are part of the template, so they reuse the template
-  // update/view permissions.
-  router.post(
-    '/templates/:templateId/questions',
-    requirePermission(Permissions.SURVEY_TEMPLATE_UPDATE),
-    validateParams(templateIdParamSchema),
-    validateBody(CreateSurveyTemplateQuestionSchema),
-    controller.createTemplateQuestion.bind(controller)
-  );
-
-  router.get(
-    '/templates/:templateId/questions',
-    requirePermission(Permissions.SURVEY_TEMPLATE_VIEW),
-    validateParams(templateIdParamSchema),
-    controller.findTemplateQuestions.bind(controller)
-  );
-
-  router.get(
-    '/templates/:templateId/questions/:id',
-    requirePermission(Permissions.SURVEY_TEMPLATE_VIEW),
-    validateParams(questionParamSchema),
-    controller.findTemplateQuestionById.bind(controller)
-  );
-
-  router.put(
-    '/templates/:templateId/questions/:id',
-    requirePermission(Permissions.SURVEY_TEMPLATE_UPDATE),
-    validateParams(questionParamSchema),
-    validateBody(UpdateSurveyTemplateQuestionSchema),
-    controller.updateTemplateQuestion.bind(controller)
-  );
-
-  router.delete(
-    '/templates/:templateId/questions/:id',
-    requirePermission(Permissions.SURVEY_TEMPLATE_UPDATE),
-    validateParams(questionParamSchema),
-    controller.deleteTemplateQuestion.bind(controller)
-  );
-
-  router.patch(
-    '/templates/:templateId/questions/reorder',
-    requirePermission(Permissions.SURVEY_TEMPLATE_UPDATE),
-    validateParams(templateIdParamSchema),
-    validateBody(ReorderSurveyTemplateQuestionsSchema),
-    controller.reorderTemplateQuestions.bind(controller)
-  );
+  // TEMPLATE ROUTES REMOVED — moved to template-management module
 
   return router;
 }

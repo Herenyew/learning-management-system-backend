@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { QuestionAnswerStructure, ShowCorrectAnswersTiming } from "@prisma/client";
+import { QuestionAnswerStructure } from "@prisma/client";
 
 // Helper for decimal parsing
 const stringOrNumberToDecimal = z
@@ -88,44 +88,6 @@ export const updateGradingMethodSchema = createGradingMethodSchema.partial();
 
 export const gradingMethodFilterSchema = z.object({
   search: z.string().trim().optional(),
-  isActive: z.enum(["true", "false"]).transform((v) => v === "true").optional(),
-  page: z.coerce.number().int().positive().default(1),
-  pageSize: z.coerce.number().int().positive().max(100).default(10),
-});
-
-// ─── 4. Assessment Template DTOs ─────────────────────────────────────────
-export const createAssessmentTemplateSchema = z.object({
-  name: z
-    .string({ message: "Template name is required" })
-    .trim()
-    .min(3, "Name must be at least 3 characters")
-    .max(255, "Name cannot exceed 255 characters"),
-  description: z.string().trim().optional(),
-  assessmentTypeId: z.number().int().positive({ message: "Assessment Type ID is required" }),
-  gradingMethodId: z.number().int().positive({ message: "Grading Method ID is required" }),
-  passingScore: stringOrNumberToDecimal.pipe(z.number().min(0).max(100)),
-  maxAttempts: z.number().int().positive().default(2),
-  timeLimitMinutes: z.number().int().positive().optional(),
-  randomizeQuestions: z.boolean().default(false),
-  randomizeOptions: z.boolean().default(false),
-  showResultImmediately: z.boolean().default(false),
-  allowReview: z.boolean().default(true),
-  showCorrectAnswers: z.nativeEnum(ShowCorrectAnswersTiming, {
-    message: "Show correct answers timing is required",
-  }),
-  lockdownBrowser: z.boolean().default(false),
-  proctoringEnabled: z.boolean().default(false),
-  negativeMarking: stringOrNumberToDecimal.pipe(z.number().min(0).max(1)).optional(),
-  questionCount: z.number().int().nonnegative().optional().default(0),
-  isActive: z.boolean().default(true),
-});
-
-export const updateAssessmentTemplateSchema = createAssessmentTemplateSchema.partial();
-
-export const assessmentTemplateFilterSchema = z.object({
-  search: z.string().trim().optional(),
-  assessmentTypeId: z.coerce.number().int().positive().optional(),
-  gradingMethodId: z.coerce.number().int().positive().optional(),
   isActive: z.enum(["true", "false"]).transform((v) => v === "true").optional(),
   page: z.coerce.number().int().positive().default(1),
   pageSize: z.coerce.number().int().positive().max(100).default(10),

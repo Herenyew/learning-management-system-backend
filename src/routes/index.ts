@@ -23,6 +23,7 @@ import xpRuleConfigRoutes from "../modules/configuration/gamification/xp-rules/i
 import badgeConfigRoutes from "../modules/configuration/gamification/badge-configuration/index.js";
 import systemSettingRoutes from "../modules/configuration/system-settings/index.js";
 import surveyConfigRoutes from "../modules/configuration/survey-configuration/index.js";
+import templateManagementRoutes from "../modules/configuration/template-management/index.js";
 import accessControlConfigRoutes from "../modules/configuration/access-control-configuration/index.js";
 import { notificationsRouter } from "../modules/notifications/index.js";
 import { certificatesRouter } from "../modules/certificates/index.js";
@@ -64,6 +65,7 @@ router.use("/configuration/xp-rules", xpRuleConfigRoutes);
 router.use("/configuration/badges", badgeConfigRoutes);
 router.use("/configuration/system-settings", systemSettingRoutes);
 router.use("/configuration/survey", surveyConfigRoutes);
+router.use("/configuration/templates", templateManagementRoutes);
 router.use("/notifications", notificationsRouter);
 router.use("/certificates", certificatesRouter);
 router.use("/enrollments", enrollmentsRouter);

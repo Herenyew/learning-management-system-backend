@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import type { PrismaClient, ProgramType, ProgramCategory, TaskType, ProgramTemplate } from "@prisma/client";
+import type { PrismaClient, ProgramType, ProgramCategory, TaskType } from "@prisma/client";
 import type {
   CreateProgramTypeInput,
   UpdateProgramTypeInput,
@@ -10,9 +10,6 @@ import type {
   CreateTaskTypeInput,
   UpdateTaskTypeInput,
   TaskTypeQueryInput,
-  CreateProgramTemplateInput,
-  UpdateProgramTemplateInput,
-  ProgramTemplateQueryInput,
 } from "./program-configuration.types.js";
 
 import type { IProgramConfigurationRepository } from "./program-configuration.types.js";
@@ -24,9 +21,7 @@ import type { IProgramConfigurationRepository } from "./program-configuration.ty
 export class ProgramConfigurationRepository implements IProgramConfigurationRepository {
   constructor(private prisma: PrismaClient) {}
 
-  // ==========================================
   // 1. ProgramType Repository Methods
-  // ==========================================
 
   async createProgramType(companyId: number, data: CreateProgramTypeInput): Promise<ProgramType> {
     return this.prisma.programType.create({
@@ -126,9 +121,7 @@ export class ProgramConfigurationRepository implements IProgramConfigurationRepo
     });
   }
 
-  // ==========================================
   // 2. ProgramCategory Repository Methods
-  // ==========================================
 
   async createProgramCategory(
     companyId: number,
@@ -232,21 +225,14 @@ export class ProgramConfigurationRepository implements IProgramConfigurationRepo
   }
 
   async countProgramCategoryUsages(companyId: number, id: number): Promise<number> {
-    const [programCount, templateCount] = await Promise.all([
-      this.prisma.learningProgram.count({
-        where: { companyId, programCategoryId: id, deletedAt: null },
-      }),
-      this.prisma.programTemplate.count({
-        where: { companyId, categoryId: id, deletedAt: null },
-      }),
-    ]);
+    const programCount = await this.prisma.learningProgram.count({
+      where: { companyId, programCategoryId: id, deletedAt: null },
+    });
 
-    return programCount + templateCount;
+    return programCount;
   }
 
-  // ==========================================
   // 3. TaskType Repository Methods
-  // ==========================================
 
   async createTaskType(
     companyId: number,
@@ -363,132 +349,4 @@ export class ProgramConfigurationRepository implements IProgramConfigurationRepo
     });
   }
 
-  // ==========================================
-  // 4. ProgramTemplate Repository Methods
-  // ==========================================
-
-  async createTemplate(
-    companyId: number,
-    userId: number,
-    data: CreateProgramTemplateInput
-  ): Promise<ProgramTemplate> {
-    const { defaultMilestones, ...rest } = data;
-
-    return this.prisma.programTemplate.create({
-      data: {
-        ...rest,
-        defaultMilestones: defaultMilestones
-          ? (defaultMilestones as Prisma.InputJsonValue)
-          : Prisma.JsonNull,
-        companyId,
-        createdBy: userId,
-      },
-    });
-  }
-
-  async findTemplateById(companyId: number, id: number): Promise<ProgramTemplate | null> {
-    return this.prisma.programTemplate.findFirst({
-      where: {
-        id,
-        companyId,
-        deletedAt: null,
-      },
-      include: {
-        category: { select: { id: true, name: true } },
-        creator: { select: { id: true, email: true } },
-        updater: { select: { id: true, email: true } },
-      },
-    });
-  }
-
-  async findTemplateByName(companyId: number, name: string): Promise<ProgramTemplate | null> {
-    return this.prisma.programTemplate.findFirst({
-      where: {
-        companyId,
-        name: {
-          equals: name,
-          mode: "insensitive",
-        },
-        deletedAt: null,
-      },
-    });
-  }
-
-  async findTemplates(
-    companyId: number,
-    query: ProgramTemplateQueryInput
-  ): Promise<{ items: ProgramTemplate[]; total: number; page: number; pageSize: number }> {
-    const { page, pageSize, search, categoryId, programTypeId, isActive } = query;
-    const skip = (page - 1) * pageSize;
-
-    const where: Prisma.ProgramTemplateWhereInput = {
-      companyId,
-      deletedAt: null,
-      ...(isActive !== undefined && { isActive }),
-      ...(categoryId && { categoryId }),
-      ...(programTypeId && { programTypeId }),
-      ...(search && {
-        OR: [
-          { name: { contains: search, mode: "insensitive" } },
-          { description: { contains: search, mode: "insensitive" } },
-        ],
-      }),
-    };
-
-    const [items, total] = await Promise.all([
-      this.prisma.programTemplate.findMany({
-        where,
-        skip,
-        take: pageSize,
-        include: {
-          category: { select: { id: true, name: true } },
-        },
-        orderBy: { createdAt: "desc" },
-      }),
-      this.prisma.programTemplate.count({ where }),
-    ]);
-
-    return { items, total, page, pageSize };
-  }
-
-  async countTemplates(companyId: number): Promise<number> {
-    return this.prisma.programTemplate.count({
-      where: { companyId, deletedAt: null },
-    });
-  }
-
-  async updateTemplate(
-    companyId: number,
-    id: number,
-    userId: number,
-    data: UpdateProgramTemplateInput
-  ): Promise<ProgramTemplate> {
-    const { defaultMilestones, ...rest } = data;
-
-    return this.prisma.programTemplate.update({
-      where: { id, companyId },
-      data: {
-        ...rest,
-        ...(defaultMilestones !== undefined && {
-          defaultMilestones: defaultMilestones
-            ? (defaultMilestones as Prisma.InputJsonValue)
-            : Prisma.JsonNull,
-        }),
-        updatedBy: userId,
-      },
-    });
-  }
-
-  async softDeleteTemplate(companyId: number, id: number): Promise<ProgramTemplate> {
-    return this.prisma.programTemplate.update({
-      where: { id },
-      data: { deletedAt: new Date() },
-    });
-  }
-
-  async countTemplateUsages(companyId: number, id: number): Promise<number> {
-    // LearningProgram does not store a `templateId` reference in the schema.
-    // There is no direct FK to ProgramTemplate, so conservatively return 0.
-    return 0;
-  }
 }

@@ -14,9 +14,9 @@ export const coursePublishingService = {
     context: { companyId: number; userId: number },
     courseVersionId: number,
     comment?: string,
+    workflowId?: number,
   ) {
     const result = await coursePublishingRepository.transaction(async (tx) => {
-      // 1. Validate CourseVersion exists and belongs to submitter's company
       const version = await coursePublishingRepository.findCourseVersion(
         tx,
         context.companyId,
@@ -33,7 +33,6 @@ export const coursePublishingService = {
         );
       }
 
-      // 2. Check there is no active pending instance already
       const existing = await coursePublishingRepository.findExistingInstance(
         tx,
         context.companyId,
@@ -47,20 +46,35 @@ export const coursePublishingService = {
         );
       }
 
-      // 3. Find default workflow for COURSE_VERSION
-      const workflow = await coursePublishingRepository.findDefaultWorkflowForCourse(
-        tx,
-        context.companyId,
-      );
-      if (!workflow) {
-        throw new AppError(
-          "No default approval workflow is configured for course publishing. Please configure one in the Configuration Center.",
-          422,
-          ErrorCode.BUSINESS_RULE_VIOLATION,
+      // Use the caller-specified workflow if provided; fall back to default.
+      let workflow;
+      if (workflowId) {
+        workflow = await coursePublishingRepository.findWorkflowById(
+          tx,
+          context.companyId,
+          workflowId,
         );
+        if (!workflow) {
+          throw new AppError(
+            "The selected approval workflow was not found or is not active.",
+            404,
+            ErrorCode.NOT_FOUND,
+          );
+        }
+      } else {
+        workflow = await coursePublishingRepository.findDefaultWorkflowForCourse(
+          tx,
+          context.companyId,
+        );
+        if (!workflow) {
+          throw new AppError(
+            "No default approval workflow is configured for course publishing. Please configure one in the Configuration Center.",
+            422,
+            ErrorCode.BUSINESS_RULE_VIOLATION,
+          );
+        }
       }
 
-      // 4. Create workflow instance
       const instance = await coursePublishingRepository.createInstance(tx, {
         companyId: context.companyId,
         workflowId: workflow.id,
@@ -68,35 +82,18 @@ export const coursePublishingService = {
         submittedBy: context.userId,
       });
 
-      // 5. Resolve reviewers from the first workflow step
-      let reviewerIds: number[] = [];
-      const firstStep = workflow.steps[0];
-      if (firstStep) {
-        if (firstStep.approverRoleId) {
-          const users = await coursePublishingRepository.findUsersByRole(
-            tx,
-            context.companyId,
-            firstStep.approverRoleId,
-          );
-          reviewerIds = users.map((u) => u.id);
-        }
-        if (firstStep.approverEmployeeId) {
-          // Individual approver — find their appUser
-          const user = await tx.appUser.findFirst({
-            where: {
-              companyId: context.companyId,
-              employeeId: firstStep.approverEmployeeId,
-              isActive: true,
-            },
-            select: { id: true },
-          });
-          if (user && !reviewerIds.includes(user.id)) {
-            reviewerIds.push(user.id);
-          }
-        }
-      }
+      const firstStep = workflow.steps[0] ?? null;
+      const reviewerIds = await coursePublishingRepository.resolveStepReviewers(
+        tx,
+        context.companyId,
+        firstStep ? {
+          id: firstStep.id,
+          approverRoleId: firstStep.approverRoleId,
+          approverEmployeeId: firstStep.approverEmployeeId,
+          autoApprove: firstStep.autoApprove,
+        } : null,
+      );
 
-      // Notify reviewers
       const dispatch =
         reviewerIds.length > 0
           ? await notificationDispatcher.dispatch(tx, {
@@ -114,7 +111,7 @@ export const coursePublishingService = {
             })
           : { emails: [], inAppCount: 0 };
 
-      return { version, instance, dispatch };
+      return { version, instance, workflow, dispatch };
     });
 
     await notificationDispatcher.deliverAfterCommit(result.dispatch);
@@ -123,7 +120,9 @@ export const coursePublishingService = {
       courseVersionId,
       instanceId: result.instance.id,
       status: result.instance.status,
-      message: "Course submitted for review. Reviewers have been notified.",
+      workflowId: result.workflow.id,
+      workflowName: result.workflow.name,
+      message: `Course submitted for review via "${result.workflow.name}". Reviewers have been notified.`,
     };
   },
 
@@ -138,7 +137,7 @@ export const coursePublishingService = {
    */
   async createAndSubmitDraft(
     context: { companyId: number; userId: number },
-    input: { title: string; description?: string },
+    input: { title: string; description?: string; workflowId?: number },
   ) {
     const result = await coursePublishingRepository.transaction(async (tx) => {
       const title = input.title.trim();
@@ -171,11 +170,27 @@ export const coursePublishingService = {
         difficultyLevelId,
       });
 
-      // 3. Find default workflow (COURSE_VERSION or COURSE)
-      const workflow = await coursePublishingRepository.findDefaultWorkflowForCourse(
-        tx,
-        context.companyId,
-      );
+      // 3. Find the workflow — use caller-specified or fall back to default
+      let workflow;
+      if (input.workflowId) {
+        workflow = await coursePublishingRepository.findWorkflowById(
+          tx,
+          context.companyId,
+          input.workflowId,
+        );
+        if (!workflow) {
+          throw new AppError(
+            "The selected approval workflow was not found or is not active.",
+            404,
+            ErrorCode.NOT_FOUND,
+          );
+        }
+      } else {
+        workflow = await coursePublishingRepository.findDefaultWorkflowForCourse(
+          tx,
+          context.companyId,
+        );
+      }
       if (!workflow) {
         // The draft persists even without a workflow — no review is started.
         return { course, version, instance: null, dispatch: { emails: [], inAppCount: 0 }, reviewerIds: [] as number[] };
@@ -558,7 +573,9 @@ export const coursePublishingService = {
   },
 
   /**
-   * List pending review instances for reviewers (admin/hr).
+   * List all pending review instances for reviewers (admin/hr/manager).
+   * Returns both PENDING and recently-APPROVED/REJECTED instances so the
+   * reviewer can see the full history of what they actioned.
    */
   listPendingReviews(companyId: number) {
     return coursePublishingRepository.transaction(async (tx) => {
@@ -566,12 +583,15 @@ export const coursePublishingService = {
         where: {
           companyId,
           entityType: "COURSE_VERSION",
-          status: { in: ["PENDING", "CHANGES_REQUESTED"] },
+          // Show all non-cancelled instances so reviewers see history too
+          status: { in: ["PENDING", "CHANGES_REQUESTED", "APPROVED", "REJECTED"] },
         },
         include: {
           courseVersion: {
             select: {
               id: true,
+              // The current status of the CourseVersion itself — this is what
+              // changes immediately when the final step approves.
               status: true,
               approvalStatus: true,
               course: { select: { id: true, title: true } },
@@ -581,11 +601,29 @@ export const coursePublishingService = {
           submittedByUser: { select: { id: true, email: true } },
           decisions: {
             orderBy: { decidedAt: "desc" },
-            take: 1,
-            select: { status: true, comment: true, decidedAt: true },
+            take: 3,
+            select: {
+              status: true,
+              comment: true,
+              decidedAt: true,
+              workflowStep: { select: { approvalOrder: true } },
+            },
+          },
+          workflow: {
+            select: {
+              name: true,
+              steps: {
+                orderBy: { approvalOrder: "asc" },
+                select: {
+                  id: true,
+                  approvalOrder: true,
+                  approverRole: { select: { name: true } },
+                },
+              },
+            },
           },
         },
-        orderBy: { submittedAt: "asc" },
+        orderBy: { submittedAt: "desc" },
       });
     });
   },

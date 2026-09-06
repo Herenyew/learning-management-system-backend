@@ -15,9 +15,6 @@ import {
   CreateProviderTypeSchema,
   UpdateProviderTypeSchema,
   ProviderTypeFilterSchema,
-  CreateCertificateTemplateSchema,
-  UpdateCertificateTemplateSchema,
-  CertificateTemplateFilterSchema,
   CreateCertificateTemplateSignerSchema,
   UpdateCertificateTemplateSignerSchema,
 } from "./certificate-configuration.dto.js";
@@ -136,42 +133,6 @@ export function CertificateConfigurationRouter(
     "/provider-types/:id",
     requirePermission(Permissions.PROVIDER_TYPE_DELETE),
     controller.deleteProviderType
-  );
-
-  // ==========================================
-  // 4. CertificateTemplate Routes
-  // ==========================================
-  router.post(
-    "/templates",
-    requirePermission(Permissions.CERTIFICATE_TEMPLATE_CREATE),
-    validateBody(CreateCertificateTemplateSchema),
-    controller.createTemplate
-  );
-
-  router.get(
-    "/templates",
-    requirePermission(Permissions.CERTIFICATE_TEMPLATE_VIEW),
-    validateQuery(CertificateTemplateFilterSchema),
-    controller.listTemplates
-  );
-
-  router.get(
-    "/templates/:id",
-    requirePermission(Permissions.CERTIFICATE_TEMPLATE_VIEW),
-    controller.getTemplateById
-  );
-
-  router.patch(
-    "/templates/:id",
-    requirePermission(Permissions.CERTIFICATE_TEMPLATE_UPDATE),
-    validateBody(UpdateCertificateTemplateSchema),
-    controller.updateTemplate
-  );
-
-  router.delete(
-    "/templates/:id",
-    requirePermission(Permissions.CERTIFICATE_TEMPLATE_DELETE),
-    controller.deleteTemplate
   );
 
   // ==========================================

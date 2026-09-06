@@ -9,9 +9,6 @@ import type {
   CreateProviderTypeInput,
   UpdateProviderTypeInput,
   ProviderTypeFilterInput,
-  CreateCertificateTemplateInput,
-  UpdateCertificateTemplateInput,
-  CertificateTemplateFilterInput,
   CreateCertificateTemplateSignerInput,
   UpdateCertificateTemplateSignerInput,
 } from "./certificate-configuration.types.js";
@@ -317,114 +314,25 @@ export class CertificateConfigurationService {
     return this.repository.softDeleteProviderType(companyId, id);
   }
 
-  // ==========================================
-  // 4. CertificateTemplate Operations
-  // ==========================================
-
-  async createTemplate(
-    companyId: number,
-    userId: number,
-    dto: CreateCertificateTemplateInput
-  ) {
-    const certType = await this.repository.findCertificateTypeById(
-      companyId,
-      dto.certificateTypeId
-    );
-    if (!certType) {
-      throw new NotFoundError(`Certificate type with ID ${dto.certificateTypeId} does not exist.`);
-    }
-
-    const existingName = await this.repository.findTemplateByName(
-      companyId,
-      dto.name
-    );
-    if (existingName) {
-      throw new ConflictError(`Template with name "${dto.name}" already exists.`);
-    }
-
-    return this.repository.createTemplate(companyId, userId, dto);
-  }
-
-  async getTemplateById(companyId: number, id: number) {
-    const template = await this.repository.findTemplateById(companyId, id);
-    if (!template) {
-      throw new NotFoundError(`Certificate template with ID ${id} not found.`);
-    }
-    return template;
-  }
-
-  async getTemplates(
-    companyId: number,
-    query: CertificateTemplateFilterInput
-  ) {
-    return this.repository.findTemplates(companyId, query);
-  }
-
-  async updateTemplate(
-    companyId: number,
-    id: number,
-    userId: number,
-    dto: UpdateCertificateTemplateInput
-  ) {
-    await this.getTemplateById(companyId, id);
-
-    if (dto.certificateTypeId) {
-      const certType = await this.repository.findCertificateTypeById(
-        companyId,
-        dto.certificateTypeId
-      );
-      if (!certType) {
-        throw new NotFoundError(`Certificate type with ID ${dto.certificateTypeId} does not exist.`);
-      }
-    }
-
-    if (dto.name) {
-      const existingName = await this.repository.findTemplateByName(
-        companyId,
-        dto.name
-      );
-      if (existingName && existingName.id !== id) {
-        throw new ConflictError(`Template with name "${dto.name}" already exists.`);
-      }
-    }
-
-    const result = await this.repository.updateTemplate(
-      companyId,
-      id,
-      userId,
-      dto
-    );
-    if (result.count === 0) {
-      throw new NotFoundError(`Failed to update template with ID ${id}.`);
-    }
-
-    return this.getTemplateById(companyId, id);
-  }
-
-  async deleteTemplate(companyId: number, id: number) {
-    await this.getTemplateById(companyId, id);
-
-    const usageCount = await this.repository.countTemplateUsages(
-      companyId,
-      id
-    );
-    if (usageCount > 0) {
-      throw new ConflictError(`Cannot delete template because ${usageCount} active certificate(s) have been issued with it.`);
-    }
-
-    return this.repository.softDeleteTemplate(companyId, id);
-  }
+  // TEMPLATE OPERATIONS REMOVED — moved to template-management module
 
   // ==========================================
   // 5. CertificateTemplateSigner Operations
   // ==========================================
+
+  private async ensureTemplateExists(companyId: number, templateId: number): Promise<void> {
+    const exists = await this.repository.templateExists(companyId, templateId);
+    if (!exists) {
+      throw new NotFoundError(`Certificate template with ID ${templateId} not found.`);
+    }
+  }
 
   async addSigner(
     companyId: number,
     templateId: number,
     dto: CreateCertificateTemplateSignerInput
   ) {
-    await this.getTemplateById(companyId, templateId);
+    await this.ensureTemplateExists(companyId, templateId);
 
     const existingEmployeeSigner = await this.repository.findSignerByEmployee(
       companyId,
@@ -448,7 +356,7 @@ export class CertificateConfigurationService {
   }
 
   async getSigners(companyId: number, templateId: number) {
-    await this.getTemplateById(companyId, templateId);
+    await this.ensureTemplateExists(companyId, templateId);
     return this.repository.findSigners(companyId, templateId);
   }
 
@@ -458,7 +366,7 @@ export class CertificateConfigurationService {
     signerId: number,
     dto: UpdateCertificateTemplateSignerInput
   ) {
-    await this.getTemplateById(companyId, templateId);
+    await this.ensureTemplateExists(companyId, templateId);
 
     const existingSigner = await this.repository.findSignerById(
       companyId,
@@ -467,7 +375,6 @@ export class CertificateConfigurationService {
     if (!existingSigner || existingSigner.templateId !== templateId) {
       throw new NotFoundError(`Signer with ID ${signerId} not found for this template.`);
     }
-
     if (dto.employeeId && dto.employeeId !== existingSigner.employeeId) {
       const duplicateEmp = await this.repository.findSignerByEmployee(
         companyId,
@@ -510,7 +417,7 @@ export class CertificateConfigurationService {
     templateId: number,
     signerId: number
   ) {
-    await this.getTemplateById(companyId, templateId);
+    await this.ensureTemplateExists(companyId, templateId);
 
     const existingSigner = await this.repository.findSignerById(
       companyId,

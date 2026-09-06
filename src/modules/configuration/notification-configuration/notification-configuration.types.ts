@@ -7,9 +7,6 @@ import {
   createNotificationEventSchema,
   updateNotificationEventSchema,
   notificationEventFilterSchema,
-  createNotificationTemplateSchema,
-  updateNotificationTemplateSchema,
-  notificationTemplateFilterSchema,
 } from "./notification-configuration.dto.js";
 
 import { $Enums } from "@prisma/client";
@@ -44,22 +41,9 @@ export interface NotificationEventFilterParams {
   sortOrder?: "asc" | "desc";
 }
 
-export type CreateNotificationTemplateInput = z.infer<typeof createNotificationTemplateSchema>;
-export type UpdateNotificationTemplateInput = z.infer<typeof updateNotificationTemplateSchema>;
-export type NotificationTemplateFilterInput = z.infer<typeof notificationTemplateFilterSchema>;
-export interface NotificationTemplateFilterParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  channel?: Channel;
-  eventCode?: string;
-  notificationEventId?: number;
-  isActive?: boolean;
-  sortBy?: "name" | "channel" | "createdAt";
-  sortOrder?: "asc" | "desc";
-}
+// TEMPLATE TYPES REMOVED — moved to template-management module
 
-import type { Prisma, NotificationModule, NotificationEvent, NotificationTemplate } from "@prisma/client";
+import type { Prisma, NotificationModule, NotificationEvent } from "@prisma/client";
 
 export interface INotificationConfigurationRepository {
   createNotificationModule(companyId: number, data: CreateNotificationModuleInput): Promise<NotificationModule>;
@@ -78,12 +62,4 @@ export interface INotificationConfigurationRepository {
   updateNotificationEvent(companyId: number, id: number, data: UpdateNotificationEventInput): Promise<Prisma.BatchPayload>;
   deactivateNotificationEvent(companyId: number, id: number): Promise<Prisma.BatchPayload>;
   countNotificationEventUsages(companyId: number, id: number): Promise<number>;
-
-  createTemplate(companyId: number, userId: number, data: CreateNotificationTemplateInput): Promise<NotificationTemplate>;
-  findTemplateById(companyId: number, id: number): Promise<NotificationTemplate | null>;
-  findTemplateByName(companyId: number, name: string): Promise<NotificationTemplate | null>;
-  findTemplates(companyId: number, query: NotificationTemplateFilterParams): Promise<{ data: NotificationTemplate[]; meta: { total: number; page: number; limit: number; totalPages: number } }>;
-  updateTemplate(companyId: number, id: number, userId: number, data: UpdateNotificationTemplateInput): Promise<Prisma.BatchPayload>;
-  softDeleteTemplate(companyId: number, id: number): Promise<Prisma.BatchPayload>;
-  countTemplateUsages(companyId: number, id: number): Promise<number>;
 }

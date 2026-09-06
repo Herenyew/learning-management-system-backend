@@ -9,9 +9,6 @@ import {
   createGradingMethodSchema,
   updateGradingMethodSchema,
   gradingMethodFilterSchema,
-  createAssessmentTemplateSchema,
-  updateAssessmentTemplateSchema,
-  assessmentTemplateFilterSchema,
 } from "./assessment-configuration.dto.js";
 
 import { QuestionAnswerStructure } from "@prisma/client";
@@ -53,62 +50,7 @@ export interface GradingMethodFilterParams {
   sortOrder?: "asc" | "desc";
 }
 
-export type CreateAssessmentTemplateInput = z.infer<typeof createAssessmentTemplateSchema>;
-export type UpdateAssessmentTemplateInput = z.infer<typeof updateAssessmentTemplateSchema>;
-export type AssessmentTemplateFilterInput = z.infer<typeof assessmentTemplateFilterSchema>;
-export interface AssessmentTemplateFilterParams {
-  search?: string;
-  assessmentTypeId?: number;
-  gradingMethodId?: number;
-  isActive?: boolean;
-  page?: number;
-  pageSize?: number;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
-}
-
-import type { Prisma, AssessmentType, QuestionType, GradingMethod, AssessmentTemplate } from "@prisma/client";
-
-export type AssessmentTemplateDetail = Prisma.AssessmentTemplateGetPayload<{
-  select: {
-    id: true;
-    name: true;
-    description: true;
-    passingScore: true;
-    maxAttempts: true;
-    timeLimitMinutes: true;
-    randomizeQuestions: true;
-    randomizeOptions: true;
-    showResultImmediately: true;
-    allowReview: true;
-    showCorrectAnswers: true;
-    lockdownBrowser: true;
-    proctoringEnabled: true;
-    negativeMarking: true;
-    questionCount: true;
-    isActive: true;
-    createdAt: true;
-    updatedAt: true;
-    assessmentType: { select: { id: true; name: true; code: true } };
-    gradingMethod: { select: { id: true; name: true; slug: true } };
-  };
-}>;
-
-export type AssessmentTemplateListItem = Prisma.AssessmentTemplateGetPayload<{
-  select: {
-    id: true;
-    name: true;
-    description: true;
-    passingScore: true;
-    maxAttempts: true;
-    timeLimitMinutes: true;
-    questionCount: true;
-    isActive: true;
-    createdAt: true;
-    assessmentType: { select: { id: true; name: true; code: true } };
-    gradingMethod: { select: { id: true; name: true; slug: true } };
-  };
-}>;
+import type { Prisma, AssessmentType, QuestionType, GradingMethod } from "@prisma/client";
 
 export interface IAssessmentConfigurationRepository {
   createAssessmentType(data: Prisma.AssessmentTypeCreateInput): Promise<AssessmentType>;
@@ -139,13 +81,4 @@ export interface IAssessmentConfigurationRepository {
   updateGradingMethod(id: number, companyId: number, data: Prisma.GradingMethodUpdateInput): Promise<GradingMethod>;
   deleteGradingMethod(id: number, companyId: number): Promise<GradingMethod>;
   countGradingMethodUsages(id: number, companyId: number): Promise<number>;
-
-  createTemplate(data: Prisma.AssessmentTemplateCreateInput): Promise<AssessmentTemplate>;
-  findTemplateById(id: number, companyId: number): Promise<AssessmentTemplateDetail | null>;
-  findTemplateByName(name: string, companyId: number): Promise<AssessmentTemplate | null>;
-  findTemplates(filter: AssessmentTemplateFilterParams, companyId: number): Promise<AssessmentTemplateListItem[]>;
-  countTemplates(filter: AssessmentTemplateFilterParams, companyId: number): Promise<number>;
-  updateTemplate(id: number, companyId: number, data: Prisma.AssessmentTemplateUpdateInput): Promise<AssessmentTemplate>;
-  softDeleteTemplate(id: number, companyId: number, updatedBy: number): Promise<AssessmentTemplate>;
-  countTemplateUsages(id: number, companyId: number): Promise<number>;
 }

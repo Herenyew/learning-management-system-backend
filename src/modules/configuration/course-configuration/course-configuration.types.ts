@@ -12,9 +12,6 @@ import {
   createContentFileTypeSchema,
   updateContentFileTypeSchema,
   contentFileTypeFilterQuerySchema,
-  createCourseTemplateSchema,
-  updateCourseTemplateSchema,
-  courseTemplateFilterQuerySchema,
 } from "./course-configuration.dto.js";
 
 export type CreateCourseCategoryInput = z.infer<typeof createCourseCategorySchema>;
@@ -75,37 +72,7 @@ export interface ContentFileTypeFilterParams {
 }
 export type ContentFileTypeFilter = ContentFileTypeFilterParams;
 
-export type CreateCourseTemplateInput = z.infer<typeof createCourseTemplateSchema>;
-export type UpdateCourseTemplateInput = z.infer<typeof updateCourseTemplateSchema>;
-export type CourseTemplateFilterQuery = z.infer<typeof courseTemplateFilterQuerySchema>;
-
-export interface CourseTemplateFilterParams {
-  companyId: number;
-  search?: string;
-  isActive?: boolean;
-  categoryId?: number;
-  difficultyLevelId?: number;
-  page?: number;
-  pageSize?: number;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
-}
-export type CourseTemplateFilter = CourseTemplateFilterParams;
-
-import type { Prisma, CourseCategory, DifficultyLevel, ContentType, ContentFileType, CourseTemplate } from "@prisma/client";
-
-export type CourseTemplateListItem = Prisma.CourseTemplateGetPayload<{
-  select: {
-    id: true;
-    name: true;
-    description: true;
-    shortSummary: true;
-    isActive: true;
-    createdAt: true;
-    category: { select: { id: true; name: true } };
-    difficultyLevel: { select: { id: true; name: true; code: true } };
-  };
-}>;
+import type { Prisma, CourseCategory, DifficultyLevel, ContentType, ContentFileType } from "@prisma/client";
 
 export interface ICourseConfigurationRepository {
   countCategoryChildren(id: number, companyId: number): Promise<number>;
@@ -146,12 +113,4 @@ export interface ICourseConfigurationRepository {
   softDeleteContentFileType(id: number): Promise<ContentFileType>;
   countContentFileTypeUsages(id: number): Promise<number>;
 
-  createTemplate(data: Prisma.CourseTemplateCreateInput): Promise<CourseTemplate>;
-  findTemplateById(id: number, companyId: number): Promise<CourseTemplate | null>;
-  findTemplateByName(companyId: number, name: string): Promise<CourseTemplate | null>;
-  findTemplates(filter: CourseTemplateFilterParams, page: number, pageSize: number): Promise<CourseTemplateListItem[]>;
-  countTemplates(filter: CourseTemplateFilterParams): Promise<number>;
-  updateTemplate(id: number, companyId: number, data: Prisma.CourseTemplateUpdateInput): Promise<CourseTemplate>;
-  softDeleteTemplate(id: number, companyId: number): Promise<CourseTemplate>;
-  countTemplateUsages(id: number, companyId: number): Promise<number>;
 }

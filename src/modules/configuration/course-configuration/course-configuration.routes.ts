@@ -32,9 +32,6 @@ import {
   createContentFileTypeSchema,
   updateContentFileTypeSchema,
   contentFileTypeFilterQuerySchema,
-  createCourseTemplateSchema,
-  updateCourseTemplateSchema,
-  courseTemplateFilterQuerySchema,
 } from "./course-configuration.dto.js";
 
 export function courseConfigurationRoutes(
@@ -196,44 +193,5 @@ export function courseConfigurationRoutes(
     validateParams(idParamSchema),
     controller.deleteContentFileType.bind(controller)
   );
-
-  // ─── 5. Course Templates ─────────────────────────────────────────────
-
-  router.post(
-    "/templates",
-    requirePermission(Permissions.COURSE_TEMPLATE_CREATE),
-    validateBody(createCourseTemplateSchema),
-    controller.createTemplate.bind(controller)
-  );
-
-  router.get(
-    "/templates",
-    requirePermission(Permissions.COURSE_TEMPLATE_VIEW),
-    validateQuery(courseTemplateFilterQuerySchema),
-    controller.getTemplates.bind(controller)
-  );
-
-  router.get(
-    "/templates/:id",
-    requirePermission(Permissions.COURSE_TEMPLATE_VIEW),
-    validateParams(idParamSchema),
-    controller.getTemplateById.bind(controller)
-  );
-
-  router.put(
-    "/templates/:id",
-    requirePermission(Permissions.COURSE_TEMPLATE_UPDATE),
-    validateParams(idParamSchema),
-    validateBody(updateCourseTemplateSchema),
-    controller.updateTemplate.bind(controller)
-  );
-
-  router.delete(
-    "/templates/:id",
-    requirePermission(Permissions.COURSE_TEMPLATE_DELETE),
-    validateParams(idParamSchema),
-    controller.deleteTemplate.bind(controller)
-  );
-
   return router;
 }

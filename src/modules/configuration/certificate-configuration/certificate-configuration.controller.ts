@@ -11,9 +11,6 @@ import type {
   CreateProviderTypeInput,
   UpdateProviderTypeInput,
   ProviderTypeFilterInput,
-  CreateCertificateTemplateInput,
-  UpdateCertificateTemplateInput,
-  CertificateTemplateFilterInput,
   CreateCertificateTemplateSignerInput,
   UpdateCertificateTemplateSignerInput,
 } from "./certificate-configuration.types.js";
@@ -269,93 +266,6 @@ export class CertificateConfigurationController {
       const companyId = req.user.companyId;
       const id = Number(req.params.id);
       const result = await this.service.deleteProviderType(companyId, id);
-      res.status(200).json({ success: true, ...result });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  // ==========================================
-  // 4. CertificateTemplate Handlers
-  // ==========================================
-
-  createTemplate = async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
-    try {
-      const companyId = req.user.companyId;
-      const userId = req.user.appUserId;
-      const dto: CreateCertificateTemplateInput = req.body;
-      const result = await this.service.createTemplate(companyId, userId, dto);
-      res.status(201).json({ success: true, data: result });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  listTemplates = async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
-    try {
-      const companyId = req.user.companyId;
-      const query = req.query;
-      const result = await this.service.getTemplates(companyId, query);
-      res.status(200).json({ success: true, ...result });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  getTemplateById = async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
-    try {
-      const companyId = req.user.companyId;
-      const id = Number(req.params.id);
-      const result = await this.service.getTemplateById(companyId, id);
-      res.status(200).json({ success: true, data: result });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  updateTemplate = async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
-    try {
-      const companyId = req.user.companyId;
-      const userId = req.user.appUserId;
-      const id = Number(req.params.id);
-      const dto: UpdateCertificateTemplateInput = req.body;
-      const result = await this.service.updateTemplate(
-        companyId,
-        id,
-        userId,
-        dto
-      );
-      res.status(200).json({ success: true, data: result });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  deleteTemplate = async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
-    try {
-      const companyId = req.user.companyId;
-      const id = Number(req.params.id);
-      const result = await this.service.deleteTemplate(companyId, id);
       res.status(200).json({ success: true, ...result });
     } catch (error) {
       next(error);

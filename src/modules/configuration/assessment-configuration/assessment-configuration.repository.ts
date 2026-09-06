@@ -3,7 +3,6 @@ import type {
   AssessmentType,
   QuestionType,
   GradingMethod,
-  AssessmentTemplate,
   Prisma,
 } from "@prisma/client";
 import type {
@@ -16,11 +15,6 @@ import type {
   CreateGradingMethodInput,
   UpdateGradingMethodInput,
   GradingMethodFilterParams,
-  CreateAssessmentTemplateInput,
-  UpdateAssessmentTemplateInput,
-  AssessmentTemplateDetail,
-  AssessmentTemplateFilterParams,
-  AssessmentTemplateListItem,
 } from "./assessment-configuration.types.js";
 
 import type { IAssessmentConfigurationRepository } from "./assessment-configuration.types.js";
@@ -104,13 +98,10 @@ export class AssessmentConfigurationRepository implements IAssessmentConfigurati
   }
 
   async countAssessmentTypeUsages(id: number, companyId: number): Promise<number> {
-    const [assessmentsCount, templatesCount] = await Promise.all([
-      this.prisma.assessment.count({ where: { assessmentTypeId: id, companyId, deletedAt: null } }),
-      // NOTE: no deletedAt filter — soft-deleted templates still hold the FK,
-      // so they must be counted or the hard delete below 500s (P2003).
-      this.prisma.assessmentTemplate.count({ where: { assessmentTypeId: id, companyId } }),
-    ]);
-    return assessmentsCount + templatesCount;
+    const assessmentsCount = await this.prisma.assessment.count({
+      where: { assessmentTypeId: id, companyId, deletedAt: null },
+    });
+    return assessmentsCount;
   }
 
   // ─── 2. Question Type ────────────────────────────────────────────────────
@@ -276,142 +267,9 @@ export class AssessmentConfigurationRepository implements IAssessmentConfigurati
   }
 
   async countGradingMethodUsages(id: number, companyId: number): Promise<number> {
-    const [assessmentsCount, templatesCount] = await Promise.all([
-      this.prisma.assessment.count({ where: { gradingMethodId: id, companyId, deletedAt: null } }),
-      // NOTE: no deletedAt filter — soft-deleted templates still hold the FK,
-      // so they must be counted or the hard delete below 500s (P2003).
-      this.prisma.assessmentTemplate.count({ where: { gradingMethodId: id, companyId } }),
-    ]);
-    return assessmentsCount + templatesCount;
-  }
-
-  // ─── 4. Assessment Template ──────────────────────────────────────────────
-  async createTemplate(data: Prisma.AssessmentTemplateCreateInput): Promise<AssessmentTemplate> {
-    return this.prisma.assessmentTemplate.create({ data });
-  }
-
-  async findTemplateById(id: number, companyId: number): Promise<AssessmentTemplateDetail | null> {
-    return this.prisma.assessmentTemplate.findFirst({
-      where: { id, companyId, deletedAt: null },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        passingScore: true,
-        maxAttempts: true,
-        timeLimitMinutes: true,
-        randomizeQuestions: true,
-        randomizeOptions: true,
-        showResultImmediately: true,
-        allowReview: true,
-        showCorrectAnswers: true,
-        lockdownBrowser: true,
-        proctoringEnabled: true,
-        negativeMarking: true,
-        questionCount: true,
-        isActive: true,
-        createdAt: true,
-        updatedAt: true,
-        assessmentType: {
-          select: { id: true, name: true, code: true },
-        },
-        gradingMethod: {
-          select: { id: true, name: true, slug: true },
-        },
-      },
+    const assessmentsCount = await this.prisma.assessment.count({
+      where: { gradingMethodId: id, companyId, deletedAt: null },
     });
-  }
-
-  async findTemplateByName(name: string, companyId: number): Promise<AssessmentTemplate | null> {
-    return this.prisma.assessmentTemplate.findFirst({
-      where: {
-        name: { equals: name, mode: "insensitive" },
-        companyId,
-        deletedAt: null,
-      },
-    });
-  }
-
-  async findTemplates(filter: AssessmentTemplateFilterParams, companyId: number): Promise<AssessmentTemplateListItem[]> {
-    const { search, assessmentTypeId, gradingMethodId, isActive, page = 1, pageSize = 10 } = filter;
-    return this.prisma.assessmentTemplate.findMany({
-      where: {
-        companyId,
-        deletedAt: null,
-        ...(assessmentTypeId && { assessmentTypeId }),
-        ...(gradingMethodId && { gradingMethodId }),
-        ...(isActive !== undefined && { isActive }),
-        ...(search && {
-          name: { contains: search, mode: "insensitive" },
-        }),
-      },
-      skip: (page - 1) * pageSize,
-      take: pageSize,
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        passingScore: true,
-        maxAttempts: true,
-        timeLimitMinutes: true,
-        questionCount: true,
-        isActive: true,
-        createdAt: true,
-        assessmentType: {
-          select: { id: true, name: true, code: true },
-        },
-        gradingMethod: {
-          select: { id: true, name: true, slug: true },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-  }
-
-  async countTemplates(filter: AssessmentTemplateFilterParams, companyId: number): Promise<number> {
-    const { search, assessmentTypeId, gradingMethodId, isActive } = filter;
-    return this.prisma.assessmentTemplate.count({
-      where: {
-        companyId,
-        deletedAt: null,
-        ...(assessmentTypeId && { assessmentTypeId }),
-        ...(gradingMethodId && { gradingMethodId }),
-        ...(isActive !== undefined && { isActive }),
-        ...(search && {
-          name: { contains: search, mode: "insensitive" },
-        }),
-      },
-    });
-  }
-
-  async updateTemplate(
-    id: number,
-    companyId: number,
-    data: Prisma.AssessmentTemplateUpdateInput
-  ): Promise<AssessmentTemplate> {
-    return this.prisma.assessmentTemplate.update({
-      where: { id },
-      data,
-    });
-  }
-
-  async softDeleteTemplate(id: number, companyId: number, updatedBy: number): Promise<AssessmentTemplate> {
-    return this.prisma.assessmentTemplate.update({
-      where: { id },
-      data: {
-        deletedAt: new Date(),
-        updatedBy,
-      },
-    });
-  }
-
-  async countTemplateUsages(id: number, companyId: number): Promise<number> {
-    return this.prisma.assessment.count({
-      where: {
-        templateId: id,
-        companyId,
-        deletedAt: null,
-      },
-    });
+    return assessmentsCount;
   }
 }

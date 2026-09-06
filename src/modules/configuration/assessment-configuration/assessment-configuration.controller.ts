@@ -3,7 +3,6 @@ import type { AuthRequest } from "../auth-request.js";
 import type { AssessmentConfigurationService } from "./assessment-configuration.service.js";
 import type {
   AssessmentTypeFilterInput,
-  AssessmentTemplateFilterInput,
   QuestionTypeFilterInput,
   GradingMethodFilterInput,
 } from "./assessment-configuration.types.js";
@@ -144,55 +143,6 @@ export class AssessmentConfigurationController {
       const id = Number(req.params.id);
       await this.service.deleteGradingMethod(id, companyId);
       return res.status(200).json({ success: true, message: "Grading method deleted successfully" });
-    } catch (error) { next(error); }
-  };
-
-  // ─── 4. Assessment Templates ─────────────────────────────────────────────
-  createTemplate = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try {
-      const companyId = req.user.companyId;
-      const userId = req.user.appUserId;
-      const result = await this.service.createTemplate(req.body, companyId, userId);
-      return res.status(201).json({ success: true, message: "Assessment template created successfully", data: result });
-    } catch (error) { next(error); }
-  };
-
-  getTemplates = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try {
-      const companyId = req.user.companyId;
-      const filter = req.query;
-      const result = await this.service.getTemplates(filter, companyId);
-      return res.status(200).json({ success: true, message: "Assessment templates retrieved successfully", data: result.items, pagination: result.meta });
-    } catch (error) { next(error); }
-  };
-
-  getTemplateById = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try {
-      const companyId = req.user.companyId;
-      const id = Number(req.params.id);
-      const result = await this.service.getTemplateById(id, companyId);
-      return res.status(200).json({ success: true, message: "Assessment template retrieved successfully", data: result });
-    } catch (error) { next(error); }
-  };
-
-  updateTemplate = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try {
-      const companyId = req.user.companyId;
-      const userId = req.user.appUserId;
-      const id = Number(req.params.id);
-      // Cleaned: req.body is already validated by updateAssessmentTemplateSchema in route middleware
-      const result = await this.service.updateTemplate(id, req.body, companyId, userId);
-      return res.status(200).json({ success: true, message: "Assessment template updated successfully", data: result });
-    } catch (error) { next(error); }
-  };
-
-  deleteTemplate = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try {
-      const companyId = req.user.companyId;
-      const userId = req.user.appUserId;
-      const id = Number(req.params.id);
-      await this.service.deleteTemplate(id, companyId, userId);
-      return res.status(200).json({ success: true, message: "Assessment template deleted successfully" });
     } catch (error) { next(error); }
   };
 }
