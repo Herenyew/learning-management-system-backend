@@ -240,7 +240,37 @@ export const userRoleService = {
   },
 
   /**
-   * Permission check helpers — used by guards/middleware.
+   * Permission check helpers
+
+  /**
+   * Deactivate role assignments that have passed their expiry date and notify
+   * the affected users so their permissions refresh via SSE.
+   *
+   * Run on a schedule (e.g. daily) from server bootstrap.
+   */
+  async expireRoleAssignments(now: Date = new Date()) {
+    const expired = await prisma().userRoleAssignment.findMany({
+      where: { isActive: true, expiresAt: { lte: now } },
+      select: { id: true, userId: true, appRoleId: true },
+    });
+
+    if (expired.length === 0) return { expired: 0 };
+
+    await prisma().userRoleAssignment.updateMany({
+      where: { id: { in: expired.map((e) => e.id) } },
+      data: { isActive: false },
+    });
+
+    // Invalidate each affected user's permission cache.
+    const affectedUserIds = Array.from(new Set(expired.map((e) => e.userId)));
+    await Promise.all(affectedUserIds.map((id) => invalidateUserCache(id)));
+
+                return { expired: expired.length, userIds: affectedUserIds };
+  },
+
+  /**
+   * Check if user has a specific permission.
+   * Used by guards/middleware.
    * These are thin wrappers around getEffectivePermissions with caching.
    */
   async hasPermission(userId: number, permissionCode: string, companyId: number): Promise<boolean> {

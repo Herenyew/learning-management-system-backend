@@ -76,9 +76,17 @@ export class AccessControlRepository {
   }
 
   async list(companyId: number) {
-    await this.prisma.$transaction((transaction) =>
-      provisionAccessControlPermissions(transaction, companyId),
-    );
+    // Provisioning is idempotent but expensive (upserts every permission +
+    // default role grants). Guard it so it only runs on the first call for a
+    // company that has no permissions yet — subsequent calls skip it entirely.
+    const permissionCount = await this.prisma.lmsPermission.count({
+      where: { companyId },
+    });
+    if (permissionCount === 0) {
+      await this.prisma.$transaction((transaction) =>
+        provisionAccessControlPermissions(transaction, companyId),
+      );
+    }
     const [roles, permissions] = await Promise.all([
       this.prisma.appRole.findMany({
         where: { companyId },

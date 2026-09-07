@@ -65,6 +65,6 @@
     "vitest": "^4.1.11"
   },
   "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts"
   }
 }

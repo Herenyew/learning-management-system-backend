@@ -49,22 +49,41 @@ export const accessControlService = {
   }) {
     await accessControlRepository.replaceRolePermissions(input);
 
-    // Find all active users who hold this role so we can notify only them.
-    // We target by role so learners (who have a different role) are not
-    // unnecessarily re-fetching their session.
-    const affectedUsers = await getPrismaClient().appUser.findMany({
-      where: {
-        companyId: input.companyId,
-        roleId: input.roleId,
-        isActive: true,
-      },
-      select: { id: true },
-    });
+    // Find ALL active users who hold this role — both as their primary role
+    // (AppUser.roleId) and via role assignment (UserRoleAssignment). Users who
+    // gained/lost a permission need their session refreshed so usePermission()
+    // reflects the change within ~1 second via SSE.
+    const [primaryUsers, assignedUsers] = await Promise.all([
+      getPrismaClient().appUser.findMany({
+        where: {
+          companyId: input.companyId,
+          roleId: input.roleId,
+          isActive: true,
+        },
+        select: { id: true },
+      }),
+      getPrismaClient().userRoleAssignment.findMany({
+        where: {
+          companyId: input.companyId,
+          appRoleId: input.roleId,
+          isActive: true,
+        },
+        select: { userId: true },
+      }),
+    ]);
 
-    if (affectedUsers.length > 0) {
+    // Dedupe by user id (a user could hold the role both ways).
+    const affectedUserIds = Array.from(
+      new Set([
+        ...primaryUsers.map((u) => u.id),
+        ...assignedUsers.map((a) => a.userId),
+      ]),
+    );
+
+    if (affectedUserIds.length > 0) {
       notificationRealtimeHub.publishToUsers(
         input.companyId,
-        affectedUsers.map((u) => u.id),
+        affectedUserIds,
         {
           reason: "permissions.changed",
           occurredAt: new Date().toISOString(),

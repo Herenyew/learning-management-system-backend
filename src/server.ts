@@ -10,6 +10,7 @@ import {
 } from "./config/database.js";
 import { bootstrapAuth } from "./common/bootstrap/auth.bootstrap.js";
 import { getRabbitMQAdapter } from "./integration/rabbitmq/rabbitmq.adapter.js";
+import { userRoleService } from "./modules/configuration/access-control-configuration/user-role.service.js";
 
 const server = http.createServer(app);
 
@@ -38,6 +39,25 @@ async function bootstrap(): Promise<void> {
 
       logger.info(`Environment: ${env.app.nodeEnv}`);
     });
+
+    // Daily sweep: deactivate expired role assignments and notify affected users.
+    const DAY_MS = 24 * 60 * 60 * 1000;
+    setInterval(() => {
+      void userRoleService
+        .expireRoleAssignments()
+        .then((r) => {
+          if (r.expired > 0 && r.userIds && r.userIds.length > 0) {
+            logger.info(
+              `[RoleExpiryScheduler] Deactivated ${r.expired} expired role assignment(s) for ${r.userIds.length} user(s)`,
+            );
+          }
+        })
+        .catch((error) => {
+          logger.error("[RoleExpiryScheduler] Failed to expire role assignments", { error });
+        });
+    }, DAY_MS);
+    // Run once on startup too (non-blocking).
+    void userRoleService.expireRoleAssignments();
   } catch (error) {
     logger.error(error);
     process.exit(1);

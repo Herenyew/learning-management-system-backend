@@ -20,6 +20,10 @@ export type AccessControlPermissionDefinition = {
 
 const everyone = ["learner", "manager", "creator", "hr", "admin"] as const;
 const workforceManagers = ["manager", "hr", "admin"] as const;
+// Content authors: creators and admins only. Per BRD §1.5, HR reviews/publishes
+// but never authors content, so HR is intentionally excluded here.
+const contentCreators = ["creator", "admin"] as const;
+// Content publishers: includes HR (HR publishes per the §1.5 workflow).
 const contentManagers = ["creator", "hr", "admin"] as const;
 const configurationManagers = ["hr", "admin"] as const;
 
@@ -52,19 +56,19 @@ const operationalPermissions: AccessControlPermissionDefinition[] = [
     code: Permissions.COURSE_CREATE,
     description: "Create courses and course drafts.",
     module: "course",
-    defaultProfiles: contentManagers,
+    defaultProfiles: contentCreators,
   },
   {
     code: Permissions.COURSE_UPDATE,
     description: "Edit courses and course builder content.",
     module: "course",
-    defaultProfiles: contentManagers,
+    defaultProfiles: contentCreators,
   },
   {
     code: Permissions.COURSE_DELETE,
     description: "Archive or delete courses.",
     module: "course",
-    defaultProfiles: configurationManagers,
+    defaultProfiles: contentCreators,
   },
   {
     code: Permissions.COURSE_PUBLISH,
@@ -271,7 +275,7 @@ const operationalPermissions: AccessControlPermissionDefinition[] = [
     code: Permissions.ASSESSMENT_CREATE,
     description: "Create quizzes, questions, and assessments.",
     module: "assessment",
-    defaultProfiles: contentManagers,
+    defaultProfiles: contentCreators,
   },
   {
     code: Permissions.ASSESSMENT_VIEW,
@@ -283,7 +287,7 @@ const operationalPermissions: AccessControlPermissionDefinition[] = [
     code: Permissions.ASSESSMENT_GRADE,
     description: "Grade assessments and assignment submissions.",
     module: "assessment",
-    defaultProfiles: contentManagers,
+    defaultProfiles: contentCreators,
   },
 ];
 
