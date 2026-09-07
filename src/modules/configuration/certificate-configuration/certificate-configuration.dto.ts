@@ -100,21 +100,3 @@ export const ProviderTypeFilterSchema = PaginationQuerySchema.extend({
     .optional(),
 });
 
-// DTO schemas only — types moved to certificate-configuration.types.ts
-
-// TEMPLATE DTOs REMOVED — moved to template-management module
-
-// ==========================================
-// 5. CertificateTemplateSigner DTOs
-// ==========================================
-export const CreateCertificateTemplateSignerSchema = z.object({
-  employeeId: z.string().trim().min(1).max(20),
-  displayOrder: z.number().int().min(1),
-});
-
-export const UpdateCertificateTemplateSignerSchema = z.object({
-  employeeId: z.string().trim().min(1).max(20).optional(),
-  displayOrder: z.number().int().min(1).optional(),
-});
-
-// DTO schemas only — types moved to certificate-configuration.types.ts

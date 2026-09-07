@@ -6,7 +6,6 @@ export const idParamSchema = z.object({
   id: z.string().transform((val) => parseInt(val, 10)),
 });
 
-
 export const NotificationChannelEnum = z.nativeEnum($Enums.NotificationChannel);
 
 // ==========================================
@@ -87,11 +86,5 @@ export const notificationEventFilterSchema = z.object({
   sortBy: z.enum(["id", "code", "name"]).optional().default("code"),
   sortOrder: z.enum(["asc", "desc"]).optional().default("desc"),
 });
-
-// DTO schemas only — types moved to notification-configuration.types.ts
-
-// ==========================================
-// 3. NotificationTemplate Schemas — REMOVED (moved to template-management module)
-// ==========================================
 
 // DTO schemas only — types moved to notification-configuration.types.ts

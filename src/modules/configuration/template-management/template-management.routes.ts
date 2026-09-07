@@ -312,5 +312,17 @@ export function templateManagementRoutes(controller: TemplateManagementControlle
     controller.deleteNotificationTemplate.bind(controller),
   );
 
+  // ─── Helper: Users & Employees (for dropdowns) ────────────────────────────
+  router.get(
+    "/users",
+    requirePermission(Permissions.COURSE_TEMPLATE_VIEW),
+    controller.listUsers.bind(controller),
+  );
+  router.get(
+    "/employees",
+    requirePermission(Permissions.PROGRAM_TEMPLATE_VIEW),
+    controller.listEmployees.bind(controller),
+  );
+
   return router;
 }

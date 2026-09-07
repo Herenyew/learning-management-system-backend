@@ -17,7 +17,6 @@ import type {
   CertificateType,
   CredentialSource,
   ProviderType,
-  CertificateTemplateSigner,
 } from "@prisma/client";
 
 export type PaginationQuery = z.infer<typeof PaginationQuerySchema>;
@@ -84,7 +83,4 @@ export interface ICertificateConfigurationRepository {
   softDeleteProviderType(companyId: number, id: number): Promise<Prisma.BatchPayload>;
   countProviderTypeUsages(companyId: number, id: number): Promise<number>;
 
-  // TEMPLATE METHODS REMOVED — moved to template-management module
-  // (templateExists retained for signer validation)
-  templateExists(companyId: number, id: number): Promise<boolean>;
 }

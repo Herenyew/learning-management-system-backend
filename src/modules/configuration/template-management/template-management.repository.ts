@@ -1185,4 +1185,28 @@ export class TemplateManagementRepository {
       where: { companyId, templateId, displayOrder },
     });
   }
+
+  // ─── Helper: List Users (for owner/responsible person dropdowns) ───────────
+
+  async listUsers(companyId: number): Promise<{ id: number; name: string; email: string }[]> {
+    const users = await this.prisma.appUser.findMany({
+      where: { companyId, isActive: true },
+      select: { id: true, email: true },
+      orderBy: { email: "asc" },
+    });
+    // AppUser doesn't have a name field, so we use email as the display name
+    return users.map((u) => ({ id: u.id, name: u.email, email: u.email }));
+  }
+
+  // ─── Helper: List Employees (for program template owner dropdown) ──────────
+
+  async listEmployees(companyId: number): Promise<{ id: string; name: string; email: string }[]> {
+    const employees = await this.prisma.employee.findMany({
+      where: { companyId, isActive: true },
+      select: { id: true, fullName: true },
+      orderBy: { fullName: "asc" },
+    });
+    // Employee doesn't have an email field, so we use fullName as the display name
+    return employees.map((e) => ({ id: e.id, name: e.fullName, email: "" }));
+  }
 }

@@ -4,7 +4,6 @@ import type {
   CertificateType,
   CredentialSource,
   ProviderType,
-  CertificateTemplateSigner,
 } from "@prisma/client";
 import type {
   CreateCertificateTypeInput,
@@ -452,13 +451,4 @@ export class CertificateConfigurationRepository implements ICertificateConfigura
     });
   }
 
-  // TEMPLATE METHODS REMOVED — moved to template-management module
-  // (templateExists retained for signer validation)
-  async templateExists(companyId: number, id: number): Promise<boolean> {
-    const found = await this.prisma.certificateTemplate.findFirst({
-      where: { id, companyId, deletedAt: null },
-      select: { id: true },
-    });
-    return found !== null;
-  }
 }

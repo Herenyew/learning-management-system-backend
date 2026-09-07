@@ -398,4 +398,16 @@ export class TemplateManagementService {
     if (usages > 0) throw new ValidationError(`Cannot delete notification template. It is currently in use (${usages} usage(s))`);
     return this.repo.softDeleteNotificationTemplate(companyId, id);
   }
+
+  // ─── Helper: List Users (for owner/responsible person dropdowns) ───────────
+
+  async listUsers(companyId: number) {
+    return this.repo.listUsers(companyId);
+  }
+
+  // ─── Helper: List Employees (for program template owner dropdown) ──────────
+
+  async listEmployees(companyId: number) {
+    return this.repo.listEmployees(companyId);
+  }
 }

@@ -534,4 +534,26 @@ export class TemplateManagementController {
       next(err);
     }
   };
+
+  // ─── Helper: List Users (for owner/responsible person dropdowns) ───────────
+
+  listUsers = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.service.listUsers(req.user.companyId);
+      res.json({ success: true, data: result });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  // ─── Helper: List Employees (for program template owner dropdown) ──────────
+
+  listEmployees = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.service.listEmployees(req.user.companyId);
+      res.json({ success: true, data: result });
+    } catch (err) {
+      next(err);
+    }
+  };
 }
