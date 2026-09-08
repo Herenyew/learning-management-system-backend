@@ -1,11 +1,27 @@
 import { getPrismaClient } from "../../../config/database.js";
 import { notificationRealtimeHub } from "../../notifications/realtime-hub.js";
 import { accessControlRepository } from "./access-control.repository.js";
+import {
+  provisionAccessControlPermissions,
+} from "./access-control.repository.js";
 import { cacheService, CacheKeys } from "../../../common/cache/cache.service.js";
 import { AppError, ErrorCode } from "../../../common/errors/index.js";
 import { permissionGroupService } from "./permission-group.service.js";
 
 const prisma = () => getPrismaClient();
+
+/**
+ * Bootstrap all access-control permissions and default role grants for a company.
+ * Call once during company creation (e.g. in company-bootstrap service).
+ *
+ * Idempotent: safe to call multiple times — existing permissions are preserved,
+ * only new ones from the catalog are added.
+ */
+export async function bootstrapCompanyPermissions(companyId: number): Promise<void> {
+  await prisma().$transaction((transaction) =>
+    provisionAccessControlPermissions(transaction, companyId),
+  );
+}
 
 async function auditLog(data: {
   companyId: number;
@@ -91,7 +107,7 @@ export const accessControlService = {
       );
     }
 
-        return accessControlRepository.list(input.companyId);
+    return accessControlRepository.list(input.companyId);
   },
 
   /**

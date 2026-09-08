@@ -42,8 +42,12 @@ function baseUserFromToken(payload: ReturnType<typeof verifyToken>): CurrentUser
  *     the JWT.  This works for any role the admin creates in the future — no
  *     hardcoded IDs needed.
  *
- *  3. If name lookup fails (role name in JWT doesn't match any LMS AppRole) →
- *     fall back to numeric ID lookup using the JWT roleId field.
+ *  2.5. If name lookup fails → consult the admin-configured EMS Role Mapping
+ *     table (Access Control → EMS Role Mappings). This lets the admin map ANY
+ *     EMS role name to ANY LMS AppRole without code changes or renames.
+ *
+ *  3. If name lookup AND mapping both fail → fall back to numeric ID lookup
+ *     using the JWT roleId field.
  *
  *  4. Final fallback: assign the EMPLOYEE role (the safest default).
  */
@@ -103,6 +107,33 @@ async function resolveAppRole(
       select: { id: true },
     });
     if (byNameGlobal) return byNameGlobal.id;
+  }
+
+  // Step 2.5 — consult the admin-configured EMS Role Mapping table.
+  // The admin can map ANY EMS role name to ANY LMS AppRole via the Access
+  // Control configuration page (EMSRoleMapping). This is honored at login
+  // even when the JWT role name doesn't match an LMS AppRole name directly
+  // (e.g. JWT says "hr_officer", admin mapped it to the MANAGER role).
+  // (companyId, emsRoleName) is unique, so at most one active mapping matches —
+  // priority ordering is unnecessary here.
+  try {
+    const mapping = await prisma.eMSRoleMapping.findFirst({
+      where: {
+        companyId,
+        emsRoleName: { equals: jwtRoleName, mode: 'insensitive' },
+        isActive: true,
+      },
+      select: { appRoleId: true },
+    });
+    if (mapping) {
+      logger.info(
+        `[AuthMiddleware] EMS role mapping honored: "${jwtRoleName}" → LMS AppRole ${mapping.appRoleId}`
+      );
+      return mapping.appRoleId;
+    }
+  } catch (err) {
+    // Mapping lookup failure is non-fatal — fall through to numeric ID / EMPLOYEE.
+    logger.warn('[AuthMiddleware] EMS role mapping lookup failed — continuing with fallbacks');
   }
 
   // Step 3 — fall back to numeric ID from JWT

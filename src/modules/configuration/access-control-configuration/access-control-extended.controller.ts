@@ -96,6 +96,12 @@ export const emsMappingController = {
     );
     ok(res, result, `EMS sync complete: ${result.assigned} assigned, ${result.skipped} skipped.`);
   }),
+
+  listEmsRoles: asyncWrap(async (req, res) => {
+    const authorization = req.headers.authorization;
+    const roles = await emsMappingService.listEmsRoles(authorization);
+    ok(res, roles);
+  }),
 };
 
 // ─── User Role Controller ─────────────────────────────────────────────────────
@@ -151,5 +157,10 @@ export const userRoleController = {
     const { roleId, userIds } = bulkAssignRoleSchema.parse(req.body);
     await userRoleService.bulkAssign(roleId, userIds, req.user.appUserId, req.user.companyId);
     ok(res, null, `Role assigned to ${userIds.length} users.`);
+  }),
+
+  searchUsers: asyncWrap(async (req, res) => {
+    const search = typeof req.query.search === "string" ? req.query.search : "";
+    ok(res, await userRoleService.searchUsers(search, req.user.companyId));
   }),
 };

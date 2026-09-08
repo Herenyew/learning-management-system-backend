@@ -35,6 +35,14 @@ const envSchema = z.object({
     AUTH_CLIENT_SECRET: z.string(),
 
     ///////////////////////////////////////////////////////////
+    // EMS SERVICE (Employee Management System)
+    // Optional — required only for the EMS role picker in the
+    // Access Control UI. When unset the picker falls back to
+    // manual entry.
+    ///////////////////////////////////////////////////////////
+    EMS_SERVICE_URL: z.string().url().optional(),
+
+    ///////////////////////////////////////////////////////////
     // RABBITMQ
     ///////////////////////////////////////////////////////////
     RABBITMQ_URL: z.string().url(),
@@ -121,6 +129,10 @@ export const env = {
         serviceUrl: config.AUTH_SERVICE_URL,
         clientId: config.AUTH_CLIENT_ID,
         clientSecret: config.AUTH_CLIENT_SECRET,
+    },
+
+    ems: {
+        serviceUrl: config.EMS_SERVICE_URL,
     },
 
     rabbitmq: {

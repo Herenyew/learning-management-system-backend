@@ -1,6 +1,7 @@
 import { getPrismaClient } from "../../../config/database.js";
 import { AppError, ErrorCode } from "../../../common/errors/index.js";
 import { cacheService, CacheKeys } from "../../../common/cache/cache.service.js";
+import { fetchEmsCompanyRoles } from "../../../integration/http/ems-http.client.js";
 import { emsMappingRepository } from "./ems-mapping.repository.js";
 
 const prisma = () => getPrismaClient();
@@ -39,6 +40,17 @@ async function auditLog(data: {
 export const emsMappingService = {
   list(companyId: number) {
     return emsMappingRepository.findAll(companyId);
+  },
+
+  /**
+   * List real EMS role names for the Access Control "EMS Mappings" picker.
+   * Returns an empty array when EMS is unreachable — the UI falls back to
+   * manual entry in that case.
+   */
+  async listEmsRoles(accessToken?: string): Promise<Array<{ name: string }>> {
+    if (!accessToken) return [];
+    const roles = await fetchEmsCompanyRoles(accessToken);
+    return roles.map((role) => ({ name: role.name })).filter((r) => r.name.length > 0);
   },
 
   async getById(id: number, companyId: number) {

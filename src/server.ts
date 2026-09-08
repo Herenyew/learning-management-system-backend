@@ -11,6 +11,7 @@ import {
 import { bootstrapAuth } from "./common/bootstrap/auth.bootstrap.js";
 import { getRabbitMQAdapter } from "./integration/rabbitmq/rabbitmq.adapter.js";
 import { userRoleService } from "./modules/configuration/access-control-configuration/user-role.service.js";
+import { startRoleSyncConsumer } from "./integration/events/role-sync.consumer.js";
 
 const server = http.createServer(app);
 
@@ -27,6 +28,10 @@ async function bootstrap(): Promise<void> {
       authClientSecret: env.auth.clientSecret,
       jwtSecret: env.jwt.secret,
     });
+
+    // Event-driven sync: react to org-side role changes published by EMS.
+    // Failures are logged and non-fatal (RabbitMQ may be unavailable in dev).
+    await startRoleSyncConsumer();
 
     server.listen(env.app.port, () => {
       logger.info(

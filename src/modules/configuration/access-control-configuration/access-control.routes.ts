@@ -50,8 +50,10 @@ router.post("/ems-mappings",        requirePermission(Permissions.ACCESS_CONTROL
 router.put("/ems-mappings/:id",     requirePermission(Permissions.ACCESS_CONTROL_MANAGE), emsMappingController.update);
 router.delete("/ems-mappings/:id",  requirePermission(Permissions.ACCESS_CONTROL_MANAGE), emsMappingController.delete);
 router.post("/ems-mappings/sync", requirePermission(Permissions.ACCESS_CONTROL_MANAGE), emsMappingController.sync);
+router.get("/ems-roles", requirePermission(Permissions.ACCESS_CONTROL_MANAGE), emsMappingController.listEmsRoles);
 
 // ─── User Role Assignments ──────────────────────────────────────────────────
+router.get("/users", requirePermission(Permissions.ACCESS_CONTROL_MANAGE), userRoleController.searchUsers);
 router.get("/users/:userId/roles",           requirePermission(Permissions.ACCESS_CONTROL_MANAGE), userRoleController.getUserRoles);
 router.get("/users/:userId/roles/all",       requirePermission(Permissions.ACCESS_CONTROL_MANAGE), userRoleController.getUserAllRoles);
 router.get("/users/:userId/permissions",     requirePermission(Permissions.ACCESS_CONTROL_MANAGE), userRoleController.getEffectivePermissions);

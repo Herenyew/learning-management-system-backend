@@ -1,6 +1,7 @@
 import { getPrismaClient } from "../../../config/database.js";
 import { AppError, ErrorCode } from "../../../common/errors/index.js";
 import { cacheService, CacheKeys } from "../../../common/cache/cache.service.js";
+import { notificationRealtimeHub } from "../../notifications/realtime-hub.js";
 import { userRoleRepository } from "./user-role.repository.js";
 
 const prisma = () => getPrismaClient();
@@ -152,6 +153,47 @@ export const userRoleService = {
   },
 
   /**
+   * Search users by name, email or employee ID for the Access Control "User
+   * Roles" tab. Only users who have logged in to the LMS (AppUser records)
+   * are searchable.
+   */
+  async searchUsers(keyword: string, companyId: number) {
+    const q = keyword.trim();
+    if (!q) return [];
+
+    const users = await prisma().appUser.findMany({
+      where: {
+        companyId,
+        OR: [
+          { email: { contains: q, mode: "insensitive" as const } },
+          { employeeId: { contains: q, mode: "insensitive" as const } },
+          { employee: { is: { fullName: { contains: q, mode: "insensitive" as const } } } },
+        ],
+      },
+      include: {
+        employee: { select: { id: true, fullName: true } },
+        role: { select: { id: true, name: true } },
+        roleAssignments: {
+          where: { isActive: true, OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] },
+          select: { appRoleId: true },
+        },
+      },
+      orderBy: { email: "asc" as const },
+      take: 50,
+    });
+
+    return users.map((user) => ({
+      id: user.id,
+      email: user.email,
+      employeeId: user.employeeId,
+      isActive: user.isActive,
+      fullName: user.employee?.fullName ?? null,
+      primaryRole: user.role ? { id: user.role.id, name: user.role.name } : null,
+      assignedRoleIds: user.roleAssignments.map((assignment) => assignment.appRoleId),
+    }));
+  },
+
+  /**
    * Get the union of permissions from the user's primary role + all active
    * UserRoleAssignment records.  This is the effective permission set.
    */
@@ -236,11 +278,66 @@ export const userRoleService = {
       select: {
         role: { select: { id: true, name: true, description: true, isActive: true } },
       },
+        });
+  },
+
+  /**
+   * Notify all users who hold a specific role about a permission change.
+   * This covers BOTH primary-role holders (AppUser.roleId) and assignment-based
+   * holders (UserRoleAssignment), so everyone sees the change within ~1 second
+   * via SSE.
+   *
+   * Used by accessControlService.updateRolePermissions after a role's
+   * permission set is replaced.
+   *
+   * @param roleId  The AppRole whose permissions changed.
+   * @param companyId The company the role belongs to.
+   * @param reason  A short machine-readable reason emitted in the SSE payload
+   *                (e.g. "permissions.changed").
+   * @param extra   Optional extra fields to merge into the SSE payload.
+   */
+    async notifyUsersOfRoleChange(
+    roleId: number,
+    companyId: number,
+    reason: "permissions.changed",
+    extra: Record<string, unknown> = {},
+  ): Promise<void> {
+    // Primary-role holders
+    const primaryUsers = await prisma().appUser.findMany({
+      where: { companyId, roleId, isActive: true },
+      select: { id: true },
+    });
+
+    // Assignment-based holders
+    const assignedUsers = await prisma().userRoleAssignment.findMany({
+      where: {
+        companyId,
+        appRoleId: roleId,
+        isActive: true,
+        OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+      },
+      select: { userId: true },
+    });
+
+    const affectedUserIds = Array.from(
+      new Set([
+        ...primaryUsers.map((u) => u.id),
+        ...assignedUsers.map((a) => a.userId),
+      ]),
+    );
+
+    if (affectedUserIds.length === 0) return;
+
+    notificationRealtimeHub.publishToUsers(companyId, affectedUserIds, {
+      reason,
+      occurredAt: new Date().toISOString(),
+      ...extra,
     });
   },
 
   /**
    * Permission check helpers
+   */
 
   /**
    * Deactivate role assignments that have passed their expiry date and notify
