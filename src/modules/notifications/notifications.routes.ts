@@ -6,22 +6,10 @@ export const notificationsRouter = Router();
 
 notificationsRouter.use(authenticate);
 
-notificationsRouter.get("/stream", (req, res, next) => {
-  notificationInboxController.stream(req, res).catch(next);
-});
-
-notificationsRouter.get("/", (req, res, next) => {
-  notificationInboxController.list(req, res).catch(next);
-});
-
-notificationsRouter.get("/unread-count", (req, res, next) => {
-  notificationInboxController.unreadCount(req, res).catch(next);
-});
-
-notificationsRouter.patch("/read-all", (req, res, next) => {
-  notificationInboxController.markAllRead(req, res).catch(next);
-});
-
-notificationsRouter.patch("/:id/read", (req, res, next) => {
-  notificationInboxController.markRead(req, res).catch(next);
-});
+// Each handler now accepts (req, res, next) and manages its own error routing
+// via try/catch + next(err), so we can register them directly without wrappers.
+notificationsRouter.get("/stream",       notificationInboxController.stream);
+notificationsRouter.get("/",             notificationInboxController.list);
+notificationsRouter.get("/unread-count", notificationInboxController.unreadCount);
+notificationsRouter.patch("/read-all",   notificationInboxController.markAllRead);
+notificationsRouter.patch("/:id/read",   notificationInboxController.markRead);

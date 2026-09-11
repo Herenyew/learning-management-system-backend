@@ -369,9 +369,20 @@ async function enrichFromAppUser(user: CurrentUser): Promise<void> {
     }
 
   } catch (err) {
-    // Log at ERROR level — this catch silently strips all permissions from the user
-    // and causes 403 on every protected route. Always surface these.
-    logger.error('[AuthMiddleware] AppUser enrichment FAILED — user will have empty permissions:', err);
+    // Log at ERROR level — enrichment failure silently strips all permissions,
+    // causing 403 on every protected route.  Surface the full error so engineers
+    // can distinguish DB connectivity issues from code bugs.
+    const errMsg = err instanceof Error ? err.message : String(err);
+    const errStack = err instanceof Error ? err.stack : undefined;
+    logger.error(
+      `[AuthMiddleware] AppUser enrichment FAILED for email=${user.email ?? '(unknown)'} ` +
+      `companyId=${user.companyId} — user will have ZERO permissions. ` +
+      `Cause: ${errMsg}`,
+      errStack ? { stack: errStack } : undefined,
+    );
+    // Mark the user so downstream guards can detect this explicitly if needed.
+    // permissions is already [] from baseUserFromToken — leave it as-is.
+    (user as unknown as Record<string, unknown>).__enrichmentFailed = true;
   }
 }
 
