@@ -13,6 +13,11 @@ export const coursePublishingRouter = Router();
 
 coursePublishingRouter.use(authenticate);
 
+coursePublishingRouter.get(
+  "/catalog",
+  asyncHandler(coursePublishingController.catalog),
+);
+
 // ── Workflow selector ────────────────────────────────────────────────────────
 
 // List all active COURSE workflows — used by the creator to pick one before submit.

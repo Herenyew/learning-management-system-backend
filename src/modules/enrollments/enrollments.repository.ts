@@ -14,10 +14,22 @@ export const enrollmentsRepository = {
     transaction: EnrollmentTransaction,
     input: { companyId: number; userId: number; courseId: number },
   ) {
-    const appUser = await transaction.appUser.findFirstOrThrow({
-      where: { id: input.userId, companyId: input.companyId },
-      select: { employeeId: true },
-    });
+    const [appUser] = await Promise.all([
+      transaction.appUser.findFirstOrThrow({
+        where: { id: input.userId, companyId: input.companyId },
+        select: { employeeId: true },
+      }),
+      transaction.courseVersion.findFirstOrThrow({
+        where: {
+          id: input.courseId,
+          companyId: input.companyId,
+          status: "PUBLISHED",
+          approvalStatus: "APPROVED",
+          deletedAt: null,
+        },
+        select: { id: true },
+      }),
+    ]);
 
     if (!appUser.employeeId) {
       throw new Error("User has no associated employee ID.");
@@ -28,51 +40,28 @@ export const enrollmentsRepository = {
         companyId: input.companyId,
         employeeId: appUser.employeeId,
         courseVersionId: input.courseId,
+        deletedAt: null,
+        status: { in: ["PENDING", "WAITLISTED", "ACTIVE", "COMPLETED"] },
       },
     });
     if (existing) return existing;
+    const latestAttempt = await transaction.enrollment.aggregate({
+      where: {
+        employeeId: appUser.employeeId,
+        courseVersionId: input.courseId,
+      },
+      _max: { enrollmentNo: true },
+    });
 
     return transaction.enrollment.create({
       data: {
         companyId: input.companyId,
         employeeId: appUser.employeeId,
         courseVersionId: input.courseId,
+        enrollmentNo: (latestAttempt._max.enrollmentNo ?? 0) + 1,
         enrollmentType: "STANDARD",
         enrollmentSource: "SELF_SERVICE",
         status: "ACTIVE",
-        enrolledAt: new Date(),
-      },
-    });
-  },
-
-  async enrollProgram(
-    transaction: EnrollmentTransaction,
-    input: { companyId: number; userId: number; programId: number },
-  ) {
-    const appUser = await transaction.appUser.findFirstOrThrow({
-      where: { id: input.userId, companyId: input.companyId },
-      select: { employeeId: true },
-    });
-
-    if (!appUser.employeeId) {
-      throw new Error("User has no associated employee ID.");
-    }
-
-    const existing = await transaction.programEnrollment.findFirst({
-      where: {
-        companyId: input.companyId,
-        employeeId: appUser.employeeId,
-        programId: input.programId,
-      },
-    });
-    if (existing) return existing;
-
-    return transaction.programEnrollment.create({
-      data: {
-        companyId: input.companyId,
-        employeeId: appUser.employeeId,
-        programId: input.programId,
-        enrollmentStatus: "ACTIVE",
         enrolledAt: new Date(),
       },
     });

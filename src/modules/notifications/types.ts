@@ -34,6 +34,7 @@ export type NotificationDispatchResult = {
     html: string;
   }>;
   inAppCount: number;
+  emailOutboxIds?: number[];
   realtime?: {
     companyId: number;
     userIds: number[];

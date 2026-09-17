@@ -12,6 +12,9 @@ import { bootstrapAuth } from "./common/bootstrap/auth.bootstrap.js";
 import { getRabbitMQAdapter } from "./integration/rabbitmq/rabbitmq.adapter.js";
 import { userRoleService } from "./modules/configuration/access-control-configuration/user-role.service.js";
 import { startRoleSyncConsumer } from "./integration/events/role-sync.consumer.js";
+import { startCompletionRewardsScheduler } from "./modules/enrollments/completion-rewards.scheduler.js";
+import { startAssessmentAttemptScheduler } from "./modules/assessments/assessment-attempt.scheduler.js";
+import { startEmailDeliveryOutboxScheduler } from "./modules/notifications/email-delivery-outbox.scheduler.js";
 
 const server = http.createServer(app);
 
@@ -63,6 +66,15 @@ async function bootstrap(): Promise<void> {
     }, DAY_MS);
     // Run once on startup too (non-blocking).
     void userRoleService.expireRoleAssignments();
+
+    // Durable completion side effects: certificates and XP awards.
+    startCompletionRewardsScheduler();
+
+    // Enforce assessment time limits even when the learner closes the browser.
+    startAssessmentAttemptScheduler();
+
+    // Retry provider email delivery from the durable notification outbox.
+    startEmailDeliveryOutboxScheduler();
   } catch (error) {
     logger.error(error);
     process.exit(1);

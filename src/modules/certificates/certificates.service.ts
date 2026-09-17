@@ -78,7 +78,10 @@ export const certificatesService = {
           scanned += certificates.length;
           for (const certificate of certificates) {
             const expiryDate = certificate.expiresAt!;
-            const recipientUserId = certificate.completion?.enrollment?.employee?.appUsers[0]?.id;
+            const recipientUserId =
+              certificate.completion?.enrollment?.employee?.appUsers[0]?.id ??
+              certificate.programCompletion?.programEnrollment?.employee?.appUsers[0]?.id ??
+              certificate.manualRecipientEmployee?.appUsers[0]?.id;
             if (!recipientUserId) continue;
 
             dispatches.push(

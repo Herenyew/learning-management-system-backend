@@ -1559,6 +1559,16 @@ async function seedLmsPermissions(
       description: "Grade assessments",
       module: "assessment",
     },
+    {
+      code: "attendance.finalize",
+      description: "Finalize attendance for assigned live sessions",
+      module: "attendance",
+    },
+    {
+      code: "attendance.manage",
+      description: "Manage attendance for all company live sessions",
+      module: "attendance",
+    },
 
     // ==========================================================
     // ASSESSMENT CONFIGURATION
@@ -2577,6 +2587,7 @@ async function seedLmsPermissions(
       "assessment.create",
       "assessment.view",
       "assessment.grade",
+      "attendance.manage",
 
       "certificate.view",
       "certificate.create",
@@ -2628,6 +2639,7 @@ async function seedLmsPermissions(
       "course.create",
       "course.view",
       "course.update",
+      "attendance.finalize",
 
       "course_category.view",
       "difficulty_level.view",
@@ -2723,6 +2735,7 @@ async function seedLmsPermissions(
       "course.read",
       "course.update",
       "course.publish",
+      "attendance.finalize",
 
       "course_category.view",
       "difficulty_level.view",
@@ -3029,10 +3042,86 @@ async function seedApprovalWorkflows(
   );
 }
 
+async function seedProgramCatalog(companyId: number, createdBy: number) {
+  const programTypes = [
+    {
+      name: "Onboarding",
+      description: "Mandatory 60–90 day programs for new employees.",
+    },
+    {
+      name: "Leadership Development",
+      description: "Elective leadership programs for mid-level and senior employees.",
+    },
+    {
+      name: "Compliance Training",
+      description: "Mandatory legal and regulatory learning programs.",
+    },
+    {
+      name: "Technical Certification",
+      description: "Role-specific, self-paced technical certification programs.",
+    },
+    {
+      name: "Sales Enablement",
+      description: "Mandatory enablement programs for sales employees.",
+    },
+  ];
+
+  for (const programType of programTypes) {
+    await prisma.programType.upsert({
+      where: {
+        companyId_name: { companyId, name: programType.name },
+      },
+      update: {
+        description: programType.description,
+        isActive: true,
+        deletedAt: null,
+      },
+      create: {
+        companyId,
+        ...programType,
+        isActive: true,
+      },
+    });
+  }
+
+  const programCategories = [
+    { name: "People & Culture", color: "#8B5CF6" },
+    { name: "Leadership", color: "#2563EB" },
+    { name: "Compliance", color: "#DC2626" },
+    { name: "Technical Skills", color: "#059669" },
+    { name: "Commercial Excellence", color: "#D97706" },
+  ];
+
+  for (const programCategory of programCategories) {
+    await prisma.programCategory.upsert({
+      where: {
+        companyId_name: { companyId, name: programCategory.name },
+      },
+      update: {
+        color: programCategory.color,
+        isActive: true,
+        deletedAt: null,
+        updatedBy: createdBy,
+      },
+      create: {
+        companyId,
+        name: programCategory.name,
+        color: programCategory.color,
+        isActive: true,
+        createdBy,
+      },
+    });
+  }
+
+  console.log(`  ${programTypes.length} Program Types seeded`);
+  console.log(`  ${programCategories.length} Program Categories seeded`);
+}
+
 async function main() {
   await seedSystemLookupTables();
 
   const { company, roleMap } = await seedEmsTables();
+  await seedProgramCatalog(company.id, 1001); // superadmin@acme.com
   await seedApprovalWorkflows(company, roleMap);
   await seedLmsPermissions(company.id, roleMap);
   await seedSystemSettings(company.id, 1001); // superadmin@acme.com

@@ -97,6 +97,14 @@ const envSchema = z.object({
     // REDIS
     ///////////////////////////////////////////////////////////
     REDIS_URL: z.string().optional().default("redis://localhost:6379"),
+
+    ///////////////////////////////////////////////////////////
+    // EMAIL DELIVERY (Resend-compatible HTTP API)
+    ///////////////////////////////////////////////////////////
+    EMAIL_DELIVERY_ENABLED: z.enum(["true", "false"]).default("false"),
+    EMAIL_API_URL: z.string().url().default("https://api.resend.com/emails"),
+    EMAIL_API_KEY: z.string().min(1).optional(),
+    EMAIL_FROM: z.string().min(3).default("LearnOS <notifications@example.com>"),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -175,6 +183,12 @@ export const env = {
     },
     redis: {
         url: config.REDIS_URL,
+    },
+    email: {
+        enabled: config.EMAIL_DELIVERY_ENABLED === "true",
+        apiUrl: config.EMAIL_API_URL,
+        apiKey: config.EMAIL_API_KEY,
+        from: config.EMAIL_FROM,
     },
 // inside exported env object
     pagination: {

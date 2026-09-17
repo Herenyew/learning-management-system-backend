@@ -272,6 +272,9 @@ export const Permissions = {
   ASSESSMENT_VIEW: "assessment.view",
   ASSESSMENT_GRADE: "assessment.grade",
 
+  ATTENDANCE_FINALIZE: "attendance.finalize",
+  ATTENDANCE_MANAGE: "attendance.manage",
+
   // ==========================================================
   // OPERATIONAL / MANAGED DOMAIN PERMISSIONS
   // ==========================================================

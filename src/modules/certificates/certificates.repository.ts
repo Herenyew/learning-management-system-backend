@@ -31,9 +31,9 @@ export const certificatesRepository = {
       }),
       input.templateId
         ? transaction.certificateTemplate.findFirstOrThrow({
-            where: { id: input.templateId, companyId: input.companyId },
-            select: { id: true, name: true },
-          })
+          where: { id: input.templateId, companyId: input.companyId },
+          select: { id: true, name: true },
+        })
         : null,
     ]);
     return { user, template };
@@ -216,8 +216,23 @@ export const certificatesRepository = {
       where: {
         companyId,
         OR: [
-          { manualIssuedByUserId: userId },
-          { completion: { enrollment: { employee: { appUsers: { some: { id: userId } } } } } },
+          { manualRecipientEmployee: { appUsers: { some: { id: userId, companyId } } } },
+          {
+            completion: {
+              enrollment: {
+                companyId,
+                employee: { appUsers: { some: { id: userId, companyId } } },
+              },
+            },
+          },
+          {
+            programCompletion: {
+              programEnrollment: {
+                companyId,
+                employee: { appUsers: { some: { id: userId, companyId } } },
+              },
+            },
+          },
         ],
       },
       include: {
@@ -262,6 +277,22 @@ export const certificatesRepository = {
               },
             },
           },
+        },
+        programCompletion: {
+          select: {
+            programEnrollment: {
+              select: {
+                employee: {
+                  select: {
+                    appUsers: { select: { id: true }, take: 1 },
+                  },
+                },
+              },
+            },
+          },
+        },
+        manualRecipientEmployee: {
+          select: { appUsers: { select: { id: true }, take: 1 } },
         },
       },
       orderBy: { expiresAt: "asc" },

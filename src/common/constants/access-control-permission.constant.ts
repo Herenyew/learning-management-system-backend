@@ -289,6 +289,18 @@ const operationalPermissions: AccessControlPermissionDefinition[] = [
     module: "assessment",
     defaultProfiles: contentCreators,
   },
+  {
+    code: Permissions.ATTENDANCE_FINALIZE,
+    description: "Finalize attendance for assigned live sessions.",
+    module: "attendance",
+    defaultProfiles: contentCreators,
+  },
+  {
+    code: Permissions.ATTENDANCE_MANAGE,
+    description: "Manage attendance for any live session in the company.",
+    module: "attendance",
+    defaultProfiles: configurationManagers,
+  },
 ];
 
 const configurationPermissions: AccessControlPermissionDefinition[] =

@@ -2,6 +2,8 @@ import { NotificationChannel } from "@prisma/client";
 
 import { env } from "../../config/env.js";
 import { notificationEventCatalog } from "./events.js";
+import { emailDeliveryService } from "./email-delivery.service.js";
+import { emailDeliveryOutboxService } from "./email-delivery-outbox.service.js";
 import { notificationRealtimeHub } from "./realtime-hub.js";
 import { notificationsRepository } from "./repository.js";
 import { renderNotificationTemplate } from "./template-renderer.js";
@@ -133,9 +135,7 @@ export const notificationDispatcher = {
       );
     }
 
-    const statesToPersist = hasOccurrence
-      ? eligibleStates
-      : eligibleStates.filter((state) => state.allowsInApp);
+    const statesToPersist = eligibleStates;
     const persisted = await notificationsRepository.createNotifications(
       transaction,
       statesToPersist.map((state) => ({
@@ -162,19 +162,45 @@ export const notificationDispatcher = {
         (!hasOccurrence || persistedUserIds.has(state.recipient.id)),
     );
 
+    const emails = emailStates.map((state) => ({
+      recipients: [
+        {
+          email: state.recipient.email,
+          name: state.recipient.preferredName ?? state.recipient.fullName,
+        },
+      ],
+      subject: state.rendered.subject,
+      text: `${state.rendered.emailBody}\n\n${definition.actionLabel}: ${emailActionUrl}`,
+      html: state.rendered.html,
+    }));
+    let emailOutboxIds: number[] = [];
+    const outboxDelegate = (transaction as NotificationTransaction & {
+      emailDeliveryOutbox?: NotificationTransaction["emailDeliveryOutbox"];
+    }).emailDeliveryOutbox;
+    if (outboxDelegate && emails.length > 0) {
+      const rows = emailStates.flatMap((state, index) => {
+        const notification = persisted.find((item) => item.appUserId === state.recipient.id);
+        if (!notification) return [];
+        return [{
+          companyId: input.companyId,
+          eventKey: `notification-email:${notification.id}`,
+          payload: JSON.parse(JSON.stringify(emails[index])),
+        }];
+      });
+      if (rows.length > 0) {
+        await outboxDelegate.createMany({ data: rows, skipDuplicates: true });
+        const saved = await outboxDelegate.findMany({
+          where: { eventKey: { in: rows.map((row) => row.eventKey) } },
+          select: { id: true },
+        });
+        emailOutboxIds = saved.map((row) => row.id);
+      }
+    }
+
     return {
       inAppCount: persisted.filter((row) => row.inAppVisible).length,
-      emails: emailStates.map((state) => ({
-        recipients: [
-          {
-            email: state.recipient.email,
-            name: state.recipient.preferredName ?? state.recipient.fullName,
-          },
-        ],
-        subject: state.rendered.subject,
-        text: `${state.rendered.emailBody}\n\n${definition.actionLabel}: ${emailActionUrl}`,
-        html: state.rendered.html,
-      })),
+      emails,
+      emailOutboxIds,
       ...(realtimeUserIds.length > 0
         ? {
             realtime: {
@@ -191,6 +217,11 @@ export const notificationDispatcher = {
   },
 
   async deliverAfterCommit(result: NotificationDispatchResult) {
+    if (result.emailOutboxIds && result.emailOutboxIds.length > 0) {
+      await emailDeliveryOutboxService.processIds(result.emailOutboxIds);
+    } else {
+      await emailDeliveryService.deliver(result.emails);
+    }
     if (result.realtime) {
       for (const userId of result.realtime.userIds) {
         notificationRealtimeHub.publish(

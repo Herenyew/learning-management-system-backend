@@ -14,16 +14,16 @@ import { getPrismaClient } from '../../config/database.js';
  */
 function baseUserFromToken(payload: ReturnType<typeof verifyToken>): CurrentUser {
   return {
-    userId:    payload.userId,
-    email:     payload.email,
+    userId: payload.userId,
+    email: payload.email,
     companyId: (() => {
       const raw = payload.companyId ?? payload.company_id;
       const n = Number(raw);
       return (raw != null && !isNaN(n)) ? n : 1;
     })(),
-    roleId:    String(payload.roleId ?? ''),
-    role:      payload.role ?? '',
-    roleName:  payload.role ?? '',
+    roleId: String(payload.roleId ?? ''),
+    role: payload.role ?? '',
+    roleName: payload.role ?? '',
     permissions: [],
   };
 }
@@ -85,10 +85,10 @@ async function resolveAppRole(
   // LMS AppRole name (e.g. JWT "creator" → LMS "COURSE_CREATOR").
   if (jwtRoleName) {
     const aliases: Record<string, string> = {
-      creator:              "COURSE_CREATOR",
-      "course creator":     "COURSE_CREATOR",
-      "course_creator":     "COURSE_CREATOR",
-      "external instructor":"INSTRUCTOR",
+      creator: "COURSE_CREATOR",
+      "course creator": "COURSE_CREATOR",
+      "course_creator": "COURSE_CREATOR",
+      "external instructor": "INSTRUCTOR",
     };
     const resolvedName = aliases[jwtRoleName.toLowerCase()] ?? jwtRoleName;
 
@@ -210,7 +210,7 @@ async function enrichFromAppUser(user: CurrentUser): Promise<void> {
 
     // ── 2. Resolve the correct LMS AppRole using name-first strategy ─────
     const jwtRoleName = (user.role || '').trim();
-    const jwtRoleId   = String(user.roleId ?? '').trim();
+    const jwtRoleId = String(user.roleId ?? '').trim();
 
     const resolvedRoleId = await resolveAppRole(
       prisma,
@@ -286,7 +286,7 @@ async function enrichFromAppUser(user: CurrentUser): Promise<void> {
       }
     } else if (appUser) {
       const needsRoleUpdate = resolvedRoleId !== null && appUser.roleId !== resolvedRoleId;
-      const needsEmpUpdate  = resolvedEmployeeId !== null && appUser.employeeId !== resolvedEmployeeId;
+      const needsEmpUpdate = resolvedEmployeeId !== null && appUser.employeeId !== resolvedEmployeeId;
 
       if (needsRoleUpdate || needsEmpUpdate) {
         try {
@@ -294,7 +294,7 @@ async function enrichFromAppUser(user: CurrentUser): Promise<void> {
             lastSyncedAt: new Date(),
           };
           if (needsRoleUpdate && resolvedRoleId !== null) updateData.roleId = resolvedRoleId;
-          if (needsEmpUpdate  && resolvedEmployeeId !== null) updateData.employeeId = resolvedEmployeeId;
+          if (needsEmpUpdate && resolvedEmployeeId !== null) updateData.employeeId = resolvedEmployeeId;
 
           const updated = await prisma.appUser.update({
             where: { id: appUser.id },
@@ -325,8 +325,8 @@ async function enrichFromAppUser(user: CurrentUser): Promise<void> {
 
     // ── 5. Populate CurrentUser from resolved AppUser ────────────────────
     if (appUser) {
-      user.appUserId  = appUser.id;
-      user.appRoleId  = appUser.roleId ?? undefined;
+      user.appUserId = appUser.id;
+      user.appRoleId = appUser.roleId ?? undefined;
       user.employeeId = appUser.employeeId ?? undefined;
 
       // Build permission set — union of primary role + all active UserRoleAssignments
@@ -336,7 +336,7 @@ async function enrichFromAppUser(user: CurrentUser): Promise<void> {
       try {
         const assignments = await prisma.userRoleAssignment.findMany({
           where: {
-            userId:   appUser.id,
+            userId: appUser.id,
             isActive: true,
             OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
           },
@@ -364,7 +364,7 @@ async function enrichFromAppUser(user: CurrentUser): Promise<void> {
 
       if (appUser.role?.name) {
         user.roleName = appUser.role.name;
-        user.role     = appUser.role.name;
+        user.role = appUser.role.name;
       }
     }
 
@@ -387,7 +387,7 @@ async function enrichFromAppUser(user: CurrentUser): Promise<void> {
 }
 
 export class AuthMiddleware {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   authenticate = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
@@ -401,11 +401,26 @@ export class AuthMiddleware {
         throw new AppError('Session expired or invalid.', 401, ErrorCode.UNAUTHORIZED);
       }
 
-      let tokenPayload = verifyToken(session.accessToken);
+      let tokenPayload: ReturnType<typeof verifyToken>;
+      try {
+        tokenPayload = verifyToken(session.accessToken);
+      } catch (error) {
+        if (!(error instanceof Error) || error.name !== 'TokenExpiredError') {
+          throw new AppError('Session token is invalid. Please log in again.', 401, ErrorCode.UNAUTHORIZED);
+        }
 
-      // Refresh expired token via RabbitMQ RPC
-      if (tokenPayload.exp && tokenPayload.exp < Date.now() / 1000) {
-        const refreshed = await this.authService.refreshTokens(sessionId);
+        // jwt.verify throws before returning an expired payload, so refresh must
+        // happen inside the TokenExpiredError path rather than after verification.
+        let refreshed;
+        try {
+          refreshed = await this.authService.refreshTokens(sessionId);
+        } catch (refreshError) {
+          logger.warn(
+            `[AuthMiddleware] Token refresh failed for session ${sessionId}: ${refreshError instanceof Error ? refreshError.message : String(refreshError)}`,
+          );
+          throw new AppError('Session expired. Please log in again.', 401, ErrorCode.UNAUTHORIZED);
+        }
+
         if (!refreshed) {
           throw new AppError('Session expired. Please log in again.', 401, ErrorCode.UNAUTHORIZED);
         }
@@ -415,7 +430,7 @@ export class AuthMiddleware {
       const user = baseUserFromToken(tokenPayload);
       await enrichFromAppUser(user);
 
-      req.user      = user as typeof req.user;
+      req.user = user as typeof req.user;
       req.sessionId = sessionId;
 
       logger.debug(

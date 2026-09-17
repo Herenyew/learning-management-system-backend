@@ -123,7 +123,7 @@ export const notificationsRepository = {
     return transaction.notification.createManyAndReturn({
       data,
       skipDuplicates: true,
-      select: { appUserId: true, inAppVisible: true },
+      select: { id: true, appUserId: true, inAppVisible: true },
     });
   },
 

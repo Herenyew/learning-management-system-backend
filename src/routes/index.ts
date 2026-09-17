@@ -27,9 +27,18 @@ import templateManagementRoutes from "../modules/configuration/template-manageme
 import accessControlConfigRoutes from "../modules/configuration/access-control-configuration/index.js";
 import { notificationsRouter } from "../modules/notifications/index.js";
 import { certificatesRouter } from "../modules/certificates/index.js";
-import { enrollmentsRouter } from "../modules/enrollments/index.js";
+import { enrollmentsRouter, learningSessionsRouter } from "../modules/enrollments/index.js";
+import { assessmentsRouter, assessmentAttemptsRouter } from "../modules/assessments/index.js";
+import { programTaskSubmissionsRouter, submissionsRouter } from "../modules/submissions/index.js";
+import { liveSessionAttendanceRouter } from "../modules/attendance/index.js";
+import { programSurveyRouter } from "../modules/surveys/program-survey.routes.js";
 import { coursePublishingRouter } from "../modules/course/course-publishing.routes.js";
+import { programDetailsRouter } from "../modules/program/program-details.routes.js";
+import { programCompositionRouter } from "../modules/program/program-composition.routes.js";
+import { programCohortRosterRouter } from "../modules/program/program-cohort-roster.routes.js";
 import { programPublishingRouter } from "../modules/program/program-publishing.routes.js";
+import { programTaskWaiverRouter } from "../modules/program/program-task-waiver.routes.js";
+import { programTemplateApplicationRouter } from "../modules/program/program-template-application.routes.js";
 
 const router = Router();
 
@@ -69,13 +78,25 @@ router.use("/configuration/templates", templateManagementRoutes);
 router.use("/notifications", notificationsRouter);
 router.use("/certificates", certificatesRouter);
 router.use("/enrollments", enrollmentsRouter);
+router.use("/enrollments", programTaskSubmissionsRouter);
+router.use("/enrollments", programSurveyRouter);
+router.use("/submissions", submissionsRouter);
+router.use("/learning-sessions", learningSessionsRouter);
+router.use("/live-sessions", liveSessionAttendanceRouter);
+router.use("/assessments", assessmentsRouter);
+router.use("/assessment-attempts", assessmentAttemptsRouter);
 router.use("/courses", coursePublishingRouter);
+router.use("/programs", programDetailsRouter);
+router.use("/programs", programTemplateApplicationRouter);
+router.use("/programs", programCohortRosterRouter);
+router.use("/programs", programTaskWaiverRouter);
+router.use("/programs", programCompositionRouter);
 router.use("/programs", programPublishingRouter);
 
 // ─── Core Domain Routes (Future) ───────────────────────────────────────────
 // router.use("/courses", courseRoutes);
 // router.use("/programs", learningProgramRoutes);
 // router.use("/enrollments", enrollmentRoutes);
-// router.use("/assessments", assessmentRoutes);
+
 
 export default router;

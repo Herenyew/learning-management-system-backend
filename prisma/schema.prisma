@@ -79,6 +79,16 @@ enum EnrollmentSource {
   INVITE_CODE
 }
 
+enum ProgramEnrollmentSource {
+  LEGACY
+  SELF_SERVICE
+  ADMIN_ASSIGNED
+  WAITLIST
+  API
+  CSV_IMPORT
+  HRIS_SYNC
+}
+
 enum EnrollmentStatus {
   PENDING
   WAITLISTED
@@ -176,6 +186,13 @@ enum TaskStatus {
   APPROVED
   REJECTED
   COMPLETED
+}
+
+enum ProgramTaskProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  WAIVED
 }
 
 enum LearningProgramStatus {
@@ -463,135 +480,138 @@ model Company {
   appRoles    AppRole[]
 
   // Internal LMS Relations
-  courses                    Course[]
-  courseVersions             CourseVersion[]
-  courseTags                 CourseTag[]
-  courseTagMappings          CourseTagMapping[]
-  courseAnnouncements        CourseAnnouncement[]
-  courseCategories           CourseCategory[]
-  instructorRoles            InstructorRole[]
-  courseInstructors          CourseInstructor[]
-  courseSkills               CourseSkill[]
-  skills                     Skill[]
-  employeeSkillAssessments   EmployeeSkillAssessment[]
-  coursePrerequisites        CoursePrerequisite[]
-  chapterPrerequisites       ChapterPrerequisite[]
-  courseChapters             CourseChapter[]
-  courseContents             CourseContent[]
-  contentFiles               StoredFile[]
-  bookmarks                  Bookmark[]
-  courseReviews              CourseReview[]
-  learningPrograms           LearningProgram[]
-  programTypes               ProgramType[]
-  programCourses             ProgramCourse[]
-  programCohorts             ProgramCohort[]
-  programEnrollments         ProgramEnrollment[]
-  programMilestones          ProgramMilestone[]
-  programTasks               ProgramTask[]
-  submissions                Submission[]
-  enrollments                Enrollment[]
-  enrollmentRules            EnrollmentRule[]
-  learningProgresses         LearningProgress[]
-  lessonProgresses           LessonProgress[]
-  learningSessions           LearningSession[]
-  enrollmentActivityLogs     EnrollmentActivityLog[]
-  waitlistEntries            WaitlistEntry[]
-  courseCompletions          CourseCompletion[]
-  assessments                Assessment[]
-  assessmentBlueprints       AssessmentBlueprint[]
-  assessmentQuestions        AssessmentQuestion[]
-  questions                  Question[]
-  questionVersions           QuestionVersion[]
-  questionOptions            QuestionOption[]
-  assessmentAttempts         AssessmentAttempt[]
-  assessmentAnswers          AssessmentAnswer[]
-  certificateTemplates       CertificateTemplate[]
-  certificateTemplateSigners CertificateTemplateSigner[]
-  certificates               Certificate[]
-  certificateVerifications   CertificateVerification[]
-  externalCertificates       ExternalCertificate[]
-  externalProviders          ExternalProvider[]
-  liveSessions               LiveSession[]
-  liveSessionInstructors     LiveSessionInstructor[]
-  liveSessionAttendances     LiveSessionAttendance[]
-  liveSessionWaitlists       LiveSessionWaitlist[]
-  surveys                    Survey[]
-  surveyQuestions            SurveyQuestion[]
-  surveyResponses            SurveyResponse[]
-  surveyAnswers              SurveyAnswer[]
-  effectivenessWeightConfigs EffectivenessWeightConfig[]
-  trainingEffectivenesses    TrainingEffectiveness[]
-  tnaRequestTypeConfigs      TnaRequestTypeConfig[]
-  trainingNeedRequests       TrainingNeedRequest[]
-  trainingNeedSkills         TrainingNeedSkill[]
-  tnaRecommendations         TnaRecommendation[]
-  tnaRecommendationSkills    TnaRecommendationSkill[]
-  xpRules                    XpRule[]
-  xpTransactions             XpTransaction[]
-  learningLevels             LearningLevel[]
-  badges                     Badge[]
-  badgeRules                 BadgeRule[]
-  employeeBadges             EmployeeBadge[]
-  systemSettings             SystemSetting[]
-  programCategories          ProgramCategory[]
-  courseTemplates            CourseTemplate[]
-  programTemplates           ProgramTemplate[]
-  assessmentTemplates        AssessmentTemplate[]
-  surveyTemplates            SurveyTemplate[]
-  notificationTemplates      NotificationTemplate[]
-  notificationEvents         NotificationEvent[]
-  learningPathTemplates      LearningPathTemplate[]
-  approvalWorkflows          ApprovalWorkflow[]
-  approvalWorkflowInstances  ApprovalWorkflowInstance[]
-  approvalDecisions          ApprovalDecision[]
-  programCompletions         ProgramCompletion[]
-  programMilestoneProgresses ProgramMilestoneProgress[]
-  relatedCourses             RelatedCourse[]
-  courseFAQs                 CourseFAQ[]
-  topics                     Topic[]
-  lmsPermissions             LmsPermission[]
-  lmsRolePermissions         LmsRolePermission[]
-  submissionPeerReviews      SubmissionPeerReview[]
-  audienceGroupRules         AudienceGroupRule[]
-  audienceGroups             AudienceGroup[]
-  targetAudiences            TargetAudience[]
-  difficultyLevels           DifficultyLevel[]
-  taskTypes                  TaskType[]
-  programTags                ProgramTag[]
-  programTagMappings         ProgramTagMapping[]
-  enrollmentRuleTypes        EnrollmentRuleType[]
-  gradingMethods             GradingMethod[]
-  assessmentTypes            AssessmentType[]
-  questionBanks              QuestionBank[]
-  questionTypes              QuestionType[]
-  questionMatchingPairs      QuestionMatchingPair[]
-  assessmentAnswerOptions    AssessmentAnswerOption[]
-  assessmentAnswerMatches    AssessmentAnswerMatch[]
-  certificateTypes           CertificateType[]
-  credentialSources          CredentialSource[]
-  providerTypes              ProviderType[]
-  meetingProviders           MeetingProvider[]
-  attendanceMethods          AttendanceMethod[]
-  surveyQuestionTypes        SurveyQuestionType[]
-  surveyTemplateQuestions    SurveyTemplateQuestion[]
-  fundingTypes               FundingType[]
-  trainingFormats            TrainingFormat[]
-  tnaEmployees               TnaEmployee[]
-  xpRuleCategories           XpRuleCategory[]
-  xpTriggerEvents            XpTriggerEvent[]
-  leaderboards               Leaderboard[]
-  leaderboardEntries         LeaderboardEntry[]
-  notificationModules        NotificationModule[]
-  approvalWorkflowSteps      ApprovalWorkflowStep[]
-  badgeCategories            BadgeCategory[]
-  assessmentAttemptRules     AssessmentAttemptRule[]
-  customFieldDefinition      CustomFieldDefinition[]
-  serviceSessions            ServiceSession[]
-  refreshTokens              RefreshToken[]
-  authorizationCodes         AuthorizationCode[]
-  auditLogs                  AuditLog[]
-  notifications              Notification[]
-  notificationSettings       NotificationSetting[]
+  courses                     Course[]
+  courseVersions              CourseVersion[]
+  courseTags                  CourseTag[]
+  courseTagMappings           CourseTagMapping[]
+  courseAnnouncements         CourseAnnouncement[]
+  courseCategories            CourseCategory[]
+  instructorRoles             InstructorRole[]
+  courseInstructors           CourseInstructor[]
+  courseSkills                CourseSkill[]
+  skills                      Skill[]
+  employeeSkillAssessments    EmployeeSkillAssessment[]
+  coursePrerequisites         CoursePrerequisite[]
+  chapterPrerequisites        ChapterPrerequisite[]
+  courseChapters              CourseChapter[]
+  courseContents              CourseContent[]
+  contentFiles                StoredFile[]
+  bookmarks                   Bookmark[]
+  courseReviews               CourseReview[]
+  learningPrograms            LearningProgram[]
+  programTypes                ProgramType[]
+  programCourses              ProgramCourse[]
+  programCohorts              ProgramCohort[]
+  programEnrollments          ProgramEnrollment[]
+  programTaskProgresses       ProgramTaskProgress[]
+  programMilestones           ProgramMilestone[]
+  programTasks                ProgramTask[]
+  submissions                 Submission[]
+  enrollments                 Enrollment[]
+  enrollmentRules             EnrollmentRule[]
+  learningProgresses          LearningProgress[]
+  lessonProgresses            LessonProgress[]
+  learningSessions            LearningSession[]
+  enrollmentActivityLogs      EnrollmentActivityLog[]
+  waitlistEntries             WaitlistEntry[]
+  programWaitlistEntries      ProgramWaitlistEntry[]
+  courseCompletions           CourseCompletion[]
+  assessments                 Assessment[]
+  assessmentBlueprints        AssessmentBlueprint[]
+  assessmentQuestions         AssessmentQuestion[]
+  questions                   Question[]
+  questionVersions            QuestionVersion[]
+  questionOptions             QuestionOption[]
+  assessmentAttempts          AssessmentAttempt[]
+  assessmentAnswers           AssessmentAnswer[]
+  certificateTemplates        CertificateTemplate[]
+  certificateTemplateSigners  CertificateTemplateSigner[]
+  certificates                Certificate[]
+  certificateVerifications    CertificateVerification[]
+  externalCertificates        ExternalCertificate[]
+  externalProviders           ExternalProvider[]
+  liveSessions                LiveSession[]
+  liveSessionInstructors      LiveSessionInstructor[]
+  liveSessionAttendances      LiveSessionAttendance[]
+  liveSessionWaitlists        LiveSessionWaitlist[]
+  surveys                     Survey[]
+  surveyQuestions             SurveyQuestion[]
+  surveyResponses             SurveyResponse[]
+  surveyAnswers               SurveyAnswer[]
+  effectivenessWeightConfigs  EffectivenessWeightConfig[]
+  trainingEffectivenesses     TrainingEffectiveness[]
+  tnaRequestTypeConfigs       TnaRequestTypeConfig[]
+  trainingNeedRequests        TrainingNeedRequest[]
+  trainingNeedSkills          TrainingNeedSkill[]
+  tnaRecommendations          TnaRecommendation[]
+  tnaRecommendationSkills     TnaRecommendationSkill[]
+  xpRules                     XpRule[]
+  xpTransactions              XpTransaction[]
+  learningLevels              LearningLevel[]
+  badges                      Badge[]
+  badgeRules                  BadgeRule[]
+  employeeBadges              EmployeeBadge[]
+  systemSettings              SystemSetting[]
+  programCategories           ProgramCategory[]
+  courseTemplates             CourseTemplate[]
+  programTemplates            ProgramTemplate[]
+  assessmentTemplates         AssessmentTemplate[]
+  surveyTemplates             SurveyTemplate[]
+  notificationTemplates       NotificationTemplate[]
+  notificationEvents          NotificationEvent[]
+  learningPathTemplates       LearningPathTemplate[]
+  approvalWorkflows           ApprovalWorkflow[]
+  approvalWorkflowInstances   ApprovalWorkflowInstance[]
+  approvalDecisions           ApprovalDecision[]
+  programCompletions          ProgramCompletion[]
+  programMilestoneProgresses  ProgramMilestoneProgress[]
+  relatedCourses              RelatedCourse[]
+  courseFAQs                  CourseFAQ[]
+  topics                      Topic[]
+  lmsPermissions              LmsPermission[]
+  lmsRolePermissions          LmsRolePermission[]
+  submissionPeerReviews       SubmissionPeerReview[]
+  audienceGroupRules          AudienceGroupRule[]
+  audienceGroups              AudienceGroup[]
+  targetAudiences             TargetAudience[]
+  difficultyLevels            DifficultyLevel[]
+  taskTypes                   TaskType[]
+  programTags                 ProgramTag[]
+  programTagMappings          ProgramTagMapping[]
+  enrollmentRuleTypes         EnrollmentRuleType[]
+  gradingMethods              GradingMethod[]
+  assessmentTypes             AssessmentType[]
+  questionBanks               QuestionBank[]
+  questionTypes               QuestionType[]
+  questionMatchingPairs       QuestionMatchingPair[]
+  assessmentAnswerOptions     AssessmentAnswerOption[]
+  assessmentAnswerMatches     AssessmentAnswerMatch[]
+  certificateTypes            CertificateType[]
+  credentialSources           CredentialSource[]
+  providerTypes               ProviderType[]
+  meetingProviders            MeetingProvider[]
+  attendanceMethods           AttendanceMethod[]
+  surveyQuestionTypes         SurveyQuestionType[]
+  surveyTemplateQuestions     SurveyTemplateQuestion[]
+  fundingTypes                FundingType[]
+  trainingFormats             TrainingFormat[]
+  tnaEmployees                TnaEmployee[]
+  xpRuleCategories            XpRuleCategory[]
+  xpTriggerEvents             XpTriggerEvent[]
+  leaderboards                Leaderboard[]
+  leaderboardEntries          LeaderboardEntry[]
+  notificationModules         NotificationModule[]
+  approvalWorkflowSteps       ApprovalWorkflowStep[]
+  badgeCategories             BadgeCategory[]
+  assessmentAttemptRules      AssessmentAttemptRule[]
+  customFieldDefinition       CustomFieldDefinition[]
+  serviceSessions             ServiceSession[]
+  refreshTokens               RefreshToken[]
+  authorizationCodes          AuthorizationCode[]
+  auditLogs                   AuditLog[]
+  notifications               Notification[]
+  emailDeliveryOutboxes       EmailDeliveryOutbox[]
+  notificationSettings        NotificationSetting[]
   companyNotificationSettings CompanyNotificationSetting[]
   permissionGroups            PermissionGroup[]
   userRoleAssignments         UserRoleAssignment[]
@@ -629,9 +649,10 @@ model Employee {
   bookmarks                  Bookmark[]
   learningPrograms           LearningProgram[]
   programEnrollments         ProgramEnrollment[]
+  programWaitlistEntries     ProgramWaitlistEntry[]
   submissions                Submission[]
   certificateTemplateSigners CertificateTemplateSigner[]
-  programTemplateOwners      ProgramTemplate[]            @relation("ProgramTemplateOwner")
+  programTemplateOwners      ProgramTemplate[]           @relation("ProgramTemplateOwner")
   certificateVerifications   CertificateVerification[]
   externalCertificates       ExternalCertificate[]
   liveSessionInstructors     LiveSessionInstructor[]
@@ -738,14 +759,15 @@ model AppUser {
   storedFiles                 StoredFile[]
   courseReviews               CourseReview[]
   programEnrollments          ProgramEnrollment[]
+  waivedProgramTaskProgresses ProgramTaskProgress[]
   enrollmentActivityLogs      EnrollmentActivityLog[]
   questions                   Question[]
   questionVersions            QuestionVersion[]
   assessmentAnswers           AssessmentAnswer[]
   submissions                 Submission[]
   effectivenessWeightConfigs  EffectivenessWeightConfig[]
-  systemSettingsCreated       SystemSetting[]            @relation("SystemSettingCreatedBy")
-  systemSettingsUpdated       SystemSetting[]            @relation("SystemSettingUpdatedBy")
+  systemSettingsCreated       SystemSetting[]             @relation("SystemSettingCreatedBy")
+  systemSettingsUpdated       SystemSetting[]             @relation("SystemSettingUpdatedBy")
   liveSessionInstructors      LiveSessionInstructor[]
   localCredential             LmsAuthCredential?
   auditLogs                   AuditLog[]
@@ -816,10 +838,10 @@ model JobLevel {
 }
 
 model AppRole {
-  id           Int       @id // Received directly from EMS
-  companyId    Int       @map("company_id")
-  name         String    @db.VarChar(100)
-  description  String?
+  id                     Int       @id // Received directly from EMS
+  companyId              Int       @map("company_id")
+  name                   String    @db.VarChar(100)
+  description            String?
   isActive               Boolean   @default(true) @map("is_active")
   lastSyncedAt           DateTime? @map("last_synced_at")
   lmsPolicyInitializedAt DateTime? @map("lms_policy_initialized_at")
@@ -846,9 +868,9 @@ model PermissionGroup {
   name        String   @db.VarChar(100)
   description String?  @db.Text
   module      String   @db.VarChar(50)
-  isActive    Boolean  @default(true)  @map("is_active")
+  isActive    Boolean  @default(true) @map("is_active")
   createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt      @map("updated_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   company     Company         @relation(fields: [companyId], references: [id])
   permissions LmsPermission[]
@@ -867,12 +889,12 @@ model UserRoleAssignment {
   assignedBy Int       @map("assigned_by")
   assignedAt DateTime  @default(now()) @map("assigned_at")
   isManual   Boolean   @default(false) @map("is_manual")
-  isActive   Boolean   @default(true)  @map("is_active")
-  expiresAt  DateTime?                 @map("expires_at")
+  isActive   Boolean   @default(true) @map("is_active")
+  expiresAt  DateTime? @map("expires_at")
   notes      String?   @db.Text
 
   company Company @relation(fields: [companyId], references: [id])
-  user    AppUser @relation(fields: [userId],    references: [id])
+  user    AppUser @relation(fields: [userId], references: [id])
   appRole AppRole @relation(fields: [appRoleId], references: [id])
 
   @@unique([userId, appRoleId])
@@ -886,13 +908,13 @@ model UserRoleAssignment {
 model EMSRoleMapping {
   id          Int      @id @default(autoincrement())
   companyId   Int      @map("company_id")
-  emsRoleName String   @db.VarChar(100) @map("ems_role_name")
+  emsRoleName String   @map("ems_role_name") @db.VarChar(100)
   appRoleId   Int      @map("app_role_id")
-  isActive    Boolean  @default(true)   @map("is_active")
-  autoAssign  Boolean  @default(true)   @map("auto_assign")
+  isActive    Boolean  @default(true) @map("is_active")
+  autoAssign  Boolean  @default(true) @map("auto_assign")
   priority    Int      @default(0)
-  createdAt   DateTime @default(now())  @map("created_at")
-  updatedAt   DateTime @updatedAt       @map("updated_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   company Company @relation(fields: [companyId], references: [id])
   appRole AppRole @relation(fields: [appRoleId], references: [id])
@@ -913,10 +935,10 @@ model LmsPermission {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  groupId     Int?    @map("group_id")
+  groupId Int? @map("group_id")
 
-  company         Company          @relation(fields: [companyId], references: [id])
-  group           PermissionGroup? @relation(fields: [groupId], references: [id])
+  company         Company             @relation(fields: [companyId], references: [id])
+  group           PermissionGroup?    @relation(fields: [groupId], references: [id])
   rolePermissions LmsRolePermission[]
 
   @@unique([companyId, code])
@@ -1096,8 +1118,9 @@ model Submission {
   courseContentId Int?
   programTaskId   Int?
 
-  enrollmentId Int?
-  employeeId   String @db.VarChar(20)
+  enrollmentId        Int?
+  programEnrollmentId Int?
+  employeeId          String @db.VarChar(20)
 
   submissionNo   Int                @default(1)
   submissionType TaskSubmissionType
@@ -1118,12 +1141,13 @@ model Submission {
   updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
 
-  company        Company        @relation(fields: [companyId], references: [id])
-  courseContent  CourseContent? @relation(fields: [courseContentId], references: [id])
-  programTask    ProgramTask?   @relation(fields: [programTaskId], references: [id])
-  enrollment     Enrollment?    @relation(fields: [enrollmentId], references: [id])
-  employee       Employee       @relation(fields: [employeeId], references: [id])
-  reviewedByUser AppUser?       @relation(fields: [reviewedBy], references: [id])
+  company           Company            @relation(fields: [companyId], references: [id])
+  courseContent     CourseContent?     @relation(fields: [courseContentId], references: [id])
+  programTask       ProgramTask?       @relation(fields: [programTaskId], references: [id])
+  enrollment        Enrollment?        @relation(fields: [enrollmentId], references: [id])
+  programEnrollment ProgramEnrollment? @relation(fields: [programEnrollmentId], references: [id])
+  employee          Employee           @relation(fields: [employeeId], references: [id])
+  reviewedByUser    AppUser?           @relation(fields: [reviewedBy], references: [id])
 
   peerReviews SubmissionPeerReview[]
   files       StoredFile[]
@@ -1133,6 +1157,7 @@ model Submission {
   @@index([courseContentId])
   @@index([programTaskId])
   @@index([enrollmentId])
+  @@index([programEnrollmentId])
   @@map("submissions")
 }
 
@@ -1967,6 +1992,7 @@ model LearningProgram {
   courses             ProgramCourse[]
   cohorts             ProgramCohort[]
   enrollments         ProgramEnrollment[]
+  waitlistEntries     ProgramWaitlistEntry[]
   milestones          ProgramMilestone[]
   tasks               ProgramTask[]
   tnaRecommendations  TnaRecommendation[]
@@ -2029,6 +2055,7 @@ model ProgramCourse {
   programId       Int
   courseVersionId Int
   displayOrder    Int
+  phaseNumber     Int             @default(1)
   isRequired      Boolean         @default(true)
   company         Company         @relation(fields: [companyId], references: [id])
   program         LearningProgram @relation(fields: [programId], references: [id])
@@ -2037,20 +2064,22 @@ model ProgramCourse {
   @@unique([programId, courseVersionId])
   @@unique([programId, displayOrder])
   @@index([companyId])
+  @@index([programId, phaseNumber, displayOrder])
   @@map("program_courses")
 }
 
 model ProgramCohort {
-  id          Int                 @id @default(autoincrement())
-  companyId   Int
-  programId   Int
-  name        String              @db.VarChar(100)
-  capacity    Int?
-  startDate   DateTime?
-  endDate     DateTime?
-  company     Company             @relation(fields: [companyId], references: [id])
-  program     LearningProgram     @relation(fields: [programId], references: [id])
-  enrollments ProgramEnrollment[]
+  id              Int                    @id @default(autoincrement())
+  companyId       Int
+  programId       Int
+  name            String                 @db.VarChar(100)
+  capacity        Int?
+  startDate       DateTime?
+  endDate         DateTime?
+  company         Company                @relation(fields: [companyId], references: [id])
+  program         LearningProgram        @relation(fields: [programId], references: [id])
+  enrollments     ProgramEnrollment[]
+  waitlistEntries ProgramWaitlistEntry[]
 
   @@unique([programId, name])
   @@index([companyId])
@@ -2063,6 +2092,8 @@ model ProgramEnrollment {
   employeeId          String                     @db.VarChar(20)
   programId           Int
   cohortId            Int?
+  enrollmentNo        Int                        @default(1)
+  source              ProgramEnrollmentSource
   enrollmentStatus    EnrollmentStatus
   progressPercentage  Decimal                    @default(0) @db.Decimal(5, 2)
   enrolledAt          DateTime                   @default(now())
@@ -2078,9 +2109,13 @@ model ProgramEnrollment {
   assignedByUser      AppUser?                   @relation(fields: [assignedBy], references: [id])
   completion          ProgramCompletion?
   milestoneProgresses ProgramMilestoneProgress[]
+  taskProgresses      ProgramTaskProgress[]
   enrollments         Enrollment[]
+  submissions         Submission[]
+  surveyResponses     SurveyResponse[]
+  waitlistEntries     ProgramWaitlistEntry[]
 
-  @@unique([employeeId, programId])
+  @@unique([employeeId, programId, enrollmentNo])
   @@index([companyId])
   @@map("program_enrollments")
 }
@@ -2204,11 +2239,37 @@ model ProgramTask {
   survey        Survey?        @relation(fields: [surveyId], references: [id])
 
   submissions Submission[]
+  progresses  ProgramTaskProgress[]
 
   @@unique([programId, displayOrder])
   @@index([companyId])
   @@index([taskTypeId])
   @@map("program_tasks")
+}
+
+model ProgramTaskProgress {
+  id                  Int                       @id @default(autoincrement())
+  companyId           Int
+  programTaskId       Int
+  programEnrollmentId Int
+  status              ProgramTaskProgressStatus @default(NOT_STARTED)
+  completedAt         DateTime?
+  waivedAt            DateTime?
+  waivedBy            Int?
+  waiverReason        String?                   @db.Text
+  createdAt           DateTime                  @default(now())
+  updatedAt           DateTime                  @updatedAt
+
+  company           Company           @relation(fields: [companyId], references: [id])
+  programTask       ProgramTask       @relation(fields: [programTaskId], references: [id])
+  programEnrollment ProgramEnrollment @relation(fields: [programEnrollmentId], references: [id])
+  waivedByUser      AppUser?          @relation(fields: [waivedBy], references: [id])
+
+  @@unique([programTaskId, programEnrollmentId])
+  @@index([companyId])
+  @@index([programEnrollmentId])
+  @@index([waivedBy])
+  @@map("program_task_progresses")
 }
 
 model ProgramTag {
@@ -2472,6 +2533,37 @@ model WaitlistEntry {
   @@index([companyId])
   @@index([status])
   @@map("waitlist_entries")
+}
+
+model ProgramWaitlistEntry {
+  id                  Int            @id @default(autoincrement())
+  companyId           Int
+  programId           Int
+  cohortId            Int
+  employeeId          String         @db.VarChar(20)
+  programEnrollmentId Int?           @unique
+  position            Int
+  status              WaitlistStatus @default(WAITING)
+  activeKey           String?        @unique @db.VarChar(100)
+  offeredAt           DateTime?
+  offerExpiresAt      DateTime?
+  acceptedAt          DateTime?
+  expiredAt           DateTime?
+  cancelledAt         DateTime?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  company           Company            @relation(fields: [companyId], references: [id])
+  program           LearningProgram    @relation(fields: [programId], references: [id])
+  cohort            ProgramCohort      @relation(fields: [cohortId], references: [id])
+  employee          Employee           @relation(fields: [employeeId], references: [id])
+  programEnrollment ProgramEnrollment? @relation(fields: [programEnrollmentId], references: [id])
+
+  @@unique([cohortId, position])
+  @@index([companyId, programId, cohortId, status, position])
+  @@index([companyId, employeeId, status])
+  @@index([offerExpiresAt, status])
+  @@map("program_waitlist_entries")
 }
 
 model CourseCompletion {
@@ -3437,25 +3529,29 @@ model SurveyQuestion {
 }
 
 model SurveyResponse {
-  id           Int @id @default(autoincrement())
-  companyId    Int
-  surveyId     Int
-  completionId Int
+  id                  Int  @id @default(autoincrement())
+  companyId           Int
+  surveyId            Int
+  completionId        Int?
+  programEnrollmentId Int?
 
   // isAnonymous = true hides identity in UI/reports only. completionId
   // still traces to employee via completion -> enrollment -> employee.
   // Decision: UI-level anonymity, DB-level traceable for admin audit.
-  employeeId  String?          @db.VarChar(20)
-  submittedAt DateTime         @default(now())
-  createdAt   DateTime         @default(now())
-  company     Company          @relation(fields: [companyId], references: [id])
-  survey      Survey           @relation(fields: [surveyId], references: [id])
-  completion  CourseCompletion @relation(fields: [completionId], references: [id])
-  employee    Employee?        @relation(fields: [employeeId], references: [id])
-  answers     SurveyAnswer[]
+  employeeId        String?            @db.VarChar(20)
+  submittedAt       DateTime           @default(now())
+  createdAt         DateTime           @default(now())
+  company           Company            @relation(fields: [companyId], references: [id])
+  survey            Survey             @relation(fields: [surveyId], references: [id])
+  completion        CourseCompletion?  @relation(fields: [completionId], references: [id])
+  programEnrollment ProgramEnrollment? @relation(fields: [programEnrollmentId], references: [id])
+  employee          Employee?          @relation(fields: [employeeId], references: [id])
+  answers           SurveyAnswer[]
 
   @@unique([surveyId, completionId])
+  @@unique([surveyId, programEnrollmentId])
   @@index([companyId])
+  @@index([programEnrollmentId])
   @@map("survey_responses")
 }
 
@@ -3842,6 +3938,48 @@ model XpTransaction {
   @@map("xp_transactions")
 }
 
+model CompletionOutbox {
+  id                  Int       @id @default(autoincrement())
+  companyId           Int
+  eventKey            String    @unique @db.VarChar(100)
+  eventType           String    @db.VarChar(40)
+  courseCompletionId  Int?
+  programCompletionId Int?
+  status              String    @default("PENDING") @db.VarChar(20)
+  attemptCount        Int       @default(0)
+  availableAt         DateTime  @default(now())
+  lockedAt            DateTime?
+  processedAt         DateTime?
+  lastError           String?   @db.Text
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([status, availableAt])
+  @@index([companyId])
+  @@map("completion_outbox")
+}
+
+model EmailDeliveryOutbox {
+  id           Int       @id @default(autoincrement())
+  companyId    Int
+  eventKey     String    @unique @db.VarChar(120)
+  payload      Json
+  status       String    @default("PENDING") @db.VarChar(20)
+  attemptCount Int       @default(0)
+  availableAt  DateTime  @default(now())
+  lockedAt     DateTime?
+  processedAt  DateTime?
+  providerId   String?   @db.VarChar(255)
+  lastError    String?   @db.Text
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  company      Company   @relation(fields: [companyId], references: [id])
+
+  @@index([status, availableAt])
+  @@index([companyId])
+  @@map("email_delivery_outbox")
+}
+
 model LearningLevel {
   id           Int       @id @default(autoincrement())
   companyId    Int
@@ -4011,24 +4149,24 @@ model LeaderboardEntry {
 ///////////////////////////////////////////////////////////
 
 model SystemSetting {
-  id            Int             @id @default(autoincrement())
-  companyId     Int
+  id        Int @id @default(autoincrement())
+  companyId Int
 
-  category      SettingCategory
-  settingKey    String          @db.VarChar(150)
-  settingValue  Json
-  valueType     SettingValueType @default(STRING)
-  description   String?         @db.Text
-  isActive      Boolean         @default(true)
+  category     SettingCategory
+  settingKey   String           @db.VarChar(150)
+  settingValue Json
+  valueType    SettingValueType @default(STRING)
+  description  String?          @db.Text
+  isActive     Boolean          @default(true)
 
-  createdBy     Int?
-  updatedBy     Int
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  createdBy Int?
+  updatedBy Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  company       Company         @relation(fields: [companyId], references: [id])
-  createdByUser AppUser?        @relation("SystemSettingCreatedBy", fields: [createdBy], references: [id])
-  updatedByUser AppUser         @relation("SystemSettingUpdatedBy", fields: [updatedBy], references: [id])
+  company       Company  @relation(fields: [companyId], references: [id])
+  createdByUser AppUser? @relation("SystemSettingCreatedBy", fields: [createdBy], references: [id])
+  updatedByUser AppUser  @relation("SystemSettingUpdatedBy", fields: [updatedBy], references: [id])
 
   @@unique([companyId, settingKey])
   @@index([companyId, category])
@@ -4256,25 +4394,25 @@ model SurveyTemplateQuestion {
 }
 
 model NotificationTemplate {
-  id                 Int                 @id @default(autoincrement())
-  companyId          Int
-  name               String              @db.VarChar(255)
-  description        String?             @db.Text
+  id                  Int                 @id @default(autoincrement())
+  companyId           Int
+  name                String              @db.VarChar(255)
+  description         String?             @db.Text
   notificationEventId Int?
-  channel            NotificationChannel
-  eventCode          String              @db.VarChar(100)
-  subject            String?             @db.VarChar(255)
-  body               String              @db.Text
-  variables          Json?
-  language           String?             @db.VarChar(20)
-  isActive           Boolean             @default(true)
-  senderName         String?             @db.VarChar(255)
-  replyToEmail       String?             @db.VarChar(255)
-  createdBy          Int
-  updatedBy          Int?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  deletedAt          DateTime?
+  channel             NotificationChannel
+  eventCode           String              @db.VarChar(100)
+  subject             String?             @db.VarChar(255)
+  body                String              @db.Text
+  variables           Json?
+  language            String?             @db.VarChar(20)
+  isActive            Boolean             @default(true)
+  senderName          String?             @db.VarChar(255)
+  replyToEmail        String?             @db.VarChar(255)
+  createdBy           Int
+  updatedBy           Int?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  deletedAt           DateTime?
 
   company           Company            @relation(fields: [companyId], references: [id])
   creator           AppUser            @relation("NotificationTemplateCreator", fields: [createdBy], references: [id])
@@ -4613,4 +4751,3 @@ model Notification {
   @@index([companyId, appUserId, readAt, createdAt], map: "notifications_inbox_idx")
   @@map("notifications")
 }
-

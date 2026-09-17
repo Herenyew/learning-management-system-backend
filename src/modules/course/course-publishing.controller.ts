@@ -10,6 +10,53 @@ const contextFrom = (req: AuthenticatedRequest) => ({
 });
 
 export const coursePublishingController = {
+  // GET /courses/catalog — authoritative learner catalog of every approved published version.
+  catalog: async (req: AuthenticatedRequest, res: Response) => {
+    const versions = await getPrismaClient().courseVersion.findMany({
+      where: {
+        companyId: req.user.companyId,
+        status: "PUBLISHED",
+        approvalStatus: "APPROVED",
+        deletedAt: null,
+        course: { deletedAt: null, isTemplate: false },
+      },
+      select: {
+        id: true,
+        majorVersion: true,
+        minorVersion: true,
+        versionLabel: true,
+        estimatedDurationMinutes: true,
+        course: {
+          select: {
+            id: true,
+            code: true,
+            title: true,
+            description: true,
+            shortSummary: true,
+            thumbnailUrl: true,
+            language: true,
+            keywords: true,
+            visibility: true,
+            enrollmentPolicy: true,
+            category: { select: { id: true, name: true } },
+          },
+        },
+        difficultyLevel: { select: { code: true, name: true, color: true } },
+        instructors: {
+          where: { deletedAt: null },
+          select: { employee: { select: { id: true, fullName: true } } },
+          orderBy: { id: "asc" },
+        },
+        chapters: {
+          where: { status: "PUBLISHED", deletedAt: null },
+          select: { _count: { select: { contents: true } } },
+        },
+        _count: { select: { enrollments: true } },
+      },
+      orderBy: [{ course: { title: "asc" } }, { majorVersion: "desc" }, { minorVersion: "desc" }],
+    });
+    res.status(200).json({ success: true, data: versions });
+  },
   // GET /courses/publishing/workflows — list available workflows for the selector
   listWorkflows: async (req: AuthenticatedRequest, res: Response) => {
     const workflows = await getPrismaClient().$transaction((tx) =>

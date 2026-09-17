@@ -99,14 +99,14 @@ export class AuthHttpClient {
 
   /**
    * Exchange authorization code for tokens.
-   * POST /api/v1/auth/token/exchange
+   * POST /api/v1/auth/sso/exchange-code
    *
    * Auth service returns { success, data: { access_token, ... } }.
    * This method unwraps the envelope and returns the flat payload.
    */
   async exchangeAuthorizationCode(code: string): Promise<TokenExchangeResponse> {
     const response = await this.client.post<AuthApiEnvelope<TokenExchangePayload>>(
-      "/api/v1/auth/token/exchange",
+      "/api/v1/auth/sso/exchange-code",
       {
         code,
         client_id: this.clientId,
